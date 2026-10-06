@@ -115,8 +115,10 @@ def test_snapshot_modes():
     assert s["mode"] == "countdown" and s["next_session"]["type"] == "QUALIFYING"
     assert s["driver"]["code"] == "ANT" and s["race"]["laps_total"] == 62
     after_race = NOW - timedelta(days=2) + timedelta(hours=2, minutes=30)  # 30 min after round 16 ended
-    snap = build_snapshot(None, after_race)
+    snap = build_snapshot("antonelli", after_race)
     assert snap.mode == "results" and snap.results.rows[0].code == "VER"
+    # The finished weekend stays current through the results window, with the driver's result attached.
+    assert snap.race.round == 16 and [w.position for w in snap.driver.weekend if w.session_type == "RACE"] == [2]
 
 
 def test_validation_auth_and_rate_limit():
@@ -151,3 +153,70 @@ def test_external_colours_are_sanitised():
     st.apply("drivers", [{"driver_number": 1, "name_acronym": "VER", "team_colour": '"><script>'}])
     st.apply("position", [{"driver_number": 1, "position": 1, "date": "2026-10-10T13:20:00+00:00"}])
     assert build_timing(st, "s", "RACE", 62, datetime(2026, 10, 10, 13, 30, tzinfo=timezone.utc))["rows"][0]["team_color"] is None
+
+
+def test_live_cursors_reread_running_laps_and_ties():
+    st = SessionState(1)
+    st.apply("laps", [{"driver_number": 1, "lap_number": 4, "date_start": "2026-10-10T13:00:00+00:00", "lap_duration": 95.0},
+                      {"driver_number": 1, "lap_number": 5, "date_start": "2026-10-10T13:01:35+00:00", "lap_duration": None}])
+    assert st.cursor["laps"] == "2026-10-10T13:01:35+00:00"  # lap 5 is still running: read it again next poll
+    st.apply("laps", [{"driver_number": 1, "lap_number": 5, "date_start": "2026-10-10T13:01:35+00:00", "lap_duration": 94.2}])
+    assert st.laps[1][5]["lap_duration"] == 94.2
+
+
+def test_qualifying_ranks_on_current_phase():
+    st = SessionState(1)
+    st.apply("drivers", [{"driver_number": 1, "name_acronym": "VER"}, {"driver_number": 4, "name_acronym": "NOR"}])
+    st.apply("position", [{"driver_number": 1, "position": 1, "date": "2026-10-10T13:50:00+00:00"},
+                          {"driver_number": 4, "position": 2, "date": "2026-10-10T13:50:00+00:00"}])
+    st.apply("race_control", [{"qualifying_phase": 3, "date": "2026-10-10T13:40:00+00:00"}])
+    lap = lambda n, no, t, d: {"driver_number": n, "lap_number": no, "date_start": t, "lap_duration": d}
+    st.apply("laps", [lap(4, 3, "2026-10-10T13:20:00+00:00", 89.9),  # NOR's Q2 lap: quicker than anything in Q3
+                      lap(1, 8, "2026-10-10T13:45:00+00:00", 90.0), lap(4, 9, "2026-10-10T13:45:30+00:00", 90.2)])
+    ver, nor = build_timing(st, "s", "QUALIFYING", None, datetime(2026, 10, 10, 13, 50, tzinfo=timezone.utc))["rows"]
+    assert (ver["time"], nor["time"], nor["gap"]) == ("1:30.000", "1:30.200", "+0.200")
+
+
+def test_postgres_style_aware_datetimes_come_back_in_utc():
+    from apex.models import UTCDateTime
+    berlin = datetime(2026, 10, 4, 14, tzinfo=timezone(timedelta(hours=2)))
+    assert UTCDateTime().process_result_value(berlin, None).utcoffset() == timedelta(0)
+
+
+def test_teams_list_only_this_seasons_drivers():
+    with SessionLocal() as db:  # a 2025 driver still pointing at the team must not appear
+        db.add(Driver(id="old_hand", code="OLD", first_name="Old", last_name="Hand", team_id="red_bull"))
+        db.commit()
+    assert client.get("/api/teams/red_bull").json()["drivers"] == ["max_verstappen"]
+
+
+def test_background_loops_survive_crashes():
+    import asyncio
+
+    from apex.main import supervised
+    calls = []
+
+    async def flaky():
+        calls.append(1)
+        if len(calls) == 1:
+            raise RuntimeError("db blip")
+        raise asyncio.CancelledError
+
+    async def run():
+        sleeps = asyncio.sleep
+        asyncio.sleep = lambda _: sleeps(0)  # skip the 30 s back-off
+        try:
+            await supervised("test", flaky)
+        except asyncio.CancelledError:
+            pass
+        finally:
+            asyncio.sleep = sleeps
+
+    asyncio.run(run())
+    assert len(calls) == 2  # crashed once, restarted, then stopped on cancel
+
+
+def test_unconfirmed_session_times_are_not_scheduled():
+    from apex.ingest import _dt
+    assert _dt({"date": "2026-11-01"}) is None
+    assert _dt({"date": "2026-11-01", "time": "14:00:00Z"}).hour == 14

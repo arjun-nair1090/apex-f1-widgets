@@ -1,6 +1,7 @@
 import asyncio
 import json
 import secrets
+from typing import Annotated
 from datetime import datetime, timezone
 
 from fastapi import APIRouter, Depends, Header, HTTPException, Path, Query, Request, Response
@@ -11,18 +12,20 @@ from . import cache, live, schemas
 from .config import settings
 from .ingest import short_race_name, short_team_name, status
 from .models import ConstructorStanding, Driver, DriverStanding, Race, Result, Session, SessionLocal, Team
-from .racemode import COUNTDOWN_WINDOW, LABEL, race_mode, session_state
+from .racemode import COUNTDOWN_WINDOW, LABEL, RESULTS_WINDOW, race_mode, session_state
 
 
 def require_key(x_api_key: str | None = Header(None)):
-    if settings.api_key and not (x_api_key and secrets.compare_digest(x_api_key, settings.api_key)):
+    if settings.api_key and not (x_api_key and secrets.compare_digest(x_api_key.encode(), settings.api_key.encode())):
         raise HTTPException(401, "Invalid or missing API key")
 
 
 router = APIRouter(prefix="/api", dependencies=[Depends(require_key)])
 
 ROUND = Path(ge=1, le=30)
-SLUG = Path(pattern=r"^[a-z0-9_]{1,40}$")
+# Annotated, not shared Path()/Query() defaults: FastAPI binds a shared instance to the first
+# parameter name it sees, which broke /api/teams/{team_id} (it looked for driver_id).
+Slug = Annotated[str, Path(pattern=r"^[a-z0-9_]{1,40}$")]
 
 
 def now() -> datetime:
@@ -59,8 +62,8 @@ def race_out(db, race: Race, t: datetime) -> schemas.Race:
 
 
 def next_race(db, t: datetime) -> Race | None:
-    """The weekend in progress, else the next one."""
-    s = db.scalars(select(Session).where(Session.ends_at > t).order_by(Session.starts_at)).first()
+    """The weekend in progress (including the results window after its last session), else the next one."""
+    s = db.scalars(select(Session).where(Session.ends_at > t - RESULTS_WINDOW).order_by(Session.starts_at)).first()
     if s is None:
         return None
     return db.get(Race, (s.season, s.round))
@@ -119,16 +122,15 @@ def timing_for(session_id: str) -> dict | None:
 
 
 def results_timing(db, s: Session) -> dict | None:
-    """Final classification: the live processor's last snapshot, else Jolpica results (race/sprint/quali)."""
-    cached = timing_for(s.id)
-    if cached:
-        return cached
+    """Final classification: Jolpica's official results (race/sprint/quali, penalties included), else the live
+    processor's last snapshot (practice, or before Jolpica publishes)."""
     rows = db.execute(select(Result, Driver, Team).join(Driver, Driver.id == Result.driver_id)
                       .outerjoin(Team, Team.id == Result.team_id)
                       .where(Result.season == s.season, Result.round == s.round, Result.session_type == s.type,
                              Result.position.is_not(None)).order_by(Result.position)).all()
     if not rows:
-        return None
+        cached = timing_for(s.id)
+        return {**cached, "final": s.ends_at <= now()} if cached else None
     race = db.get(Race, (s.season, s.round))
     return {"session_id": s.id, "session_type": s.type, "phase": None, "lap": None,
             "laps_total": race.laps_total if race else None, "final": True, "updated_at": s.ends_at.isoformat(),
@@ -203,9 +205,9 @@ def session_live():
 async def session_live_stream(request: Request):
     """SSE: `event: timing` with a Timing payload on every change; comment heartbeat every 15 s."""
     q: asyncio.Queue = asyncio.Queue(maxsize=1)
-    live.subscribers.add(q)
 
     async def events():
+        live.subscribers.add(q)  # inside the generator, so the finally below always runs if this did
         try:
             if current := cache.get_json(live.LIVE_KEY):
                 yield f"event: timing\ndata: {json.dumps(current)}\n\n"
@@ -262,11 +264,11 @@ def drivers():
     return cache.cached("api:drivers", 300, compute)
 
 
-SEASON = Query(None, ge=1950, le=2100, description="Defaults to the current season")
+Season = Annotated[int | None, Query(ge=1950, le=2100, description="Defaults to the current season")]
 
 
 @router.get("/drivers/{driver_id}", response_model=schemas.DriverDetail)
-def driver(driver_id: str = SLUG, season: int | None = SEASON):
+def driver(driver_id: Slug, season: Season = None):
     with SessionLocal() as db:
         detail = driver_detail(db, driver_id, season or current_season(db), now())
     if detail is None:
@@ -286,7 +288,7 @@ def teams():
 
 
 @router.get("/teams/{team_id}", response_model=schemas.Team)
-def team(team_id: str = SLUG):
+def team(team_id: Slug):
     with SessionLocal() as db:
         t = db.get(Team, team_id)
         if t is None:
@@ -295,7 +297,9 @@ def team(team_id: str = SLUG):
 
 
 def _team_out(db, t: Team) -> schemas.Team:
-    drivers = db.scalars(select(Driver.id).where(Driver.team_id == t.id)).all()
+    # Drivers who raced for the team this season: past-season and replaced drivers keep a stale team_id.
+    raced = select(Result.driver_id).where(Result.season == current_season(db), Result.team_id == t.id)
+    drivers = db.scalars(select(Driver.id).where(Driver.team_id == t.id, Driver.id.in_(raced))).all()
     return schemas.Team(id=t.id, name=t.name, short_name=short_team_name(t.name), color=t.color,
                         nationality=t.nationality, drivers=list(drivers))
 
@@ -310,8 +314,13 @@ def api_status():
 
 
 @router.get("/widgets/snapshot", response_model=schemas.WidgetSnapshot)
-def widget_snapshot(driver: str | None = Query(None, pattern=r"^[a-z0-9_]{1,40}$"), season: int | None = SEASON):
+def widget_snapshot(driver: str | None = Query(None, pattern=r"^[a-z0-9_]{1,40}$"), season: Season = None):
     """Everything any widget needs, in one request. 30 s cache per driver."""
+    if driver:  # unknown slugs share one entry, so made-up keys can't grow the cache
+        with SessionLocal() as db:
+            if db.get(Driver, driver) is None:
+                driver = None
+    season = season if driver else None
     return cache.cached(f"api:snapshot:{driver}:{season}", 30, lambda: _dump(build_snapshot(driver, season=season)))
 
 

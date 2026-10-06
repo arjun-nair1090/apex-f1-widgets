@@ -82,8 +82,11 @@ def _all_races(client, path) -> list[dict]:
             return list(races.values())
 
 
-def _dt(d: dict) -> datetime:
-    return datetime.fromisoformat(f"{d['date']}T{d.get('time', '00:00:00Z').replace('Z', '+00:00')}")
+def _dt(d: dict) -> datetime | None:
+    """None until Jolpica confirms a time: no session beats one scheduled at midnight UTC."""
+    if not d.get("time"):
+        return None
+    return datetime.fromisoformat(f"{d['date']}T{d['time'].replace('Z', '+00:00')}")
 
 
 def _upsert_driver(db, d: dict, team_id: str | None):
@@ -151,11 +154,14 @@ def _sync(client, db, season):
     winner_laps = {int(r["round"]): int(r["Results"][0]["laps"]) for r in results if r["Results"]}
     next_round = None
     now = datetime.now(timezone.utc)
+    seen_rounds, seen_sessions = set(), set()
     for r in schedule["Races"]:
         rnd = int(r["round"])
+        seen_rounds.add(rnd)
         loc = r["Circuit"]["Location"]
         race_start = _dt(r)
-        if next_round is None and race_start + timedelta(minutes=DURATION_MIN["RACE"]) > now:
+        race_day_end = race_start or datetime.fromisoformat(f"{r['date']}T23:59:59+00:00")
+        if next_round is None and race_day_end + timedelta(minutes=DURATION_MIN["RACE"]) > now:
             next_round = rnd
         prev = db.get(Race, (year, rnd))
         laps = winner_laps.get(rnd) or (prev.laps_total if prev else None)
@@ -167,12 +173,18 @@ def _sync(client, db, season):
         db.flush()
         sessions = [(t, _dt(r[k])) for k, t in JOLPICA_SESSIONS.items() if k in r] + [("RACE", race_start)]
         for typ, start in sessions:
+            if start is None:
+                continue
             sid = f"{year}-{rnd}-{typ.lower()}"
+            seen_sessions.add(sid)
             old = db.get(Session, sid)
             # Keep an OpenF1-observed end time if live.py recorded one.
             end = old.ends_at if old and old.starts_at == start else start + timedelta(minutes=DURATION_MIN[typ])
             db.merge(Session(id=sid, season=year, round=rnd, type=typ, starts_at=start, ends_at=end))
 
+    # Cancelled or renumbered rounds and dropped sessions must not keep driving Race Mode.
+    db.execute(delete(Session).where(Session.season == year, Session.id.not_in(seen_sessions)))
+    db.execute(delete(Race).where(Race.season == year, Race.round.not_in(seen_rounds)))
     db.execute(delete(DriverStanding).where(DriverStanding.season == year))
     for lst in standings:
         for s in lst["DriverStandings"]:

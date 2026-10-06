@@ -16,6 +16,7 @@ class Settings(BaseSettings):
     sync_minutes: int = 30
     live_poll_seconds: float = 4.0
     ingest_on_startup: bool = True
+    background_jobs: bool = True  # ingest + live loops; set 0 on every replica but one
     extra_seasons: str = ""  # e.g. "2024,2025": past seasons for the Driver widget's season option
 
 

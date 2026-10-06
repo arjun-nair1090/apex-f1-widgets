@@ -37,6 +37,10 @@ Configure with env vars (see `backend/.env.example`). Leave them unset and it ru
 | `OPENF1_TOKEN` | paid OpenF1 key, **required for real-time timing during sessions** (historical data is free) |
 | `API_KEY` | when set, every `/api` call needs `X-API-Key` |
 | `EXTRA_SEASONS` | e.g. `2025`: past seasons for the Driver widget's season option |
+| `BACKGROUND_JOBS` | `0` on every replica but one, so only one process polls Jolpica and OpenF1 |
+
+Behind a reverse proxy, start uvicorn with `--forwarded-allow-ips=<proxy ip>` so rate limiting sees real client IPs
+rather than the proxy's.
 
 Regenerate the API contract after schema changes:
 `python -c "import json; from apex.main import app; json.dump(app.openapi(), open('../shared/api-schema/openapi.json','w'), indent=1)"`

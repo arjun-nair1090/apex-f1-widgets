@@ -18,7 +18,10 @@ class UTCDateTime(TypeDecorator):
         return value.astimezone(timezone.utc) if value else value
 
     def process_result_value(self, value, dialect):
-        return value.replace(tzinfo=timezone.utc) if value and value.tzinfo is None else value
+        if value is None:
+            return value
+        # SQLite drops the zone; PostgreSQL returns the server's TimeZone. Either way, hand back UTC.
+        return value.replace(tzinfo=timezone.utc) if value.tzinfo is None else value.astimezone(timezone.utc)
 
 
 class Base(DeclarativeBase):

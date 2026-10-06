@@ -567,6 +567,26 @@
       }
      },
      {
+      "name": "season",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "integer",
+         "maximum": 2100,
+         "minimum": 1950
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "Defaults to the current season",
+       "title": "Season"
+      },
+      "description": "Defaults to the current season"
+     },
+     {
       "name": "x-api-key",
       "in": "header",
       "required": false,
@@ -663,13 +683,13 @@
     "operationId": "team_api_teams__team_id__get",
     "parameters": [
      {
-      "name": "driver_id",
+      "name": "team_id",
       "in": "path",
       "required": true,
       "schema": {
        "type": "string",
        "pattern": "^[a-z0-9_]{1,40}$",
-       "title": "Driver Id"
+       "title": "Team Id"
       }
      },
      {
@@ -781,6 +801,26 @@
        ],
        "title": "Driver"
       }
+     },
+     {
+      "name": "season",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "integer",
+         "maximum": 2100,
+         "minimum": 1950
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "Defaults to the current season",
+       "title": "Season"
+      },
+      "description": "Defaults to the current season"
      },
      {
       "name": "x-api-key",

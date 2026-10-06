@@ -33,7 +33,7 @@ def fmt_gap(value) -> str | None:
         return None
     if isinstance(value, str):  # OpenF1 sends "+1 LAP" for lapped cars
         return value.upper()
-    return f"+{value:.3f}"
+    return f"{value:+.3f}"
 
 
 class SessionState:
@@ -47,6 +47,7 @@ class SessionState:
         self.laps: dict[int, dict[int, dict]] = {}  # driver → lap_number → lap
         self.pits: dict[int, dict] = {}  # driver → latest pit
         self.phase: str | None = None
+        self.phase_start: datetime | None = None
         self.cursor: dict[str, str] = {}
 
     def apply(self, endpoint: str, rows: list[dict]) -> None:
@@ -63,12 +64,27 @@ class SessionState:
             elif endpoint == "pit":
                 self.pits[n] = r
             elif endpoint == "race_control" and r.get("qualifying_phase"):
-                self.phase = f"Q{r['qualifying_phase']}"
-        if rows and endpoint != "drivers":
-            field = "date_start" if endpoint == "laps" else "date"
-            stamps = [r[field] for r in rows if r.get(field)]
-            if stamps:
-                self.cursor[endpoint] = max(stamps)
+                phase = f"Q{r['qualifying_phase']}"
+                if phase != self.phase:
+                    self.phase, self.phase_start = phase, datetime.fromisoformat(r["date"])
+        if not rows or endpoint == "drivers":
+            return
+        if endpoint == "laps":
+            self.cursor["laps"] = self._laps_cursor()
+        elif stamps := [r["date"] for r in rows if r.get("date")]:
+            self.cursor[endpoint] = max(stamps, key=datetime.fromisoformat)
+
+    def _laps_cursor(self) -> str | None:
+        """OpenF1 publishes a lap when it starts and fills in its time when it ends, so keep re-reading from the
+        oldest lap still running. Laps that never finish (retirements) stop counting after 5 minutes."""
+        laps = [l for ls in self.laps.values() for l in ls.values() if l.get("date_start")]
+        if not laps:
+            return None
+        newest = max((l["date_start"] for l in laps), key=datetime.fromisoformat)
+        horizon = datetime.fromisoformat(newest) - timedelta(minutes=5)
+        running = [l["date_start"] for l in laps
+                   if not l.get("lap_duration") and datetime.fromisoformat(l["date_start"]) > horizon]
+        return min(running, key=datetime.fromisoformat, default=newest)
 
 
 def build_timing(st: SessionState, session_id: str, session_type: str, laps_total: int | None,
@@ -76,6 +92,13 @@ def build_timing(st: SessionState, session_id: str, session_type: str, laps_tota
     is_race = session_type in ("RACE", "SPRINT")
     done = {n: [l for l in laps.values() if l.get("lap_duration")] for n, laps in st.laps.items()}
     best = {n: min((l["lap_duration"] for l in ls), default=None) for n, ls in done.items()}
+    if session_type in ("QUALIFYING", "SPRINT_QUALIFYING") and st.phase_start:
+        # Rank this phase on this phase's laps; drivers already knocked out keep their earlier best.
+        for n, ls in done.items():
+            in_phase = [l["lap_duration"] for l in ls
+                        if l.get("date_start") and datetime.fromisoformat(l["date_start"]) >= st.phase_start]
+            if in_phase:
+                best[n] = min(in_phase)
 
     # Sector bests across the session (overall) and per driver (personal).
     sector_keys = ("duration_sector_1", "duration_sector_2", "duration_sector_3")
@@ -125,9 +148,10 @@ def build_timing(st: SessionState, session_id: str, session_type: str, laps_tota
 
 async def _fetch(client, endpoint, st: SessionState) -> list[dict]:
     url = f"{settings.openf1_base}/{endpoint}?session_key={st.key}"
-    if endpoint in st.cursor:
+    if st.cursor.get(endpoint):
+        # Inclusive: rows sharing the cursor's timestamp can land after a poll. Re-applying a row is idempotent.
         field = "date_start" if endpoint == "laps" else "date"
-        url += f"&{field}>{st.cursor[endpoint].replace('+', '%2B')}"
+        url += f"&{field}>={st.cursor[endpoint].replace('+', '%2B')}"
     r = await client.get(url)
     if r.status_code == 404:  # OpenF1: no rows yet
         return []
