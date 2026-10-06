@@ -251,7 +251,7 @@ let view = null, lightsAt = 0, sim = null;
 const pad = n => String(n).padStart(2, "0");
 const flag = cc => cc ? String.fromCodePoint(...[...cc.toUpperCase()].map(c => 0x1f1a5 + c.charCodeAt(0))) : "";
 const noFlagEmoji = /Windows/.test(navigator.userAgent);
-const country = (cc, p) => !cc ? "" : p === "windows" || noFlagEmoji ? `<span class="cc">${cc}</span>` : `<span class="flag" aria-hidden="true">${flag(cc)}</span>`;
+const country = (cc, p) => !cc ? "" : p === "windows" || noFlagEmoji ? `<span class="cc">${esc(cc)}</span>` : `<span class="flag" aria-hidden="true">${flag(cc)}</span>`;
 const dayTime = iso => { const d = new Date(iso); return `${d.toLocaleDateString("en-GB", { weekday: "short" }).toUpperCase()} · ${pad(d.getHours())}:${pad(d.getMinutes())}`; };
 const dayOnly = iso => new Date(iso).toLocaleDateString("en-GB", { weekday: "short" }).toUpperCase();
 const hhmm = iso => { const d = new Date(iso); return `${pad(d.getHours())}:${pad(d.getMinutes())}`; };
@@ -342,7 +342,9 @@ function simTiming(session, now) {
 // ---------- primitives ----------
 const liveTag = (label, still) => `<span class="live"><i class="dot${still ? " still" : ""}" aria-hidden="true"></i>LIVE${label ? ` · ${esc(label)}` : ""}</span>`;
 const rail = (frac, on) => frac == null ? "" : `<div class="rail${on ? " on" : ""}" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${Math.round(frac * 100)}"><i style="width:${(Math.max(0, Math.min(1, frac)) * 100).toFixed(1)}%"></i></div>`;
-const tick = c => `<i class="tick" style="--c:${c ? "#" + c : "transparent"}" aria-hidden="true"></i>`;
+// Colours go into style attributes: only accept RRGGBB (the backend already filters; this is the second gate).
+const hexColor = c => /^[0-9A-Fa-f]{6}$/.test(c ?? "") ? `#${c}` : null;
+const tick = c => `<i class="tick" style="--c:${hexColor(c) ?? "transparent"}" aria-hidden="true"></i>`;
 const secG = s => !s ? "" : `<span class="sec" aria-label="sectors">${s.map(x => x === "purple" ? `<span class="pu">◆</span>` : x === "green" ? `<span class="gr">▲</span>` : x === "yellow" ? `<span class="ye">–</span>` : `<span class="na">·</span>`).join("")}</span>`;
 const stale = v => v.stale > 60e3 ? `<div class="stale micro">Last updated ${ago(v.stale)} ago</div>` : "";
 const sessionLabel = t => ({ RACE: "RACE", SPRINT: "SPRINT", QUALIFYING: "QUALI", SPRINT_QUALIFYING: "SPRINT QUALI" }[t] || t);
@@ -449,7 +451,7 @@ R.driver = (v, z, now) => {
   if (z === "s") return `<div class="row">${country(d.country_code, S.platform)}<span class="meta">${esc(d.team_name ?? "")}</span></div><div class="grow"></div>
     <div class="display">${pos}</div><div class="row" style="margin-top:6px">${S.teamColors ? tick(d.team_color) : ""}<span class="title">${esc(d.code)}</span></div><div class="meta t3 mono" style="margin-top:6px">${pts(d.points)} PTS</div>${stale(v)}`;
   const stats = `<div class="stats"><div><span class="micro">Wins</span><b>${d.wins}</b></div><div><span class="micro">Podiums</span><b>${d.podiums}</b></div><div><span class="micro">Poles</span><b>${d.poles}</b></div></div>`;
-  const name = `<div class="row" style="${S.teamColors && d.team_color ? `box-shadow:inset 2px 0 0 #${d.team_color};padding-left:10px` : ""}"><span class="title" style="text-transform:uppercase;letter-spacing:.02em;font-size:15px">${esc(d.first_name)} ${esc(d.last_name)}</span><span class="sp"></span>${country(d.country_code, S.platform)}<span class="meta">${esc(d.team_name ?? "")}</span></div>`;
+  const name = `<div class="row" style="${S.teamColors && hexColor(d.team_color) ? `box-shadow:inset 2px 0 0 ${hexColor(d.team_color)};padding-left:10px` : ""}"><span class="title" style="text-transform:uppercase;letter-spacing:.02em;font-size:15px">${esc(d.first_name)} ${esc(d.last_name)}</span><span class="sp"></span>${country(d.country_code, S.platform)}<span class="meta">${esc(d.team_name ?? "")}</span></div>`;
   const top = `<div class="row" style="align-items:flex-end;margin-top:auto"><div class="hero">${pos}</div><span class="sp"></span><div class="big">${pts(d.points)}<span class="meta t3"> PTS</span></div></div>`;
   if (z === "m") return `${name}${top}${S.density === "minimal" ? "" : `<div style="margin-top:14px">${stats}</div>`}${stale(v)}`;
   const last5 = d.last5.length ? `<div class="micro" style="margin:20px 0 8px">Last ${d.last5.length}</div><div class="last5">${d.last5.map(p => `<span>${p ? "P" + p : "DNF"}</span>`).join("")}</div>` : "";
@@ -552,7 +554,7 @@ function lock(v, now) {
 
 // ---------- render loop ----------
 function widgetHTML(id, z, v, now) {
-  const accent = S.accent === "team" && snap?.driver?.team_color ? `--acc:#${snap.driver.team_color};` : S.accent === "red" ? "--acc:#E10D2E;" : "";
+  const accent = S.accent === "team" && hexColor(snap?.driver?.team_color) ? `--acc:${hexColor(snap.driver.team_color)};` : S.accent === "red" ? "--acc:#E10D2E;" : "";
   const cls = `w ${z} p-${S.platform} th-${S.theme} acc-${S.accent}${S.teamColors ? "" : " no-team"}`;
   const name = WIDGETS.find(w => w[0] === id)[1];
   const body = v.loading ? skeleton(z) : R[id](v, z, now);

@@ -1,6 +1,7 @@
 """Jolpica (Ergast-compatible) → normalize → database. Schedule, standings, results."""
 
 import logging
+import re
 import time
 from datetime import datetime, timedelta, timezone
 
@@ -38,6 +39,12 @@ COUNTRY_ISO = {
     "United Arab Emirates": "AE", "UK": "GB", "United Kingdom": "GB", "USA": "US", "United States": "US",
     "Argentina": "AR", "South Africa": "ZA", "Korea": "KR", "India": "IN", "Vietnam": "VN", "Thailand": "TH",
 }
+
+
+def safe_hex(value) -> str | None:
+    """Team colours come from OpenF1, an external source: only plain RRGGBB gets through. They end up in
+    HTML style attributes (web preview) and in hex parsers (every native client)."""
+    return value.upper() if isinstance(value, str) and re.fullmatch(r"[0-9A-Fa-f]{6}", value) else None
 
 
 def short_race_name(name: str) -> str:
@@ -207,8 +214,8 @@ def _sync_team_colors(client, db):
     headers = {"Authorization": f"Bearer {settings.openf1_token}"} if settings.openf1_token else {}
     r = client.get(f"{settings.openf1_base}/drivers", params={"session_key": "latest"}, headers=headers)
     r.raise_for_status()
-    colour_by_code = {d["name_acronym"]: d["team_colour"] for d in r.json() if d.get("team_colour")}
+    colour_by_code = {d["name_acronym"]: c for d in r.json() if (c := safe_hex(d.get("team_colour")))}
     for driver in db.scalars(select(Driver)):
         team = db.get(Team, driver.team_id) if driver.team_id else None
         if team and driver.code in colour_by_code:
-            team.color = colour_by_code[driver.code].upper()
+            team.color = colour_by_code[driver.code]

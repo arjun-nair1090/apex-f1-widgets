@@ -56,7 +56,9 @@ _buckets: dict[str, tuple[float, float]] = {}
 
 @app.middleware("http")
 async def guard(request: Request, call_next):
-    if request.url.path.startswith("/api") and not request.url.path.endswith("/stream"):
+    # Every /api request costs a token, SSE included (one per connection). No path exemptions: any
+    # suffix match also matches /api/drivers/{id} with id="stream".
+    if request.url.path.startswith("/api"):
         ip = request.client.host if request.client else "?"
         rate = settings.rate_limit_per_minute / 60
         tokens, last = _buckets.get(ip, (settings.rate_limit_per_minute, time.monotonic()))

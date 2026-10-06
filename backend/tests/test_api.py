@@ -13,6 +13,7 @@ from fastapi.testclient import TestClient  # noqa: E402
 from apex import cache  # noqa: E402
 from apex.api import build_snapshot  # noqa: E402
 from apex.config import settings  # noqa: E402
+from apex.ingest import safe_hex  # noqa: E402
 from apex.live import SessionState, build_timing  # noqa: E402
 from apex.main import app  # noqa: E402
 from apex.models import (ConstructorStanding, Driver, DriverStanding, Race, Result, Session,  # noqa: E402
@@ -133,7 +134,20 @@ def test_validation_auth_and_rate_limit():
         main._buckets.clear()
         codes = [client.get("/api/status").status_code for _ in range(3)]
         assert codes == [200, 200, 429]
+        # Suffix tricks don't escape the limiter (/api/drivers/{id} with id="stream").
+        assert client.get("/api/drivers/stream").status_code == 429
     finally:
         settings.rate_limit_per_minute = 120
         main._buckets.clear()
         cache.backend.delete_prefix("api:")
+
+
+def test_external_colours_are_sanitised():
+    """OpenF1 team colours reach HTML style attributes and native hex parsers: only RRGGBB passes."""
+    assert safe_hex("00d7b6") == "00D7B6"
+    for bad in ['"><img src=x onerror=alert(1)>', "red", "00D7B6;x", "", None, 123]:
+        assert safe_hex(bad) is None
+    st = SessionState(1)
+    st.apply("drivers", [{"driver_number": 1, "name_acronym": "VER", "team_colour": '"><script>'}])
+    st.apply("position", [{"driver_number": 1, "position": 1, "date": "2026-10-10T13:20:00+00:00"}])
+    assert build_timing(st, "s", "RACE", 62, datetime(2026, 10, 10, 13, 30, tzinfo=timezone.utc))["rows"][0]["team_color"] is None

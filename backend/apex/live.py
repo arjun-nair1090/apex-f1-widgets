@@ -9,7 +9,7 @@ from sqlalchemy import select
 
 from . import cache
 from .config import settings
-from .ingest import status
+from .ingest import safe_hex, status
 from .models import Race, Session, SessionLocal
 from .racemode import race_mode
 
@@ -114,7 +114,7 @@ def build_timing(st: SessionState, session_id: str, session_type: str, laps_tota
             gap = fmt_gap(best[n] - leader_best) if best.get(n) and leader_best and pos > 1 else None
             interval = None
         rows.append({"position": pos, "driver_number": n, "code": d.get("name_acronym", str(n)),
-                     "team_color": (d.get("team_colour") or "").upper() or None, "time": time_, "gap": gap,
+                     "team_color": safe_hex(d.get("team_colour")), "time": time_, "gap": gap,
                      "interval": interval, "sectors": sectors(n), "in_pit": in_pit(n),
                      "drs": None})  # 2026 regulations removed DRS; keep the field for sources that report it
     lap = max((max(l) for l in st.laps.values() if l), default=None) if is_race else None
