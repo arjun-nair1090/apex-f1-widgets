@@ -1,0 +1,166 @@
+{
+ "type": "AdaptiveCard",
+ "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+ "version": "1.6",
+ "body": [
+  {
+   "type": "Container",
+   "items": [
+    {
+     "type": "TextBlock",
+     "text": "● LIVE",
+     "wrap": false,
+     "size": "Small",
+     "weight": "Bolder",
+     "color": "Attention"
+    },
+    {
+     "type": "Container",
+     "height": "stretch",
+     "items": []
+    },
+    {
+     "type": "TextBlock",
+     "text": "LIVE DATA UNAVAILABLE",
+     "wrap": false,
+     "size": "Small",
+     "weight": "Bolder"
+    },
+    {
+     "type": "TextBlock",
+     "text": "Using cached data · updated ${updated} ago",
+     "wrap": false,
+     "size": "Small",
+     "isSubtle": true,
+     "spacing": "None",
+     "$when": "${$host.widgetSize!=\"small\"}"
+    }
+   ],
+   "$when": "${unavailable}",
+   "height": "stretch"
+  },
+  {
+   "type": "Container",
+   "items": [
+    {
+     "type": "ColumnSet",
+     "columns": [
+      {
+       "type": "Column",
+       "width": "stretch",
+       "items": [
+        {
+         "type": "TextBlock",
+         "text": "NO LIVE SESSION",
+         "wrap": false,
+         "size": "Small",
+         "weight": "Bolder",
+         "isSubtle": true
+        }
+       ]
+      },
+      {
+       "type": "Column",
+       "width": "auto",
+       "items": [
+        {
+         "type": "TextBlock",
+         "text": "${cc}  ${race}",
+         "wrap": false,
+         "size": "Small",
+         "weight": "Bolder",
+         "horizontalAlignment": "Right"
+        }
+       ],
+       "$when": "${$host.widgetSize!=\"small\"}"
+      }
+     ]
+    },
+    {
+     "type": "Container",
+     "height": "stretch",
+     "items": []
+    },
+    {
+     "type": "TextBlock",
+     "text": "NEXT SESSION",
+     "wrap": false,
+     "size": "Small",
+     "weight": "Bolder",
+     "isSubtle": true,
+     "$when": "${$host.widgetSize!=\"small\"}"
+    },
+    {
+     "type": "ColumnSet",
+     "columns": [
+      {
+       "type": "Column",
+       "width": "stretch",
+       "items": [
+        {
+         "type": "TextBlock",
+         "text": "${session}",
+         "wrap": false,
+         "size": "Small",
+         "weight": "Bolder"
+        },
+        {
+         "type": "TextBlock",
+         "text": "${when}",
+         "wrap": false,
+         "size": "Small",
+         "weight": "Bolder",
+         "isSubtle": true,
+         "spacing": "None"
+        }
+       ],
+       "verticalContentAlignment": "Bottom"
+      },
+      {
+       "type": "Column",
+       "width": "auto",
+       "items": [
+        {
+         "type": "TextBlock",
+         "text": "${countdown}",
+         "wrap": false,
+         "size": "ExtraLarge",
+         "weight": "Bolder",
+         "horizontalAlignment": "Right"
+        }
+       ],
+       "$when": "${$host.widgetSize!=\"small\"}"
+      }
+     ]
+    },
+    {
+     "type": "TextBlock",
+     "text": "${countdown}",
+     "wrap": false,
+     "size": "Large",
+     "weight": "Bolder",
+     "$when": "${$host.widgetSize==\"small\"}"
+    }
+   ],
+   "$when": "${!unavailable}",
+   "height": "stretch"
+  },
+  {
+   "type": "TextBlock",
+   "text": "${stale}",
+   "wrap": false,
+   "size": "Small",
+   "isSubtle": true,
+   "spacing": "Small",
+   "$when": "${stale != ''}"
+  }
+ ],
+ "actions": [
+  {
+   "type": "Action.Execute",
+   "title": "Retry",
+   "verb": "refresh",
+   "$when": "${unavailable}"
+  }
+ ]
+}

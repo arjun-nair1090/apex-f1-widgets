@@ -1,0 +1,651 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>APEX Widget Preview</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect width='24' height='24' fill='%2308090B'/%3E%3Cpath d='M4 21 L12 3.5 L20 21' fill='none' stroke='%23F5F7FA' stroke-width='3' stroke-linecap='square'/%3E%3Cpath d='M6.5 16 L21 12.5' fill='none' stroke='%23FF5A1F' stroke-width='2.25' stroke-linecap='square'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* Tokens: shared/design-tokens/tokens.json */
+:root {
+  --bg: #08090B; --surface: #111318; --elevated: #181B21; --border: #23262E;
+  --t1: #F5F7FA; --t2: #9298A3; --t3: #5C626D;
+  --signal: #FF5A1F; --purple: #A879FF; --green: #2FD27F; --yellow: #E8C547;
+  --sans: "Geist", system-ui, sans-serif; --mono: "Geist Mono", ui-monospace, monospace;
+  --r-s: 4px; --r-m: 8px;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; margin: 0; }
+body { background: var(--bg); color: var(--t1); font: 500 14px/1.4 var(--sans); font-variant-numeric: tabular-nums; -webkit-font-smoothing: antialiased; }
+button, select { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--signal); outline-offset: 2px; }
+
+/* ---------- page chrome ---------- */
+.bar { display: flex; align-items: center; gap: 24px; padding: 16px 24px; border-bottom: 1px solid var(--border); }
+.bar svg { display: block; }
+.bar .status { margin-left: auto; color: var(--t2); font-size: 12px; display: flex; gap: 8px; align-items: center; }
+.bar .status i { width: 6px; height: 6px; border-radius: 50%; background: var(--green); display: inline-block; }
+.bar .status.bad i { background: var(--signal); }
+.seg { display: inline-flex; border: 1px solid var(--border); border-radius: var(--r-m); padding: 2px; gap: 2px; background: var(--surface); }
+.seg button { border: 0; background: none; padding: 6px 12px; border-radius: 6px; color: var(--t2); cursor: pointer; font-size: 13px; }
+.seg button[aria-pressed="true"] { background: var(--elevated); color: var(--t1); box-shadow: inset 0 0 0 1px var(--border); }
+
+.layout { display: grid; grid-template-columns: minmax(0, 1fr) 320px; min-height: calc(100vh - 65px); }
+.stage { padding: 40px 40px 56px; overflow: hidden; }
+.stage h1 { font: 600 13px/1 var(--sans); color: var(--t2); margin-bottom: 8px; }
+.stage .hint { color: var(--t3); font-size: 13px; margin-bottom: 32px; max-width: 60ch; }
+.sizes { display: flex; flex-wrap: wrap; gap: 32px; align-items: flex-start; }
+.size-col { display: grid; gap: 12px; justify-items: start; }
+.size-col > span { font-size: 12px; color: var(--t3); }
+.lockrow { display: flex; flex-wrap: wrap; gap: 32px; align-items: flex-end; margin-top: 40px; padding: 24px; border-radius: 12px;
+  background: radial-gradient(120% 140% at 20% 0%, #2a3140 0%, #12151b 55%, #07080a 100%); width: fit-content; max-width: 100%; }
+.gallery-h { margin: 56px 0 16px; font: 600 13px/1 var(--sans); color: var(--t2); }
+.gallery { display: flex; flex-wrap: wrap; gap: 24px; }
+.gallery button { all: unset; cursor: pointer; display: grid; gap: 8px; }
+.gallery button > span { font-size: 12px; color: var(--t3); }
+.gallery button[aria-current="true"] > span { color: var(--t1); }
+.gallery button:focus-visible { outline: 2px solid var(--signal); outline-offset: 4px; border-radius: 4px; }
+
+.panel { border-left: 1px solid var(--border); background: var(--surface); padding: 24px; display: grid; gap: 24px; align-content: start; }
+.field { display: grid; gap: 8px; }
+.field > label, .field > .lbl { font-size: 12px; color: var(--t2); }
+.field select { background: var(--bg); border: 1px solid var(--border); border-radius: var(--r-m); padding: 9px 12px; width: 100%; }
+.field .seg { width: 100%; }
+.field .seg button { flex: 1; padding: 6px 4px; }
+.wlist { display: grid; gap: 2px; }
+.wlist button { all: unset; cursor: pointer; padding: 8px 10px; border-radius: 6px; display: flex; justify-content: space-between; color: var(--t2); }
+.wlist button small { color: var(--t3); font-size: 12px; }
+.wlist button[aria-pressed="true"] { background: var(--elevated); color: var(--t1); box-shadow: inset 2px 0 0 var(--signal); }
+.wlist button:focus-visible { outline: 2px solid var(--signal); }
+.toggle { display: flex; justify-content: space-between; align-items: center; }
+.switch { width: 36px; height: 20px; border-radius: 10px; border: 1px solid var(--border); background: var(--bg); position: relative; cursor: pointer; padding: 0; }
+.switch::after { content: ""; position: absolute; top: 3px; left: 3px; width: 12px; height: 12px; border-radius: 50%; background: var(--t3); transition: transform .16s ease-out, background .16s; }
+.switch[aria-checked="true"]::after { transform: translateX(16px); background: var(--t1); }
+.note { color: var(--t3); font-size: 12px; line-height: 1.5; }
+
+@media (max-width: 900px) {
+  .layout { grid-template-columns: 1fr; }
+  .panel { border-left: 0; border-top: 1px solid var(--border); }
+  .stage { padding: 24px 16px 40px; }
+  .bar { flex-wrap: wrap; padding: 12px 16px; gap: 12px; }
+  .size-col, .gallery button { width: 100%; grid-template-columns: minmax(0, 1fr); }
+  .w.m, .w.l { max-width: 100%; }
+}
+
+/* ---------- widget (rendered per platform/theme) ---------- */
+.w { --wbg: var(--surface); --wt1: var(--t1); --wt2: var(--t2); --wt3: var(--t3); --wbd: var(--border); --wel: var(--elevated); --acc: var(--signal);
+  position: relative; background: var(--wbg); color: var(--wt1); border: 1px solid var(--wbd); border-radius: 22px; padding: 16px;
+  overflow: hidden; display: flex; flex-direction: column; font-family: var(--wsans); text-align: left; }
+.w.s { width: 170px; height: 170px; } .w.m { width: 364px; height: 170px; } .w.l { width: 364px; height: 382px; }
+.th-amoled { --wbg: #000; --wbd: #1C1F25; --wel: #0C0D10; }
+.th-light { --wbg: #fff; --wt1: #0B0D11; --wt2: #5A606B; --wt3: #8C919B; --wbd: #E2E4E9; --wel: #F0F1F4; }
+.th-light.acc-system { --acc: #E0440C; }
+.p-ios { --wsans: -apple-system, "SF Pro Text", var(--sans); --wmono: ui-monospace, "SF Mono", var(--mono); }
+.p-android { --wsans: var(--sans); --wmono: var(--mono); } .p-android.w { border-radius: 24px; }
+.p-windows { --wsans: "Segoe UI Variable Text", "Segoe UI", var(--sans); --wmono: "Cascadia Mono", "Cascadia Code", Consolas, var(--mono); } .p-windows.w { border-radius: 8px; }
+
+.meta { font: 600 11px/1.2 var(--wsans); letter-spacing: .07em; text-transform: uppercase; color: var(--wt2); }
+.micro { font: 600 9px/1.2 var(--wsans); letter-spacing: .07em; text-transform: uppercase; color: var(--wt3); }
+.mono { font-family: var(--wmono); font-variant-numeric: tabular-nums; }
+.hero { font: 600 44px/1 var(--wmono); letter-spacing: -0.035em; }
+.display { font: 600 32px/1 var(--wmono); letter-spacing: -0.03em; }
+.big { font: 600 22px/1 var(--wmono); letter-spacing: -0.02em; }
+.title { font: 600 17px/1.15 var(--wsans); letter-spacing: -0.01em; }
+.t2 { color: var(--wt2); } .t3 { color: var(--wt3); } .acc { color: var(--acc); }
+.row { display: flex; align-items: center; gap: 8px; }
+.sp { flex: 1; }
+.col { display: flex; flex-direction: column; }
+.grow { flex: 1; min-height: 0; }
+.flag { font-size: 13px; line-height: 1; }
+.cc { font: 600 10px/1 var(--wsans); letter-spacing: .06em; color: var(--wt2); border: 1px solid var(--wbd); border-radius: 2px; padding: 2px 3px; }
+
+.live { display: inline-flex; align-items: center; gap: 6px; color: var(--acc); font: 600 11px/1 var(--wsans); letter-spacing: .07em; }
+.dot { width: 6px; height: 6px; border-radius: 50%; background: var(--acc); animation: pulse 2s ease-in-out infinite; }
+.dot.still { animation: none; }
+@keyframes pulse { 50% { opacity: .45; } }
+
+.rail { position: absolute; left: 16px; right: 16px; bottom: 8px; height: 2px; background: var(--wbd); border-radius: 1px; }
+.rail > i { display: block; height: 100%; background: var(--wt1); border-radius: 1px; transition: width .24s ease-in-out; }
+.rail.on > i { background: var(--acc); }
+
+/* timing tables */
+.tt { display: grid; row-gap: 4px; font: 500 13px/18px var(--wmono); font-variant-numeric: tabular-nums; }
+.tr { display: grid; grid-template-columns: 18px 3px 34px 1fr auto; column-gap: 6px; align-items: center; position: relative; }
+.tr .p { color: var(--wt2); text-align: right; }
+.tr .tick { width: 2px; height: 11px; border-radius: 1px; background: var(--c, transparent); }
+.th-light .tr .tick, .th-amoled .tr .tick { box-shadow: 0 0 0 1px var(--wbd); }
+.no-team .tr .tick { background: transparent; box-shadow: none; }
+.tr .v { text-align: right; color: var(--wt2); }
+.tr .v.lead { color: var(--wt1); }
+.tr.fav::before { content: ""; position: absolute; left: -16px; top: 2px; bottom: 2px; width: 2px; background: var(--acc); }
+.tr.more { color: var(--wt3); }
+.tr .sec { font-size: 9px; letter-spacing: 1px; text-align: right; }
+.sec .pu { color: var(--purple); } .sec .gr { color: var(--green); } .sec .ye { color: var(--yellow); } .sec .na { color: var(--wt3); }
+.pit { font: 600 10px/1 var(--wsans); letter-spacing: .06em; border: 1px solid var(--wbd); border-radius: 2px; padding: 2px 4px; color: var(--wt1); }
+.cols2 { display: grid; grid-template-columns: 1fr 1fr; column-gap: 20px; }
+.tr.team { grid-template-columns: 18px 3px 1fr auto; }
+
+/* weekend */
+.wk { display: grid; grid-template-columns: 30px 1fr 14px auto; column-gap: 8px; row-gap: 4px; font-size: 13px; line-height: 18px; align-items: center; }
+.wk .d { font: 600 10px/1 var(--wsans); letter-spacing: .07em; color: var(--wt3); }
+.wk .n { font-weight: 600; letter-spacing: .02em; }
+.wk .g { text-align: center; font-family: var(--wmono); }
+.wk .tm { font-family: var(--wmono); color: var(--wt2); font-size: 12px; text-align: right; }
+.wk .fin { color: var(--wt3); }
+.wk .now.n, .wk .now.g { color: var(--acc); }
+.lockrow[hidden] { display: none; }
+
+.stats { display: flex; gap: 16px; }
+.stats b { font: 600 15px/1 var(--wmono); display: block; margin-top: 4px; }
+.last5 { display: flex; gap: 10px; font: 500 13px/1 var(--wmono); }
+.last5 span:first-child { color: var(--wt1); }
+.last5 span { color: var(--wt2); }
+
+.skel { background: var(--wel); border-radius: 3px; height: 10px; }
+.skel.h { height: 26px; }
+.stale { position: absolute; left: 16px; bottom: 6px; }
+
+/* lock screen (vibrant, monochrome) */
+.lk { color: #fff; font-family: -apple-system, var(--sans); }
+.lk-rect { width: 170px; height: 72px; display: flex; flex-direction: column; justify-content: center; gap: 2px; }
+.lk-rect .a { font: 600 12px/1.2 var(--sans); letter-spacing: .05em; opacity: .75; text-transform: uppercase; }
+.lk-rect .b { font: 600 22px/1.1 var(--mono); letter-spacing: -.02em; }
+.lk-rect .c { font: 500 12px/1.2 var(--mono); opacity: .75; }
+.lk-circ { width: 72px; height: 72px; border-radius: 50%; background: rgba(255,255,255,.14); display: grid; place-content: center; text-align: center; }
+.lk-circ .a { font: 600 9px/1 var(--sans); letter-spacing: .08em; opacity: .75; }
+.lk-circ .b { font: 600 18px/1.1 var(--mono); }
+.lk-inline { font: 600 13px/1 var(--sans); opacity: .9; }
+.lk span.lbl { display: block; font-size: 11px; color: rgba(255,255,255,.45); margin-top: 8px; }
+
+/* motion: FLIP rows, number crossfade */
+.tr.moving { transition: transform .35s cubic-bezier(.2,.9,.25,1); }
+@media (prefers-reduced-motion: reduce) {
+  .dot { animation: none; }
+  .tr.moving { transition: opacity .2s; transform: none !important; }
+  .rail > i, .switch::after { transition: none; }
+}
+</style>
+</head>
+<body>
+<header class="bar">
+  <svg viewBox="-2 -2 84 28" width="84" height="28" role="img" aria-label="APEX">
+    <g fill="none" stroke="#F5F7FA" stroke-width="3" stroke-linecap="square" stroke-linejoin="miter">
+      <path d="M1 22 L9.5 2 L18 22"/><path d="M25 22 V2 H32 A5 5 0 0 1 32 12 H25"/>
+      <path d="M55 2 H43 V22 H55 M43 12 H52"/><path d="M61 2 L77 22 M77 2 L61 22"/>
+    </g>
+    <path d="M3.5 16.5 L19 13" fill="none" stroke="#FF5A1F" stroke-width="2.25" stroke-linecap="square"/>
+  </svg>
+  <div class="seg" role="group" aria-label="Platform" data-key="platform">
+    <button data-v="ios">iOS</button><button data-v="android">Android</button><button data-v="windows">Windows</button>
+  </div>
+  <div class="status" id="status" role="status"><i></i><span>Connecting…</span></div>
+</header>
+
+<div class="layout">
+  <main class="stage">
+    <h1 id="stage-title">Your widget</h1>
+    <p class="hint" id="stage-hint"></p>
+    <div class="sizes" id="sizes"></div>
+    <div class="lockrow" id="lockrow"></div>
+    <h2 class="gallery-h">All widgets</h2>
+    <div class="gallery" id="gallery"></div>
+  </main>
+
+  <aside class="panel" aria-label="Customize">
+    <div class="field">
+      <span class="lbl">Widget</span>
+      <div class="wlist" id="wlist"></div>
+    </div>
+    <div class="field">
+      <label for="driver">Driver</label>
+      <select id="driver"><option>Loading drivers…</option></select>
+    </div>
+    <div class="field"><span class="lbl">Information</span>
+      <div class="seg" role="group" aria-label="Information density" data-key="density">
+        <button data-v="minimal">Minimal</button><button data-v="standard">Standard</button><button data-v="detailed">Detailed</button>
+      </div></div>
+    <div class="field"><span class="lbl">Theme</span>
+      <div class="seg" role="group" aria-label="Theme" data-key="theme">
+        <button data-v="dark">Dark</button><button data-v="amoled">AMOLED</button><button data-v="light">Light</button>
+      </div></div>
+    <div class="field"><span class="lbl">Accent</span>
+      <div class="seg" role="group" aria-label="Accent" data-key="accent">
+        <button data-v="system">System</button><button data-v="team">Team</button><button data-v="red">Red</button>
+      </div></div>
+    <div class="toggle"><span class="lbl t2" id="tc-label">Show team colors</span>
+      <button class="switch" role="switch" id="teamColors" aria-labelledby="tc-label"></button></div>
+    <div class="field"><span class="lbl">Situation</span>
+      <select id="scenario" aria-describedby="scenario-note">
+        <option value="now">Right now (live data)</option>
+        <option value="lights">Lights out in 10 seconds</option>
+        <option value="countdown">Countdown</option>
+        <option value="live">Live race</option>
+        <option value="quali">Live qualifying</option>
+        <option value="results">Results</option>
+        <option value="stale">Offline, cached data</option>
+        <option value="unavailable">Live data unavailable</option>
+        <option value="loading">Loading</option>
+      </select>
+      <p class="note" id="scenario-note">Situations other than "Right now" replay the last race's real classification to show each state.</p>
+    </div>
+  </aside>
+</div>
+
+<script>
+"use strict";
+const WIDGETS = [
+  ["race", "APEX", "Race Mode"], ["next", "Next session", ""], ["countdown", "Countdown", ""], ["timing", "Live timing", ""],
+  ["driver", "Driver", ""], ["fav", "Favourite driver", "smart"], ["wdc", "Drivers' title", "WDC"],
+  ["wcc", "Constructors' title", "WCC"], ["weekend", "Race weekend", ""],
+];
+const store = { get(k) { try { return JSON.parse(localStorage.getItem(k)); } catch { return null; } },
+                set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} } };
+const S = Object.assign({ widget: "race", platform: "ios", driver: null, density: "standard", theme: "dark",
+  accent: "system", teamColors: true, scenario: "now" }, store.get("apex.prefs") || {});
+let snap = store.get("apex.snapshot"), replay = null, fetchedAt = snap ? Date.parse(snap.generated_at) : 0, failed = false;
+let view = null, lightsAt = 0, sim = null;
+
+// ---------- formatting (tokens.json "format") ----------
+const pad = n => String(n).padStart(2, "0");
+const flag = cc => cc ? String.fromCodePoint(...[...cc.toUpperCase()].map(c => 0x1f1a5 + c.charCodeAt(0))) : "";
+const noFlagEmoji = /Windows/.test(navigator.userAgent);
+const country = (cc, p) => !cc ? "" : p === "windows" || noFlagEmoji ? `<span class="cc">${cc}</span>` : `<span class="flag" aria-hidden="true">${flag(cc)}</span>`;
+const dayTime = iso => { const d = new Date(iso); return `${d.toLocaleDateString("en-GB", { weekday: "short" }).toUpperCase()} · ${pad(d.getHours())}:${pad(d.getMinutes())}`; };
+const dayOnly = iso => new Date(iso).toLocaleDateString("en-GB", { weekday: "short" }).toUpperCase();
+const hhmm = iso => { const d = new Date(iso); return `${pad(d.getHours())}:${pad(d.getMinutes())}`; };
+function cd(iso, now) {
+  let s = Math.max(0, Math.floor((Date.parse(iso) - now) / 1000));
+  const days = Math.floor(s / 86400); s %= 86400;
+  return { days, hms: `${pad(Math.floor(s / 3600))}:${pad(Math.floor(s % 3600 / 60))}:${pad(s % 60)}` };
+}
+const ago = ms => { const s = Math.round(ms / 1000); return s < 60 ? `${s}S` : s < 3600 ? `${Math.round(s / 60)}M` : `${Math.round(s / 3600)}H`; };
+const pts = p => Number.isInteger(p) ? p : p.toFixed(1);
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const shortCountry = r => r ? r.short_name.replace(/ GP$/, "") : "";
+
+// ---------- Race Mode (mirror of backend/apex/racemode.py) ----------
+function raceMode(sessions, now) {
+  const o = [...sessions].sort((a, b) => Date.parse(a.starts_at) - Date.parse(b.starts_at));
+  const live = o.find(s => Date.parse(s.starts_at) <= now && now < Date.parse(s.ends_at));
+  if (live) return ["live", live];
+  const ended = o.filter(s => Date.parse(s.ends_at) <= now).pop();
+  if (ended && now - Date.parse(ended.ends_at) < 90 * 60e3) return ["results", ended];
+  const up = o.find(s => Date.parse(s.starts_at) > now);
+  if (!up) return ["next", null];
+  return [Date.parse(up.starts_at) - now <= 3 * 3600e3 ? "countdown" : "next", up];
+}
+function stateOf(s, now) {
+  const a = Date.parse(s.starts_at), b = Date.parse(s.ends_at);
+  return now >= b ? "finished" : now >= a ? "live" : now >= a - 15 * 60e3 ? "starting_soon" : "upcoming";
+}
+
+// ---------- scenario → view model ----------
+function buildView(now) {
+  if (S.scenario === "loading" || !snap) return { loading: true };
+  const v = structuredClone(snap);
+  v.stale = S.scenario === "stale" ? 124e3 : failed ? now - fetchedAt : 0;
+  const race = v.race;
+  const shift = (target, startIn) => {   // move the weekend so `target` starts at now + startIn
+    if (!race) return;
+    const t = race.sessions.find(s => s.type === target) || race.sessions.at(-1);
+    const delta = now + startIn - Date.parse(t.starts_at);
+    race.sessions.forEach(s => { s.starts_at = new Date(Date.parse(s.starts_at) + delta).toISOString();
+                                 s.ends_at = new Date(Date.parse(s.ends_at) + delta).toISOString(); });
+  };
+  const sc = S.scenario;
+  if (sc === "lights") shift("RACE", lightsAt - now);
+  if (sc === "countdown") shift("RACE", (2 * 3600 + 14 * 60 + 32) * 1e3);
+  if (sc === "live") shift("RACE", -(64 * 60e3));
+  if (sc === "results") shift("RACE", -(150 * 60e3));
+  if (sc === "quali") shift("QUALIFYING", -(42 * 60e3));
+  if (sc === "unavailable") { shift("RACE", -(30 * 60e3)); v.live_unavailable = true; }
+  if (race && sc !== "now" && sc !== "stale") {
+    race.sessions.forEach(s => s.state = stateOf(s, now));
+    const [mode, focus] = raceMode(race.sessions, now);
+    v.mode = mode;
+    v.next_session = race.sessions.find(s => Date.parse(s.ends_at) > now) || null;
+    v.live = mode === "live" && sc !== "unavailable" ? simTiming(focus, now) : null;
+    v.results = mode === "results" ? Object.assign(simTiming(focus, now), { final: true, lap: race.laps_total }) : null;
+    if (mode === "results" && v.driver) v.driver.weekend = [{ session_type: "RACE", ...favResult(v.results) }];
+    if (sc === "quali" && v.driver) v.driver.weekend = [];
+  } else if (v.next_session) {
+    // Real data: still flip Countdown → LIVE on the client at the boundary, no refresh needed (spec §8).
+    v.next_session.state = stateOf(v.next_session, now);
+    if (race) { race.sessions.forEach(s => s.state = stateOf(s, now)); const [m] = raceMode(race.sessions, now); if (m !== v.mode && !(m === "results" && !v.results)) v.mode = m; }
+  }
+  return v;
+}
+function favResult(t) { const r = t.rows.find(r => r.code === snap.driver?.code); return { position: r?.position ?? null, gap: r?.gap ?? null }; }
+
+// Replays the last race's classification. Positions drift every few seconds to show motion.
+function simTiming(session, now) {
+  if (!replay) return null;
+  const quali = session.type === "QUALIFYING" || session.type === "SPRINT_QUALIFYING";
+  if (!sim || sim.quali !== quali) sim = { quali, order: replay.rows.map(r => r.code), lap: 42, last: now };
+  if (S.scenario !== "results" && now - sim.last > 4000) {
+    const i = 1 + Math.floor(Math.random() * Math.min(8, sim.order.length - 2));
+    [sim.order[i], sim.order[i + 1]] = [sim.order[i + 1], sim.order[i]];
+    sim.lap = Math.min((snap.race?.laps_total ?? 60), sim.lap + 1); sim.last = now;
+  }
+  const byCode = Object.fromEntries(replay.rows.map(r => [r.code, r]));
+  const glyph = ["purple", "green", "yellow"];
+  return { session_id: session.id, session_type: session.type, phase: quali ? "Q3" : null, lap: quali ? null : sim.lap,
+    laps_total: quali ? null : snap.race?.laps_total, final: false, updated_at: new Date(now).toISOString(),
+    rows: sim.order.map((code, i) => { const r = byCode[code];
+      const gap = i === 0 ? null : quali ? `+${(0.061 * i + 0.013 * (i % 3)).toFixed(3)}` : `+${(1.7 * i + 0.31 * (i % 4)).toFixed(3)}`;
+      return { ...r, position: i + 1, time: quali && i === 0 ? "1:29.184" : null, gap,
+        in_pit: !quali && i === 6 && sim.lap % 9 < 2, sectors: [glyph[(i + 2) % 3], glyph[i % 3], glyph[(i + 1) % 3]] }; }) };
+}
+
+// ---------- primitives ----------
+const liveTag = (label, still) => `<span class="live"><i class="dot${still ? " still" : ""}" aria-hidden="true"></i>LIVE${label ? ` · ${esc(label)}` : ""}</span>`;
+const rail = (frac, on) => frac == null ? "" : `<div class="rail${on ? " on" : ""}" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${Math.round(frac * 100)}"><i style="width:${(Math.max(0, Math.min(1, frac)) * 100).toFixed(1)}%"></i></div>`;
+const tick = c => `<i class="tick" style="--c:${c ? "#" + c : "transparent"}" aria-hidden="true"></i>`;
+const secG = s => !s ? "" : `<span class="sec" aria-label="sectors">${s.map(x => x === "purple" ? `<span class="pu">◆</span>` : x === "green" ? `<span class="gr">▲</span>` : x === "yellow" ? `<span class="ye">–</span>` : `<span class="na">·</span>`).join("")}</span>`;
+const stale = v => v.stale > 60e3 ? `<div class="stale micro">Last updated ${ago(v.stale)} ago</div>` : "";
+const sessionLabel = t => ({ RACE: "RACE", SPRINT: "SPRINT", QUALIFYING: "QUALI", SPRINT_QUALIFYING: "SPRINT QUALI" }[t] || t);
+
+function head(v, right = "") {
+  const r = v.race;
+  return `<div class="row">${country(r?.country_code, S.platform)}<span class="meta" style="color:var(--wt1)">${esc(r?.short_name ?? "")}</span><span class="sp"></span>${right}</div>`;
+}
+function countdownRail(v, now) {
+  const ns = v.next_session; if (!ns || !v.race) return null;
+  const prev = v.race.sessions.filter(s => Date.parse(s.ends_at) <= Date.parse(ns.starts_at) && s.id !== ns.id).pop();
+  const from = prev ? Date.parse(prev.ends_at) : Date.parse(ns.starts_at) - 7 * 864e5;
+  return (now - from) / (Date.parse(ns.starts_at) - from);
+}
+function rowsFor(t, n, fav, showSec, showInt) {
+  let rows = t.rows.slice(0, n);
+  const f = t.rows.find(r => r.code === fav);
+  const more = f && !rows.includes(f) && n > 2;
+  if (more) rows = rows.slice(0, n - 1);
+  const quali = !["RACE", "SPRINT"].includes(t.session_type);
+  const line = (r, extra = "") => {
+    const val = r.in_pit ? `<span class="pit">PIT</span>` : r.position === 1 ? (quali || t.final ? esc(r.time ?? "") : "") : esc(r.gap ?? "");
+    return `<div class="tr${r.code === fav ? " fav" : ""}${extra}" data-code="${esc(r.code)}"><span class="p">${r.position}</span>${tick(r.team_color)}<span>${esc(r.code)}</span>${showSec ? secG(r.sectors) : "<span></span>"}<span class="v${r.position === 1 ? " lead" : ""}">${val}${showInt && r.interval ? ` <span class="t3">${esc(r.interval)}</span>` : ""}</span></div>`;
+  };
+  return rows.map(r => line(r)).join("") + (more ? line(f, " more") : "");
+}
+
+// ---------- widgets ----------
+const R = {};
+R.next = (v, z, now) => {
+  const ns = v.next_session;
+  if (!ns) return `<div class="meta">Season complete</div><div class="grow"></div><div class="title">See you next year</div>`;
+  if (ns.state === "live") return R.timing(v, z, now);
+  const c = cd(ns.starts_at, now), soon = ns.state === "starting_soon";
+  const time = c.days ? `${c.days}D ${c.hms.slice(0, 5)}` : c.hms;
+  const soonTag = soon ? `<span class="meta" style="color:var(--wt1)">◐ Soon</span>` : `<span class="meta t3">R${v.race?.round ?? ""}</span>`;
+  if (z === "s") return `<div class="row">${country(v.race?.country_code, S.platform)}<span class="meta" style="color:var(--wt1)">${esc(shortCountry(v.race))}</span></div>
+    <div class="grow"></div><div class="meta" style="color:var(--wt1)">${esc(ns.label)}</div><div class="meta t3" style="margin-top:4px">${dayTime(ns.starts_at)}</div>
+    <div class="big" style="margin-top:12px;${soon ? "font-weight:700" : ""}">${time}</div>${rail(countdownRail(v, now))}${stale(v)}`;
+  const body = `<div class="row" style="align-items:flex-end;margin-top:auto">
+      <div class="col" style="gap:6px"><div class="title">${esc(ns.label === "QUALIFYING" ? "Qualifying" : ns.label === "RACE" ? "Race" : ns.label)}</div><div class="meta t3">${dayTime(ns.starts_at)}</div></div>
+      <span class="sp"></span><div class="col" style="align-items:flex-end;gap:6px"><div class="meta t3">Starts in</div><div class="${z === "l" ? "hero" : "display"}"${soon ? ' style="font-weight:700"' : ""}>${time}</div></div></div>`;
+  if (z === "m") return `${head(v, soonTag)}${body}${rail(countdownRail(v, now))}${stale(v)}`;
+  return `${head(v, soonTag)}<div style="margin-top:20px">${weekendList(v, now)}</div><div class="micro" style="margin-top:12px">${esc(v.race?.circuit_name ?? "")}</div>${body}${rail(countdownRail(v, now))}${stale(v)}`;
+};
+R.countdown = (v, z, now, target) => {
+  const sess = target || v.race?.sessions.find(s => s.type === "RACE");
+  if (!sess) return R.next(v, z, now);
+  if (stateOf(sess, now) === "live") return R.timing(v, z, now);
+  if (stateOf(sess, now) === "finished") return R.next(v, z, now);
+  const c = cd(sess.starts_at, now), name = sessionLabel(sess.type);
+  const rl = rail(countdownRail({ ...v, next_session: sess }, now));
+  if (z === "s") return `<div class="meta">${name} in</div><div class="grow"></div>${c.days ? `<div class="display">${pad(c.days)}</div><div class="micro" style="margin:4px 0 10px">Days</div>` : ""}<div class="${c.days ? "big" : "display"}">${c.hms}</div>${rl}${stale(v)}`;
+  if (z === "m") return `<div class="row"><span class="meta">${name} starts in</span><span class="sp"></span>${country(v.race?.country_code, S.platform)}<span class="meta" style="color:var(--wt1)">${esc(v.race?.short_name ?? "")}</span></div>
+    <div class="row"><span class="sp"></span><span class="meta t3" style="margin-top:4px">${dayTime(sess.starts_at)}</span></div>
+    <div class="row" style="margin-top:auto;margin-bottom:6px;align-items:flex-end;gap:20px">${c.days ? `<div><div class="hero">${pad(c.days)}</div><div class="micro" style="margin-top:6px">Days</div></div>` : ""}
+    <div><div class="hero" style="${c.days ? "color:var(--wt2)" : ""}">${c.hms}</div>${c.days ? `<div class="micro" style="margin-top:6px">&nbsp;</div>` : ""}</div></div>${rl}${stale(v)}`;
+  return `${head(v, `<span class="meta t3">R${v.race?.round}</span>`)}<div class="grow"></div><div class="meta">${name} starts in</div>
+    ${c.days ? `<div class="hero" style="font-size:96px;margin-top:12px">${pad(c.days)}</div><div class="micro" style="margin:6px 0 16px">Days</div>` : ""}
+    <div class="hero" style="${c.days ? "" : "font-size:64px;margin-top:12px"}">${c.hms}</div><div class="grow"></div><div class="meta t3">${dayTime(sess.starts_at)} · ${esc(v.race?.circuit_name ?? "")}</div>${rl}${stale(v)}`;
+};
+R.timing = (v, z, now, forceResults) => {
+  const t = forceResults ? v.results : v.live;
+  if (!t) return emptyLive(v, z, now);
+  const quali = !["RACE", "SPRINT"].includes(t.session_type);
+  const label = t.phase || sessionLabel(t.session_type);
+  const lap = t.lap ? `<span class="meta mono" style="color:var(--wt1)">L${t.lap}${t.laps_total ? ` / ${t.laps_total}` : ""}</span>` : "";
+  const tag = t.final ? `<span class="meta" style="color:var(--wt1)">✓ Final · ${esc(label)}</span>` : liveTag(label);
+  const progress = t.final ? null : t.lap && t.laps_total ? t.lap / t.laps_total : progressOf(v, t, now);
+  const fav = S.driver ? (snap.driver?.code) : null, d = S.density;
+  if (z === "s") { const p1 = t.rows[0], f = t.rows.find(r => r.code === fav);
+    const show = S.widget === "fav" && f ? f : p1;
+    return `<div class="row">${t.final ? `<span class="meta" style="color:var(--wt1)">✓ Final</span>` : liveTag("")}<span class="sp"></span>${t.lap ? `<span class="meta mono t2">L${t.lap}</span>` : `<span class="meta">${esc(label)}</span>`}</div>
+      <div class="grow"></div><div class="display">P${show.position}</div><div class="row" style="margin-top:6px">${S.teamColors ? tick(show.team_color) : ""}<span class="title">${esc(show.code)}</span></div>
+      <div class="meta t3 mono" style="margin-top:6px;min-height:13px">${show.position > 1 ? esc(show.gap ?? "") : quali ? esc(show.time ?? "") : ""}</div>${rail(progress, true)}${stale(v)}`; }
+  if (z === "m") { const n = d === "minimal" ? 3 : 6;
+    const rows = rowsFor(t, n, fav, false, false);
+    return `<div class="row">${tag}<span class="sp"></span>${lap || (quali && !t.final ? "" : "")}</div>
+      <div class="tt ${n > 3 ? "cols2" : ""}" style="margin-top:auto;margin-bottom:6px;${n > 3 ? "grid-auto-flow:column;grid-template-rows:repeat(3,18px)" : ""}">${rows}</div>${rail(progress, !t.final)}${stale(v)}`; }
+  const n = d === "minimal" ? 6 : d === "detailed" ? 12 : 10;
+  return `<div class="row">${tag}<span class="sp"></span>${lap}</div>
+    <div class="row" style="margin-top:6px">${country(v.race?.country_code, S.platform)}<span class="meta" style="color:var(--wt1)">${esc(v.race?.short_name ?? "")}</span></div>
+    <div class="tt" style="margin-top:auto;margin-bottom:6px">${rowsFor(t, n, fav, d !== "minimal", d === "detailed")}</div>${rail(progress, !t.final)}${stale(v)}`;
+};
+function progressOf(v, t, now) {
+  const s = v.race?.sessions.find(x => x.id === t.session_id); if (!s) return null;
+  return (now - Date.parse(s.starts_at)) / (Date.parse(s.ends_at) - Date.parse(s.starts_at));
+}
+function emptyLive(v, z, now) {
+  const ns = v.next_session;
+  if (v.live_unavailable) return `<div class="row"><span class="live"><i class="dot still" aria-hidden="true"></i>LIVE</span></div><div class="grow"></div>
+    <div class="meta" style="color:var(--wt1)">Live data unavailable</div>${z === "s" ? "" : `<div class="t2" style="margin-top:6px;font-size:13px">Using cached data · updated ${ago(Math.max(42e3, now - fetchedAt)).toLowerCase()} ago</div>`}
+    <div class="row" style="margin-top:12px"><button class="pit" style="background:none;cursor:pointer" onclick="load()">Retry</button></div>`;
+  if (!ns) return `<div class="meta">No live session</div>`;
+  const c = cd(ns.starts_at, now);
+  if (z === "s") return `<div class="meta">No live session</div><div class="grow"></div><div class="meta" style="color:var(--wt1)">${esc(ns.label)}</div><div class="meta t3" style="margin-top:4px">${dayTime(ns.starts_at)}</div><div class="big" style="margin-top:10px">${c.days ? `${c.days}D ${c.hms.slice(0, 5)}` : c.hms}</div>${stale(v)}`;
+  return `<div class="row"><span class="meta">No live session</span><span class="sp"></span>${country(v.race?.country_code, S.platform)}<span class="meta" style="color:var(--wt1)">${esc(v.race?.short_name ?? "")}</span></div><div class="grow"></div>
+    <div class="micro">Next session</div><div class="row" style="align-items:flex-end;margin-top:8px"><div class="col" style="gap:6px"><div class="title">${esc(ns.label)}</div><div class="meta t3">${dayTime(ns.starts_at)}</div></div><span class="sp"></span>
+    <div class="col" style="align-items:flex-end;gap:6px"><div class="micro">Starts in</div><div class="display">${c.days ? `${c.days}D ${c.hms.slice(0, 5)}` : c.hms}</div></div></div>${stale(v)}`;
+}
+R.driver = (v, z, now) => {
+  const d = v.driver; if (!d) return pickDriver();
+  const pos = d.position ? `P${d.position}` : "—";
+  if (z === "s") return `<div class="row">${country(d.country_code, S.platform)}<span class="meta">${esc(d.team_name ?? "")}</span></div><div class="grow"></div>
+    <div class="display">${pos}</div><div class="row" style="margin-top:6px">${S.teamColors ? tick(d.team_color) : ""}<span class="title">${esc(d.code)}</span></div><div class="meta t3 mono" style="margin-top:6px">${pts(d.points)} PTS</div>${stale(v)}`;
+  const stats = `<div class="stats"><div><span class="micro">Wins</span><b>${d.wins}</b></div><div><span class="micro">Podiums</span><b>${d.podiums}</b></div><div><span class="micro">Poles</span><b>${d.poles}</b></div></div>`;
+  const name = `<div class="row" style="${S.teamColors && d.team_color ? `box-shadow:inset 2px 0 0 #${d.team_color};padding-left:10px` : ""}"><span class="title" style="text-transform:uppercase;letter-spacing:.02em;font-size:15px">${esc(d.first_name)} ${esc(d.last_name)}</span><span class="sp"></span>${country(d.country_code, S.platform)}<span class="meta">${esc(d.team_name ?? "")}</span></div>`;
+  const top = `<div class="row" style="align-items:flex-end;margin-top:auto"><div class="hero">${pos}</div><span class="sp"></span><div class="big">${pts(d.points)}<span class="meta t3"> PTS</span></div></div>`;
+  if (z === "m") return `${name}${top}${S.density === "minimal" ? "" : `<div style="margin-top:14px">${stats}</div>`}${stale(v)}`;
+  const last5 = d.last5.length ? `<div class="micro" style="margin:20px 0 8px">Last ${d.last5.length}</div><div class="last5">${d.last5.map(p => `<span>${p ? "P" + p : "DNF"}</span>`).join("")}</div>` : "";
+  return `${name}<div class="grow"></div><div class="hero" style="font-size:72px">${pos}</div><div class="big" style="margin-top:8px">${pts(d.points)}<span class="meta t3"> PTS</span></div>
+    <div style="margin-top:20px">${stats}</div>${S.density === "minimal" ? "" : last5}${stale(v)}`;
+};
+const pickDriver = () => `<div class="meta">Driver</div><div class="grow"></div><div class="title">Choose a driver</div><div class="t2" style="font-size:13px;margin-top:4px">Pick one in the panel to fill this widget.</div>`;
+R.fav = (v, z, now) => {
+  const d = v.driver; if (!d) return pickDriver();
+  const live = v.mode === "live" && v.live?.rows.find(r => r.code === d.code);
+  const race = d.weekend?.find(w => w.session_type === "RACE" && w.position);
+  const quali = d.weekend?.find(w => w.session_type === "QUALIFYING" && w.position);
+  let top, big, sub, label;
+  if (live) { label = liveTag(v.live.phase || sessionLabel(v.live.session_type)); big = `P${live.position}`;
+    top = v.live.lap ? `L${v.live.lap}` : ""; sub = live.in_pit ? `<span class="pit">PIT</span>` : esc(live.position === 1 ? (v.live.lap ? "Leader" : live.time) : live.gap ?? ""); }
+  else if (race) { label = `<span class="meta" style="color:var(--wt1)">✓ Race</span>`; big = `P${race.position}`; top = ""; sub = esc(race.gap ?? (race.position === 1 ? "Winner" : "")); }
+  else if (quali) { const rs = v.race?.sessions.find(s => s.type === "RACE"); label = `<span class="meta">Grid</span>`; big = `QUALI P${quali.position}`; top = "";
+    sub = rs ? `Race in ${(c => c.days ? `${c.days}D ${c.hms.slice(0, 5)}` : c.hms)(cd(rs.starts_at, now))}` : ""; }
+  else { label = `<span class="meta">Championship</span>`; big = d.position ? `P${d.position}` : "—"; top = ""; sub = `${pts(d.points)} PTS`; }
+  const bigCls = big.length > 4 ? "big" : "display";
+  if (z === "s") return `<div class="row">${label}</div><div class="grow"></div><div class="row" style="align-items:baseline"><div class="${bigCls}">${big}</div><span class="sp"></span><span class="meta mono" style="color:var(--wt1)">${top}</span></div>
+    <div class="row" style="margin-top:6px">${S.teamColors ? tick(d.team_color) : ""}<span class="title">${esc(d.code)}</span><span class="sp"></span><span class="meta mono t2">${sub}</span></div>${live ? rail(v.live.lap && v.live.laps_total ? v.live.lap / v.live.laps_total : progressOf(v, v.live, now), true) : ""}${stale(v)}`;
+  const l5 = d.last5.length ? `<div class="last5" style="margin-top:14px">${d.last5.map(p => `<span>${p ? "P" + p : "DNF"}</span>`).join("")}</div>` : "";
+  const body = `<div class="row">${label}<span class="sp"></span>${country(d.country_code, S.platform)}<span class="meta" style="color:var(--wt1)">${esc(d.first_name)} ${esc(d.last_name)}</span></div>
+    <div class="row" style="align-items:flex-end;margin-top:auto"><div class="${big.length > 4 ? "display" : "hero"}">${big}</div><span class="sp"></span><div class="col" style="align-items:flex-end;gap:6px"><span class="meta mono" style="color:var(--wt1)">${top}</span><span class="big" style="font-size:18px">${sub}</span></div></div>`;
+  if (z === "m") return `${body}${live ? rail(v.live.lap && v.live.laps_total ? v.live.lap / v.live.laps_total : progressOf(v, v.live, now), true) : ""}${stale(v)}`;
+  return `${body}<div class="micro" style="margin-top:20px">Season</div><div class="row mono" style="margin-top:8px;gap:16px"><span>P${d.position ?? "—"}</span><span class="t2">${pts(d.points)} PTS</span><span class="t2">${d.wins} WINS</span></div>
+    <div class="micro" style="margin-top:16px">Last ${d.last5.length} races</div>${l5}${live ? rail(v.live.lap / (v.live.laps_total || 1), true) : ""}${stale(v)}`;
+};
+function standings(rows, z, kind, v) {
+  const d = S.density, n = z === "s" ? 3 : z === "m" ? (d === "minimal" ? 3 : 5) : (d === "minimal" ? 6 : 10);
+  const favKey = kind === "wdc" ? v.driver?.code : v.driver?.team_id;
+  const key = r => kind === "wdc" ? r.code : r.team_id;
+  let shown = rows.slice(0, n);
+  let extra = "";
+  if (favKey && !shown.some(r => key(r) === favKey) && n > 2) {
+    shown = shown.slice(0, n - 1);
+    const fr = rows.find(r => key(r) === favKey) || (kind === "wdc" && v.driver?.position ? { position: v.driver.position, code: v.driver.code, team_color: v.driver.team_color, points: v.driver.points } : null);
+    if (fr) extra = line(fr, " more fav");
+  }
+  const leader = rows[0]?.points ?? 0;
+  function line(r, cls = "") {
+    const name = kind === "wdc" ? r.code : r.short_name;
+    const gap = z === "l" && d === "detailed" ? `<span class="t3" style="margin-right:12px">${r.position === 1 ? "" : "−" + pts(leader - r.points)}</span>` : "";
+    return `<div class="tr team${key(r) === favKey ? " fav" : ""}${cls}"><span class="p">${pad(r.position)}</span>${tick(r.team_color ?? r.color)}<span style="${kind === "wcc" ? "font-family:var(--wsans);font-weight:600;font-size:12px;letter-spacing:.04em" : ""}">${esc(name)}</span><span class="v lead">${gap}${pts(r.points)}</span></div>`;
+  }
+  const round = v.race ? `R${Math.max(1, (v.race.round ?? 1) - 1)}` : "";
+  return `<div class="row"><span class="meta" style="color:var(--wt1)">${kind.toUpperCase()}</span><span class="sp"></span><span class="meta t3">${z === "s" ? "" : "After " + round}</span></div>
+    <div class="tt" style="margin-top:auto">${shown.map(r => line(r)).join("")}${extra}</div>${stale(v)}`;
+}
+R.wdc = (v, z) => standings(v.drivers, z, "wdc", v);
+R.wcc = (v, z) => standings(v.constructors, z, "wcc", v);
+function weekendList(v, now, compact) {
+  const ss = v.race?.sessions ?? [];
+  return `<div class="wk">${ss.map(s => { const st = stateOf(s, now);
+    const g = st === "finished" ? "✓" : st === "live" ? "●" : st === "starting_soon" ? "◐" : "○";
+    const right = st === "live" ? `<span class="tm acc">LIVE</span>` : st === "finished" ? `<span></span>` : `<span class="tm">${hhmm(s.starts_at)}</span>`;
+    const cls = st === "finished" ? "fin" : st === "live" ? "now" : "";
+    return `<span class="d ${cls}">${dayOnly(s.starts_at)}</span><span class="n ${cls}">${esc(s.label)}</span><span class="g ${cls}" aria-label="${st.replace("_", " ")}">${g}</span>${compact ? "<span></span>" : right}`; }).join("")}</div>`;
+}
+R.weekend = (v, z, now) => {
+  if (!v.race) return `<div class="meta">No upcoming weekend</div>`;
+  if (z === "s") { const ns = v.next_session; const st = ns ? stateOf(ns, now) : "finished";
+    return `<div class="row">${country(v.race.country_code, S.platform)}<span class="meta" style="color:var(--wt1)">${esc(shortCountry(v.race))}</span></div>
+      <div class="row mono" style="margin-top:14px;gap:6px;font-size:15px" aria-label="weekend progress">${v.race.sessions.map(s => { const x = stateOf(s, now); return `<span class="${x === "live" ? "acc" : x === "finished" ? "t3" : ""}">${x === "finished" ? "✓" : x === "live" ? "●" : "○"}</span>`; }).join("")}</div>
+      <div class="grow"></div>${ns ? `<div class="meta ${st === "live" ? "acc" : ""}" style="${st === "live" ? "" : "color:var(--wt1)"}">${st === "live" ? "● " : ""}${esc(ns.label)}</div><div class="meta t3" style="margin-top:4px">${st === "live" ? "Live now" : dayTime(ns.starts_at)}</div>` : ""}${stale(v)}`; }
+  const body = `${head(v, `<span class="meta t3">R${v.race.round}</span>`)}<div style="margin-top:${z === "m" ? "auto" : "20px"}">${weekendList(v, now)}</div>`;
+  if (z === "m") return body + stale(v);
+  const ns = v.next_session;
+  const foot = ns && stateOf(ns, now) !== "live" ? `<div class="grow"></div><div class="row" style="align-items:flex-end"><div class="col" style="gap:6px"><span class="micro">Next</span><span class="title">${esc(ns.label)}</span></div><span class="sp"></span><span class="display">${(c => c.days ? `${c.days}D ${c.hms.slice(0, 5)}` : c.hms)(cd(ns.starts_at, now))}</span></div>${rail(countdownRail(v, now))}` : "";
+  return `${body}<div class="micro" style="margin-top:16px">${esc(v.race.circuit_name)}</div>${foot}${stale(v)}`;
+};
+R.race = (v, z, now) => v.mode === "live" ? R.timing(v, z, now) : v.mode === "results" ? R.timing(v, z, now, true)
+  : v.mode === "countdown" ? R.countdown(v, z, now, v.next_session) : R.next(v, z, now);
+
+function skeleton(z) {
+  const rows = z === "s" ? 2 : z === "m" ? 3 : 9;
+  return `<div class="skel" style="width:40%"></div><div class="grow"></div>${z === "s" ? `<div class="skel h" style="width:60%;margin-bottom:10px"></div>` : ""}
+    <div style="display:grid;gap:8px">${Array.from({ length: rows }, (_, i) => `<div class="skel" style="width:${[86, 72, 80, 64][i % 4]}%"></div>`).join("")}</div>`;
+}
+
+// ---------- lock screen (iOS accessory widgets) ----------
+function lock(v, now) {
+  if (v.loading) return "";
+  const ns = v.next_session, t = v.mode === "live" ? v.live : null;
+  let rect, circ, inline;
+  if (t) { const top = t.rows.slice(0, 3).map(r => r.code).join(" ");
+    rect = `<div class="a">● Live · ${esc(t.phase || sessionLabel(t.session_type))}${t.lap ? ` · L${t.lap}` : ""}</div><div class="b">${esc(t.rows[0]?.code ?? "")} ${t.rows[1] ? `<span style="opacity:.6;font-size:16px">${esc(t.rows[1].gap ?? "")}</span>` : ""}</div><div class="c">${top}</div>`;
+    circ = `<div class="a">LAP</div><div class="b">${t.lap ?? "—"}</div>`;
+    inline = `● ${esc(t.rows[0]?.code ?? "")} leads${t.lap ? ` · L${t.lap}/${t.laps_total}` : ""}`; }
+  else if (ns) { const c = cd(ns.starts_at, now);
+    rect = `<div class="a">${esc(ns.label)} · ${esc(shortCountry(v.race))}</div><div class="b">${c.days ? `${pad(c.days)}d ` : ""}${c.hms}</div><div class="c">${dayTime(ns.starts_at)}</div>`;
+    circ = `<div class="a">${c.days ? "DAYS" : "HRS"}</div><div class="b">${c.days ? c.days : c.hms.slice(0, 2)}</div>`;
+    inline = `${esc(sessionLabel(ns.type))} ${dayTime(ns.starts_at)}`; }
+  else return "";
+  return `<div class="lk"><div class="lk-rect">${rect}</div><span class="lbl">Rectangular</span></div>
+    <div class="lk"><div class="lk-circ">${circ}</div><span class="lbl">Circular</span></div>
+    <div class="lk"><div class="lk-inline">${inline}</div><span class="lbl">Inline</span></div>`;
+}
+
+// ---------- render loop ----------
+function widgetHTML(id, z, v, now) {
+  const accent = S.accent === "team" && snap?.driver?.team_color ? `--acc:#${snap.driver.team_color};` : S.accent === "red" ? "--acc:#E10D2E;" : "";
+  const cls = `w ${z} p-${S.platform} th-${S.theme} acc-${S.accent}${S.teamColors ? "" : " no-team"}`;
+  const name = WIDGETS.find(w => w[0] === id)[1];
+  const body = v.loading ? skeleton(z) : R[id](v, z, now);
+  return `<div class="${cls}" style="${accent}" role="group" aria-label="${esc(name)} widget, ${({ s: "small", m: "medium", l: "large" })[z]}" aria-busy="${!!v.loading}">${body}</div>`;
+}
+
+function flip(container, fn) {   // animate timing rows to their new places (spec §25)
+  const before = new Map([...container.querySelectorAll(".tr[data-code]")].map(el => [el.closest(".w").className + el.dataset.code, el.getBoundingClientRect().top]));
+  fn();
+  for (const el of container.querySelectorAll(".tr[data-code]")) {
+    const was = before.get(el.closest(".w").className + el.dataset.code);
+    if (was == null) continue;
+    const dy = was - el.getBoundingClientRect().top;
+    if (Math.abs(dy) < 1) continue;
+    el.style.transform = `translateY(${dy}px)`;
+    requestAnimationFrame(() => { el.classList.add("moving"); el.style.transform = ""; });
+  }
+}
+
+function render() {
+  const now = Date.now();
+  view = buildView(now);
+  const sizes = document.getElementById("sizes");
+  flip(sizes, () => {
+    sizes.innerHTML = [["s", "Small"], ["m", "Medium"], ["l", "Large"]]
+      .map(([z, n]) => `<div class="size-col">${widgetHTML(S.widget, z, view, now)}<span>${n}</span></div>`).join("");
+  });
+  const lr = document.getElementById("lockrow");
+  const showLock = S.platform === "ios" && S.widget === "race" && !view.loading;
+  lr.hidden = !showLock; if (showLock) lr.innerHTML = lock(view, now);
+  const g = document.getElementById("gallery");
+  flip(g, () => { g.innerHTML = WIDGETS.map(([id, name]) => `<button data-w="${id}" aria-current="${id === S.widget}">${widgetHTML(id, "m", view, now)}<span>${name}</span></button>`).join(""); });
+  const w = WIDGETS.find(w => w[0] === S.widget);
+  document.getElementById("stage-title").textContent = w[1];
+  document.getElementById("stage-hint").textContent = view.loading ? "Loading the latest data…" : {
+    race: `Shows whatever matters now. Currently: ${({ live: "live timing", results: "results", countdown: "countdown", next: "next session" })[view.mode]}.`,
+    next: "What's next, and when.", countdown: "How long until lights out.", timing: "Who's leading, and by how much.",
+    driver: "Your driver's season at a glance.", fav: "Changes with the weekend: live position, result, grid slot or title standing.",
+    wdc: "The drivers' championship.", wcc: "The constructors' championship.", weekend: "Every session this weekend.",
+  }[S.widget];
+}
+
+function renderStatus() {
+  const el = document.getElementById("status");
+  const age = Date.now() - fetchedAt;
+  el.classList.toggle("bad", failed);
+  el.querySelector("span").textContent = !snap ? "Connecting…" : failed ? `Offline · showing data from ${ago(age).toLowerCase()} ago` : `Data current · updated ${ago(age).toLowerCase()} ago`;
+}
+
+async function load() {
+  try {
+    const q = S.driver ? `?driver=${encodeURIComponent(S.driver)}` : "";
+    const r = await fetch(`/api/widgets/snapshot${q}`);
+    if (!r.ok) throw new Error(r.status);
+    snap = await r.json(); fetchedAt = Date.now(); failed = false;
+    store.set("apex.snapshot", snap);
+    if (!replay && snap.race) {
+      const prev = `${snap.race.season}-${snap.race.round - 1}-race`;
+      const t = await fetch(`/api/session/${prev}/timing`); if (t.ok) replay = await t.json();
+    }
+  } catch { failed = true; }
+  renderStatus(); render();
+}
+
+async function loadDrivers() {
+  const sel = document.getElementById("driver");
+  try {
+    const list = await (await fetch("/api/standings/drivers")).json();
+    sel.innerHTML = `<option value="">No favourite</option>` + list.map(d => `<option value="${esc(d.driver_id)}">${esc(d.name)}</option>`).join("");
+    if (S.driver == null && list[0]) S.driver = list[0].driver_id;
+    sel.value = S.driver ?? "";
+  } catch { sel.innerHTML = `<option>Drivers unavailable offline</option>`; }
+}
+
+// ---------- controls ----------
+function syncControls() {
+  document.querySelectorAll(".seg[data-key]").forEach(g => g.querySelectorAll("button").forEach(b => b.setAttribute("aria-pressed", S[g.dataset.key] === b.dataset.v)));
+  document.getElementById("teamColors").setAttribute("aria-checked", S.teamColors);
+  document.getElementById("wlist").innerHTML = WIDGETS.map(([id, name, sub]) => `<button data-w="${id}" aria-pressed="${id === S.widget}"><span>${name}</span><small>${sub}</small></button>`).join("");
+  document.getElementById("scenario").value = S.scenario;
+}
+function set(k, v) { S[k] = v; store.set("apex.prefs", { ...S, scenario: "now" }); syncControls(); render(); }
+document.querySelectorAll(".seg[data-key]").forEach(g => g.addEventListener("click", e => { const b = e.target.closest("button"); if (b) set(g.dataset.key, b.dataset.v); }));
+document.getElementById("teamColors").addEventListener("click", () => set("teamColors", !S.teamColors));
+document.addEventListener("click", e => { const b = e.target.closest("[data-w]"); if (b) { set("widget", b.dataset.w); if (b.closest(".gallery")) window.scrollTo({ top: 0, behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" }); } });
+document.getElementById("driver").addEventListener("change", e => { S.driver = e.target.value; set("driver", S.driver); load(); });
+document.getElementById("scenario").addEventListener("change", e => { sim = null; lightsAt = Date.now() + 10e3; set("scenario", e.target.value); });
+
+syncControls(); render(); renderStatus();
+loadDrivers().then(load);
+setInterval(render, 1000);       // countdowns tick; Race Mode re-evaluates every second
+setInterval(load, 30e3);         // matches the snapshot's server cache TTL
+setInterval(renderStatus, 5e3);
+</script>
+</body>
+</html>

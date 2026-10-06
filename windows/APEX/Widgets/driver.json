@@ -1,0 +1,270 @@
+{
+ "type": "AdaptiveCard",
+ "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+ "version": "1.6",
+ "body": [
+  {
+   "type": "Container",
+   "items": [
+    {
+     "type": "TextBlock",
+     "text": "DRIVER",
+     "wrap": false,
+     "size": "Small",
+     "weight": "Bolder",
+     "isSubtle": true
+    },
+    {
+     "type": "Container",
+     "height": "stretch",
+     "items": []
+    },
+    {
+     "type": "TextBlock",
+     "text": "Choose a driver",
+     "wrap": false,
+     "size": "Medium",
+     "weight": "Bolder"
+    },
+    {
+     "type": "TextBlock",
+     "text": "Open the widget menu, then Customize.",
+     "wrap": true,
+     "size": "Small",
+     "isSubtle": true,
+     "spacing": "None"
+    }
+   ],
+   "$when": "${!chosen}",
+   "height": "stretch"
+  },
+  {
+   "type": "Container",
+   "items": [
+    {
+     "type": "Container",
+     "items": [
+      {
+       "type": "TextBlock",
+       "text": "${team}",
+       "wrap": false,
+       "size": "Small",
+       "weight": "Bolder",
+       "isSubtle": true
+      },
+      {
+       "type": "Container",
+       "height": "stretch",
+       "items": []
+      },
+      {
+       "type": "TextBlock",
+       "text": "${pos}",
+       "wrap": false,
+       "size": "ExtraLarge",
+       "weight": "Bolder"
+      },
+      {
+       "type": "TextBlock",
+       "text": "${code}",
+       "wrap": false,
+       "size": "Medium",
+       "weight": "Bolder",
+       "spacing": "None"
+      },
+      {
+       "type": "TextBlock",
+       "text": "${points} PTS",
+       "wrap": false,
+       "size": "Small",
+       "isSubtle": true,
+       "spacing": "None"
+      }
+     ],
+     "$when": "${$host.widgetSize==\"small\"}",
+     "height": "stretch"
+    },
+    {
+     "type": "Container",
+     "items": [
+      {
+       "type": "ColumnSet",
+       "columns": [
+        {
+         "type": "Column",
+         "width": "stretch",
+         "items": [
+          {
+           "type": "TextBlock",
+           "text": "${name}",
+           "wrap": false,
+           "size": "Small",
+           "weight": "Bolder"
+          }
+         ]
+        },
+        {
+         "type": "Column",
+         "width": "auto",
+         "items": [
+          {
+           "type": "TextBlock",
+           "text": "${cc}  ${team}",
+           "wrap": false,
+           "size": "Small",
+           "weight": "Bolder",
+           "isSubtle": true,
+           "horizontalAlignment": "Right"
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "type": "Container",
+       "height": "stretch",
+       "items": []
+      },
+      {
+       "type": "ColumnSet",
+       "columns": [
+        {
+         "type": "Column",
+         "width": "auto",
+         "items": [
+          {
+           "type": "TextBlock",
+           "text": "${pos}",
+           "wrap": false,
+           "size": "ExtraLarge",
+           "weight": "Bolder"
+          }
+         ]
+        },
+        {
+         "type": "Column",
+         "width": "stretch",
+         "items": [
+          {
+           "type": "TextBlock",
+           "text": "${points} PTS",
+           "wrap": false,
+           "size": "Large",
+           "weight": "Bolder",
+           "horizontalAlignment": "Right"
+          }
+         ],
+         "verticalContentAlignment": "Bottom"
+        }
+       ]
+      },
+      {
+       "type": "ColumnSet",
+       "columns": [
+        {
+         "type": "Column",
+         "width": "auto",
+         "items": [
+          {
+           "type": "TextBlock",
+           "text": "WINS",
+           "wrap": false,
+           "size": "Small",
+           "weight": "Bolder",
+           "isSubtle": true
+          },
+          {
+           "type": "TextBlock",
+           "text": "${wins}",
+           "wrap": false,
+           "weight": "Bolder",
+           "spacing": "None"
+          }
+         ]
+        },
+        {
+         "type": "Column",
+         "width": "auto",
+         "items": [
+          {
+           "type": "TextBlock",
+           "text": "PODIUMS",
+           "wrap": false,
+           "size": "Small",
+           "weight": "Bolder",
+           "isSubtle": true
+          },
+          {
+           "type": "TextBlock",
+           "text": "${podiums}",
+           "wrap": false,
+           "weight": "Bolder",
+           "spacing": "None"
+          }
+         ]
+        },
+        {
+         "type": "Column",
+         "width": "auto",
+         "items": [
+          {
+           "type": "TextBlock",
+           "text": "POLES",
+           "wrap": false,
+           "size": "Small",
+           "weight": "Bolder",
+           "isSubtle": true
+          },
+          {
+           "type": "TextBlock",
+           "text": "${poles}",
+           "wrap": false,
+           "weight": "Bolder",
+           "spacing": "None"
+          }
+         ]
+        }
+       ],
+       "spacing": "Medium",
+       "$when": "${showStats}"
+      },
+      {
+       "type": "Container",
+       "items": [
+        {
+         "type": "TextBlock",
+         "text": "LAST ${last5Count}",
+         "wrap": false,
+         "size": "Small",
+         "weight": "Bolder",
+         "isSubtle": true,
+         "spacing": "Large"
+        },
+        {
+         "type": "TextBlock",
+         "text": "${last5}",
+         "wrap": false,
+         "spacing": "Small"
+        }
+       ],
+       "$when": "${$host.widgetSize==\"large\" && last5 != ''}"
+      }
+     ],
+     "$when": "${$host.widgetSize!=\"small\"}",
+     "height": "stretch"
+    }
+   ],
+   "$when": "${chosen}",
+   "height": "stretch"
+  },
+  {
+   "type": "TextBlock",
+   "text": "${stale}",
+   "wrap": false,
+   "size": "Small",
+   "isSubtle": true,
+   "spacing": "Small",
+   "$when": "${stale != ''}"
+  }
+ ]
+}

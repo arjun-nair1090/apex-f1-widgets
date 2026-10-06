@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-2 -2 84 28" width="168" height="56" role="img" aria-label="APEX">
+  <g fill="none" stroke="#F5F7FA" stroke-width="3" stroke-linecap="square" stroke-linejoin="miter">
+    <path d="M1 22 L9.5 2 L18 22"/>
+    <path d="M25 22 V2 H32 A5 5 0 0 1 32 12 H25"/>
+    <path d="M55 2 H43 V22 H55 M43 12 H52"/>
+    <path d="M61 2 L77 22 M77 2 L61 22"/>
+  </g>
+  <path d="M3.5 16.5 L19 13" fill="none" stroke="#FF5A1F" stroke-width="2.25" stroke-linecap="square"/>
+</svg>

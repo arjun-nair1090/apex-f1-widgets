@@ -1,0 +1,240 @@
+{
+ "type": "AdaptiveCard",
+ "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+ "version": "1.6",
+ "body": [
+  {
+   "type": "Container",
+   "items": [
+    {
+     "type": "TextBlock",
+     "text": "${cc}  ${raceShort}",
+     "wrap": false,
+     "size": "Small",
+     "weight": "Bolder"
+    },
+    {
+     "type": "Container",
+     "height": "stretch",
+     "items": []
+    },
+    {
+     "type": "TextBlock",
+     "text": "${session}",
+     "wrap": false,
+     "size": "Small",
+     "weight": "Bolder"
+    },
+    {
+     "type": "TextBlock",
+     "text": "${when}",
+     "wrap": false,
+     "size": "Small",
+     "weight": "Bolder",
+     "isSubtle": true
+    },
+    {
+     "type": "TextBlock",
+     "text": "${countdown}",
+     "wrap": false,
+     "size": "Large",
+     "weight": "Bolder",
+     "spacing": "Small"
+    }
+   ],
+   "$when": "${$host.widgetSize==\"small\"}",
+   "height": "stretch"
+  },
+  {
+   "type": "Container",
+   "items": [
+    {
+     "type": "ColumnSet",
+     "columns": [
+      {
+       "type": "Column",
+       "width": "stretch",
+       "items": [
+        {
+         "type": "TextBlock",
+         "text": "${cc}  ${race}",
+         "wrap": false,
+         "size": "Small",
+         "weight": "Bolder"
+        }
+       ]
+      },
+      {
+       "type": "Column",
+       "width": "auto",
+       "items": [
+        {
+         "type": "TextBlock",
+         "text": "${tag}",
+         "wrap": false,
+         "size": "Small",
+         "weight": "Bolder",
+         "isSubtle": true,
+         "horizontalAlignment": "Right"
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "type": "Container",
+     "items": [
+      {
+       "type": "Container",
+       "items": [
+        {
+         "type": "ColumnSet",
+         "columns": [
+          {
+           "type": "Column",
+           "width": "40px",
+           "items": [
+            {
+             "type": "TextBlock",
+             "text": "${day}",
+             "wrap": false,
+             "size": "Small",
+             "weight": "Bolder",
+             "isSubtle": true
+            }
+           ]
+          },
+          {
+           "type": "Column",
+           "width": "stretch",
+           "items": [
+            {
+             "type": "TextBlock",
+             "text": "${name}",
+             "wrap": false,
+             "size": "Small",
+             "weight": "Bolder",
+             "isSubtle": "${done}",
+             "color": "${if(live,'Attention','Default')}"
+            }
+           ]
+          },
+          {
+           "type": "Column",
+           "width": "auto",
+           "items": [
+            {
+             "type": "TextBlock",
+             "text": "${glyph}",
+             "wrap": false,
+             "size": "Small",
+             "color": "${if(live,'Attention','Default')}",
+             "isSubtle": "${done}"
+            }
+           ]
+          },
+          {
+           "type": "Column",
+           "width": "48px",
+           "items": [
+            {
+             "type": "TextBlock",
+             "text": "${time}",
+             "wrap": false,
+             "size": "Small",
+             "isSubtle": true,
+             "horizontalAlignment": "Right"
+            }
+           ]
+          }
+         ],
+         "spacing": "None",
+         "$data": "${weekend}"
+        }
+       ],
+       "spacing": "Medium"
+      },
+      {
+       "type": "TextBlock",
+       "text": "${circuit}",
+       "wrap": false,
+       "size": "Small",
+       "weight": "Bolder",
+       "isSubtle": true,
+       "spacing": "Small"
+      }
+     ],
+     "$when": "${$host.widgetSize==\"large\"}"
+    },
+    {
+     "type": "Container",
+     "height": "stretch",
+     "items": []
+    },
+    {
+     "type": "ColumnSet",
+     "columns": [
+      {
+       "type": "Column",
+       "width": "stretch",
+       "items": [
+        {
+         "type": "TextBlock",
+         "text": "${sessionTitle}",
+         "wrap": false,
+         "size": "Medium",
+         "weight": "Bolder"
+        },
+        {
+         "type": "TextBlock",
+         "text": "${when}",
+         "wrap": false,
+         "size": "Small",
+         "weight": "Bolder",
+         "isSubtle": true,
+         "spacing": "None"
+        }
+       ],
+       "verticalContentAlignment": "Bottom"
+      },
+      {
+       "type": "Column",
+       "width": "auto",
+       "items": [
+        {
+         "type": "TextBlock",
+         "text": "STARTS IN",
+         "wrap": false,
+         "size": "Small",
+         "weight": "Bolder",
+         "isSubtle": true,
+         "horizontalAlignment": "Right"
+        },
+        {
+         "type": "TextBlock",
+         "text": "${countdown}",
+         "wrap": false,
+         "size": "ExtraLarge",
+         "weight": "Bolder",
+         "horizontalAlignment": "Right",
+         "spacing": "None"
+        }
+       ]
+      }
+     ]
+    }
+   ],
+   "$when": "${$host.widgetSize!=\"small\"}",
+   "height": "stretch"
+  },
+  {
+   "type": "TextBlock",
+   "text": "${stale}",
+   "wrap": false,
+   "size": "Small",
+   "isSubtle": true,
+   "spacing": "Small",
+   "$when": "${stale != ''}"
+  }
+ ]
+}

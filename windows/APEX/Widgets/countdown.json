@@ -1,0 +1,171 @@
+{
+ "type": "AdaptiveCard",
+ "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+ "version": "1.6",
+ "body": [
+  {
+   "type": "Container",
+   "items": [
+    {
+     "type": "TextBlock",
+     "text": "${label} IN",
+     "wrap": false,
+     "size": "Small",
+     "weight": "Bolder",
+     "isSubtle": true
+    },
+    {
+     "type": "Container",
+     "height": "stretch",
+     "items": []
+    },
+    {
+     "type": "Container",
+     "items": [
+      {
+       "type": "TextBlock",
+       "text": "${days}",
+       "wrap": false,
+       "size": "ExtraLarge",
+       "weight": "Bolder"
+      },
+      {
+       "type": "TextBlock",
+       "text": "DAYS",
+       "wrap": false,
+       "size": "Small",
+       "weight": "Bolder",
+       "isSubtle": true,
+       "spacing": "None"
+      }
+     ],
+     "$when": "${days != ''}"
+    },
+    {
+     "type": "TextBlock",
+     "text": "${hms}",
+     "wrap": false,
+     "size": "Large",
+     "weight": "Bolder"
+    }
+   ],
+   "$when": "${$host.widgetSize==\"small\"}",
+   "height": "stretch"
+  },
+  {
+   "type": "Container",
+   "items": [
+    {
+     "type": "ColumnSet",
+     "columns": [
+      {
+       "type": "Column",
+       "width": "stretch",
+       "items": [
+        {
+         "type": "TextBlock",
+         "text": "${label} STARTS IN",
+         "wrap": false,
+         "size": "Small",
+         "weight": "Bolder",
+         "isSubtle": true
+        }
+       ]
+      },
+      {
+       "type": "Column",
+       "width": "auto",
+       "items": [
+        {
+         "type": "TextBlock",
+         "text": "${cc}  ${race}",
+         "wrap": false,
+         "size": "Small",
+         "weight": "Bolder",
+         "horizontalAlignment": "Right"
+        },
+        {
+         "type": "TextBlock",
+         "text": "${when}",
+         "wrap": false,
+         "size": "Small",
+         "weight": "Bolder",
+         "isSubtle": true,
+         "horizontalAlignment": "Right",
+         "spacing": "None"
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "type": "Container",
+     "height": "stretch",
+     "items": []
+    },
+    {
+     "type": "ColumnSet",
+     "columns": [
+      {
+       "type": "Column",
+       "width": "auto",
+       "items": [
+        {
+         "type": "TextBlock",
+         "text": "${days}",
+         "wrap": false,
+         "size": "ExtraLarge",
+         "weight": "Bolder"
+        },
+        {
+         "type": "TextBlock",
+         "text": "DAYS",
+         "wrap": false,
+         "size": "Small",
+         "weight": "Bolder",
+         "isSubtle": true,
+         "spacing": "None"
+        }
+       ],
+       "$when": "${days != ''}"
+      },
+      {
+       "type": "Column",
+       "width": "stretch",
+       "items": [
+        {
+         "type": "TextBlock",
+         "text": "${hms}",
+         "wrap": false,
+         "size": "ExtraLarge",
+         "weight": "Bolder",
+         "isSubtle": "${days != ''}"
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "type": "TextBlock",
+     "text": "${circuit}",
+     "wrap": false,
+     "size": "Small",
+     "weight": "Bolder",
+     "isSubtle": true,
+     "$when": "${$host.widgetSize==\"large\"}"
+    }
+   ],
+   "$when": "${$host.widgetSize!=\"small\"}",
+   "height": "stretch"
+  },
+  {
+   "type": "TextBlock",
+   "text": "${stale}",
+   "wrap": false,
+   "size": "Small",
+   "isSubtle": true,
+   "spacing": "Small",
+   "$when": "${stale != ''}"
+  }
+ ]
+}

@@ -1,0 +1,118 @@
+{
+ "type": "AdaptiveCard",
+ "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+ "version": "1.6",
+ "body": [
+  {
+   "type": "ColumnSet",
+   "columns": [
+    {
+     "type": "Column",
+     "width": "stretch",
+     "items": [
+      {
+       "type": "TextBlock",
+       "text": "${title}",
+       "wrap": false,
+       "size": "Small",
+       "weight": "Bolder"
+      }
+     ]
+    },
+    {
+     "type": "Column",
+     "width": "auto",
+     "items": [
+      {
+       "type": "TextBlock",
+       "text": "${after}",
+       "wrap": false,
+       "size": "Small",
+       "weight": "Bolder",
+       "isSubtle": true,
+       "horizontalAlignment": "Right"
+      }
+     ],
+     "$when": "${$host.widgetSize!=\"small\"}"
+    }
+   ]
+  },
+  {
+   "type": "Container",
+   "height": "stretch",
+   "items": []
+  },
+  {
+   "type": "ColumnSet",
+   "columns": [
+    {
+     "type": "Column",
+     "width": "24px",
+     "items": [
+      {
+       "type": "TextBlock",
+       "text": "${pos}",
+       "wrap": false,
+       "size": "Small",
+       "isSubtle": true,
+       "horizontalAlignment": "Right"
+      }
+     ]
+    },
+    {
+     "type": "Column",
+     "width": "stretch",
+     "items": [
+      {
+       "type": "TextBlock",
+       "text": "${name}",
+       "wrap": false,
+       "size": "Small",
+       "weight": "${if(fav,'Bolder','Default')}",
+       "color": "${if(fav,'Attention','Default')}"
+      }
+     ]
+    },
+    {
+     "type": "Column",
+     "width": "auto",
+     "items": [
+      {
+       "type": "TextBlock",
+       "text": "${gap}",
+       "wrap": false,
+       "size": "Small",
+       "isSubtle": true,
+       "horizontalAlignment": "Right"
+      }
+     ],
+     "$when": "${gap != ''}"
+    },
+    {
+     "type": "Column",
+     "width": "auto",
+     "items": [
+      {
+       "type": "TextBlock",
+       "text": "${points}",
+       "wrap": false,
+       "size": "Small",
+       "horizontalAlignment": "Right"
+      }
+     ]
+    }
+   ],
+   "spacing": "None",
+   "$data": "${rows}"
+  },
+  {
+   "type": "TextBlock",
+   "text": "${stale}",
+   "wrap": false,
+   "size": "Small",
+   "isSubtle": true,
+   "spacing": "Small",
+   "$when": "${stale != ''}"
+  }
+ ]
+}

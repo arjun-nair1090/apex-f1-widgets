@@ -1,0 +1,8 @@
+fastapi>=0.115
+uvicorn[standard]>=0.30
+sqlalchemy>=2.0
+httpx>=0.27
+pydantic-settings>=2.4
+redis>=5.0            # optional at runtime: only used when REDIS_URL is set
+psycopg[binary]>=3.2  # PostgreSQL driver: DATABASE_URL=postgresql+psycopg://...
+pytest>=8

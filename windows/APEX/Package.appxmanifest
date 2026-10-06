@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Package
+  xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10"
+  xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10"
+  xmlns:uap3="http://schemas.microsoft.com/appx/manifest/uap/windows10/3"
+  xmlns:com="http://schemas.microsoft.com/appx/manifest/com/windows10"
+  xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities"
+  IgnorableNamespaces="uap uap3 com rescap">
+
+  <Identity Name="club.apex.widgets" Publisher="CN=APEX" Version="1.0.0.0" />
+
+  <Properties>
+    <DisplayName>APEX</DisplayName>
+    <PublisherDisplayName>APEX</PublisherDisplayName>
+    <Logo>Assets\StoreLogo.png</Logo>
+  </Properties>
+
+  <Dependencies>
+    <TargetDeviceFamily Name="Windows.Desktop" MinVersion="10.0.22000.0" MaxVersionTested="10.0.26100.0" />
+  </Dependencies>
+
+  <Resources>
+    <Resource Language="en-us" />
+  </Resources>
+
+  <Applications>
+    <Application Id="App" Executable="$targetnametoken$.exe" EntryPoint="$targetentrypoint$">
+      <uap:VisualElements DisplayName="APEX" Description="The F1 data layer that lives everywhere."
+        BackgroundColor="transparent" Square150x150Logo="Assets\Square150x150Logo.png" Square44x44Logo="Assets\Square44x44Logo.png" />
+      <Extensions>
+        <com:Extension Category="windows.comServer">
+          <com:ComServer>
+            <com:ExeServer Executable="APEX.exe" Arguments="-RegisterProcessAsComServer" DisplayName="APEX widget provider">
+              <com:Class Id="8C4D7A1E-4F0B-4E2A-9B7C-5A3E2D1F0A6B" DisplayName="APEX widget provider" />
+            </com:ExeServer>
+          </com:ComServer>
+        </com:Extension>
+        <uap3:Extension Category="windows.appExtension">
+          <uap3:AppExtension Name="com.microsoft.windows.widgets" DisplayName="APEX" Id="apex" PublicFolder="Public">
+            <uap3:Properties>
+              <WidgetProvider>
+                <ProviderIcons><Icon Path="Assets\WidgetIcon.png" /></ProviderIcons>
+                <Activation>
+                  <CreateInstance ClassId="8C4D7A1E-4F0B-4E2A-9B7C-5A3E2D1F0A6B" />
+                </Activation>
+                <Definitions>
+              <Definition Id="apex.racemode" DisplayName="APEX" Description="Shows what matters now: countdown, live timing, results or the next session." IsCustomizable="true">
+                <Capabilities>
+                  <Capability><Size Name="small" /></Capability>
+                  <Capability><Size Name="medium" /></Capability>
+                  <Capability><Size Name="large" /></Capability>
+                </Capabilities>
+                <ThemeResources>
+                  <Icons><Icon Path="Assets\WidgetIcon.png" /></Icons>
+                  <Screenshots><Screenshot Path="Assets\WidgetScreenshot.png" DisplayAltText="APEX" /></Screenshots>
+                  <DarkMode />
+                  <LightMode />
+                </ThemeResources>
+              </Definition>
+              <Definition Id="apex.next" DisplayName="Next session" Description="What&apos;s next, and when." IsCustomizable="true">
+                <Capabilities>
+                  <Capability><Size Name="small" /></Capability>
+                  <Capability><Size Name="medium" /></Capability>
+                  <Capability><Size Name="large" /></Capability>
+                </Capabilities>
+                <ThemeResources>
+                  <Icons><Icon Path="Assets\WidgetIcon.png" /></Icons>
+                  <Screenshots><Screenshot Path="Assets\WidgetScreenshot.png" DisplayAltText="Next session" /></Screenshots>
+                  <DarkMode />
+                  <LightMode />
+                </ThemeResources>
+              </Definition>
+              <Definition Id="apex.countdown" DisplayName="Countdown" Description="How long until lights out." IsCustomizable="true">
+                <Capabilities>
+                  <Capability><Size Name="small" /></Capability>
+                  <Capability><Size Name="medium" /></Capability>
+                  <Capability><Size Name="large" /></Capability>
+                </Capabilities>
+                <ThemeResources>
+                  <Icons><Icon Path="Assets\WidgetIcon.png" /></Icons>
+                  <Screenshots><Screenshot Path="Assets\WidgetScreenshot.png" DisplayAltText="Countdown" /></Screenshots>
+                  <DarkMode />
+                  <LightMode />
+                </ThemeResources>
+              </Definition>
+              <Definition Id="apex.timing" DisplayName="Live timing" Description="Who&apos;s leading, and by how much." IsCustomizable="true">
+                <Capabilities>
+                  <Capability><Size Name="small" /></Capability>
+                  <Capability><Size Name="medium" /></Capability>
+                  <Capability><Size Name="large" /></Capability>
+                </Capabilities>
+                <ThemeResources>
+                  <Icons><Icon Path="Assets\WidgetIcon.png" /></Icons>
+                  <Screenshots><Screenshot Path="Assets\WidgetScreenshot.png" DisplayAltText="Live timing" /></Screenshots>
+                  <DarkMode />
+                  <LightMode />
+                </ThemeResources>
+              </Definition>
+              <Definition Id="apex.driver" DisplayName="Driver" Description="Your driver&apos;s season at a glance." IsCustomizable="true">
+                <Capabilities>
+                  <Capability><Size Name="small" /></Capability>
+                  <Capability><Size Name="medium" /></Capability>
+                  <Capability><Size Name="large" /></Capability>
+                </Capabilities>
+                <ThemeResources>
+                  <Icons><Icon Path="Assets\WidgetIcon.png" /></Icons>
+                  <Screenshots><Screenshot Path="Assets\WidgetScreenshot.png" DisplayAltText="Driver" /></Screenshots>
+                  <DarkMode />
+                  <LightMode />
+                </ThemeResources>
+              </Definition>
+              <Definition Id="apex.favourite" DisplayName="Favourite driver" Description="Whatever matters about your driver right now." IsCustomizable="true">
+                <Capabilities>
+                  <Capability><Size Name="small" /></Capability>
+                  <Capability><Size Name="medium" /></Capability>
+                  <Capability><Size Name="large" /></Capability>
+                </Capabilities>
+                <ThemeResources>
+                  <Icons><Icon Path="Assets\WidgetIcon.png" /></Icons>
+                  <Screenshots><Screenshot Path="Assets\WidgetScreenshot.png" DisplayAltText="Favourite driver" /></Screenshots>
+                  <DarkMode />
+                  <LightMode />
+                </ThemeResources>
+              </Definition>
+              <Definition Id="apex.wdc" DisplayName="Drivers&apos; championship" Description="The title fight." IsCustomizable="true">
+                <Capabilities>
+                  <Capability><Size Name="small" /></Capability>
+                  <Capability><Size Name="medium" /></Capability>
+                  <Capability><Size Name="large" /></Capability>
+                </Capabilities>
+                <ThemeResources>
+                  <Icons><Icon Path="Assets\WidgetIcon.png" /></Icons>
+                  <Screenshots><Screenshot Path="Assets\WidgetScreenshot.png" DisplayAltText="Drivers&apos; championship" /></Screenshots>
+                  <DarkMode />
+                  <LightMode />
+                </ThemeResources>
+              </Definition>
+              <Definition Id="apex.wcc" DisplayName="Constructors&apos; championship" Description="Team standings." IsCustomizable="true">
+                <Capabilities>
+                  <Capability><Size Name="small" /></Capability>
+                  <Capability><Size Name="medium" /></Capability>
+                  <Capability><Size Name="large" /></Capability>
+                </Capabilities>
+                <ThemeResources>
+                  <Icons><Icon Path="Assets\WidgetIcon.png" /></Icons>
+                  <Screenshots><Screenshot Path="Assets\WidgetScreenshot.png" DisplayAltText="Constructors&apos; championship" /></Screenshots>
+                  <DarkMode />
+                  <LightMode />
+                </ThemeResources>
+              </Definition>
+              <Definition Id="apex.weekend" DisplayName="Race weekend" Description="Every session this weekend." IsCustomizable="true">
+                <Capabilities>
+                  <Capability><Size Name="small" /></Capability>
+                  <Capability><Size Name="medium" /></Capability>
+                  <Capability><Size Name="large" /></Capability>
+                </Capabilities>
+                <ThemeResources>
+                  <Icons><Icon Path="Assets\WidgetIcon.png" /></Icons>
+                  <Screenshots><Screenshot Path="Assets\WidgetScreenshot.png" DisplayAltText="Race weekend" /></Screenshots>
+                  <DarkMode />
+                  <LightMode />
+                </ThemeResources>
+              </Definition>
+                </Definitions>
+              </WidgetProvider>
+            </uap3:Properties>
+          </uap3:AppExtension>
+        </uap3:Extension>
+      </Extensions>
+    </Application>
+  </Applications>
+
+  <Capabilities>
+    <Capability Name="internetClient" />
+    <rescap:Capability Name="runFullTrust" />
+  </Capabilities>
+</Package>

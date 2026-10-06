@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="widget_racemode_desc">Shows what matters now: countdown, live timing, results or the next session.</string>
+    <string name="widget_next_desc">What\'s next, and when.</string>
+    <string name="widget_countdown_desc">How long until lights out.</string>
+    <string name="widget_timing_desc">Who\'s leading, and by how much.</string>
+    <string name="widget_driver_desc">Your driver\'s season at a glance.</string>
+    <string name="widget_favourite_desc">Whatever matters about your driver right now.</string>
+    <string name="widget_wdc_desc">The drivers\' championship.</string>
+    <string name="widget_wcc_desc">The constructors\' championship.</string>
+    <string name="widget_weekend_desc">Every session this weekend.</string>
+</resources>

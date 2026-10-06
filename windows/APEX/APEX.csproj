@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows10.0.22621.0</TargetFramework>
+    <TargetPlatformMinVersion>10.0.22000.0</TargetPlatformMinVersion>
+    <RootNamespace>Apex</RootNamespace>
+    <Platforms>x64;ARM64</Platforms>
+    <RuntimeIdentifiers>win-x64;win-arm64</RuntimeIdentifiers>
+    <UseWinUI>true</UseWinUI>
+    <EnableMsixTooling>true</EnableMsixTooling>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <!-- No XAML pages: UI is built in code, so the provider stays a single small exe. -->
+    <EnableDefaultPageItems>false</EnableDefaultPageItems>
+    <DisableXamlGeneratedMain>true</DisableXamlGeneratedMain>
+    <ApexBaseUrl Condition="'$(ApexBaseUrl)' == ''">http://localhost:8077</ApexBaseUrl>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.WindowsAppSDK" Version="2.5.1" />
+    <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.28000.2705" />
+    <Content Include="Widgets\*.json" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="Assets\**" CopyToOutputDirectory="PreserveNewest" />
+    <AssemblyAttribute Include="System.Reflection.AssemblyMetadataAttribute">
+      <_Parameter1>ApexBaseUrl</_Parameter1>
+      <_Parameter2>$(ApexBaseUrl)</_Parameter2>
+    </AssemblyAttribute>
+  </ItemGroup>
+</Project>

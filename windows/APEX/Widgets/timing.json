@@ -1,0 +1,309 @@
+{
+ "type": "AdaptiveCard",
+ "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+ "version": "1.6",
+ "body": [
+  {
+   "type": "ColumnSet",
+   "columns": [
+    {
+     "type": "Column",
+     "width": "stretch",
+     "items": [
+      {
+       "type": "TextBlock",
+       "text": "${tag}",
+       "wrap": false,
+       "size": "Small",
+       "weight": "Bolder",
+       "color": "${if(live,'Attention','Default')}"
+      }
+     ]
+    },
+    {
+     "type": "Column",
+     "width": "auto",
+     "items": [
+      {
+       "type": "TextBlock",
+       "text": "${lap}",
+       "wrap": false,
+       "size": "Small",
+       "weight": "Bolder",
+       "horizontalAlignment": "Right"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "type": "Container",
+   "items": [
+    {
+     "type": "Container",
+     "height": "stretch",
+     "items": []
+    },
+    {
+     "type": "TextBlock",
+     "text": "P${p1.pos}",
+     "wrap": false,
+     "size": "ExtraLarge",
+     "weight": "Bolder"
+    },
+    {
+     "type": "TextBlock",
+     "text": "${p1.code}",
+     "wrap": false,
+     "size": "Medium",
+     "weight": "Bolder",
+     "spacing": "None"
+    },
+    {
+     "type": "TextBlock",
+     "text": "${p1.value}",
+     "wrap": false,
+     "size": "Small",
+     "isSubtle": true,
+     "spacing": "None"
+    }
+   ],
+   "$when": "${$host.widgetSize==\"small\"}",
+   "height": "stretch"
+  },
+  {
+   "type": "Container",
+   "items": [
+    {
+     "type": "Container",
+     "height": "stretch",
+     "items": []
+    },
+    {
+     "type": "ColumnSet",
+     "columns": [
+      {
+       "type": "Column",
+       "width": "stretch",
+       "items": [
+        {
+         "type": "ColumnSet",
+         "columns": [
+          {
+           "type": "Column",
+           "width": "22px",
+           "items": [
+            {
+             "type": "TextBlock",
+             "text": "${pos}",
+             "wrap": false,
+             "size": "Small",
+             "isSubtle": true,
+             "horizontalAlignment": "Right"
+            }
+           ]
+          },
+          {
+           "type": "Column",
+           "width": "40px",
+           "items": [
+            {
+             "type": "TextBlock",
+             "text": "${code}",
+             "wrap": false,
+             "size": "Small",
+             "weight": "${if(fav,'Bolder','Default')}",
+             "color": "${if(fav,'Attention','Default')}"
+            }
+           ]
+          },
+          {
+           "type": "Column",
+           "width": "stretch",
+           "items": [
+            {
+             "type": "TextBlock",
+             "text": "${value}",
+             "wrap": false,
+             "size": "Small",
+             "isSubtle": "${!lead}",
+             "horizontalAlignment": "Right"
+            }
+           ]
+          }
+         ],
+         "spacing": "None",
+         "$data": "${rowsLeft}"
+        }
+       ]
+      },
+      {
+       "type": "Column",
+       "width": "stretch",
+       "items": [
+        {
+         "type": "ColumnSet",
+         "columns": [
+          {
+           "type": "Column",
+           "width": "22px",
+           "items": [
+            {
+             "type": "TextBlock",
+             "text": "${pos}",
+             "wrap": false,
+             "size": "Small",
+             "isSubtle": true,
+             "horizontalAlignment": "Right"
+            }
+           ]
+          },
+          {
+           "type": "Column",
+           "width": "40px",
+           "items": [
+            {
+             "type": "TextBlock",
+             "text": "${code}",
+             "wrap": false,
+             "size": "Small",
+             "weight": "${if(fav,'Bolder','Default')}",
+             "color": "${if(fav,'Attention','Default')}"
+            }
+           ]
+          },
+          {
+           "type": "Column",
+           "width": "stretch",
+           "items": [
+            {
+             "type": "TextBlock",
+             "text": "${value}",
+             "wrap": false,
+             "size": "Small",
+             "isSubtle": "${!lead}",
+             "horizontalAlignment": "Right"
+            }
+           ]
+          }
+         ],
+         "spacing": "None",
+         "$data": "${rowsRight}"
+        }
+       ]
+      }
+     ],
+     "spacing": "Small"
+    }
+   ],
+   "$when": "${$host.widgetSize==\"medium\"}",
+   "height": "stretch"
+  },
+  {
+   "type": "Container",
+   "items": [
+    {
+     "type": "TextBlock",
+     "text": "${cc}  ${race}",
+     "wrap": false,
+     "size": "Small",
+     "weight": "Bolder",
+     "isSubtle": true
+    },
+    {
+     "type": "Container",
+     "height": "stretch",
+     "items": []
+    },
+    {
+     "type": "ColumnSet",
+     "columns": [
+      {
+       "type": "Column",
+       "width": "22px",
+       "items": [
+        {
+         "type": "TextBlock",
+         "text": "${pos}",
+         "wrap": false,
+         "size": "Small",
+         "isSubtle": true,
+         "horizontalAlignment": "Right"
+        }
+       ]
+      },
+      {
+       "type": "Column",
+       "width": "40px",
+       "items": [
+        {
+         "type": "TextBlock",
+         "text": "${code}",
+         "wrap": false,
+         "size": "Small",
+         "weight": "${if(fav,'Bolder','Default')}",
+         "color": "${if(fav,'Attention','Default')}"
+        }
+       ]
+      },
+      {
+       "type": "Column",
+       "width": "stretch",
+       "items": [
+        {
+         "type": "TextBlock",
+         "text": "${sectors}",
+         "wrap": false,
+         "size": "Small",
+         "isSubtle": true
+        }
+       ]
+      },
+      {
+       "type": "Column",
+       "width": "auto",
+       "items": [
+        {
+         "type": "TextBlock",
+         "text": "${value}",
+         "wrap": false,
+         "size": "Small",
+         "isSubtle": "${!lead}",
+         "horizontalAlignment": "Right"
+        }
+       ]
+      },
+      {
+       "type": "Column",
+       "width": "auto",
+       "items": [
+        {
+         "type": "TextBlock",
+         "text": "${interval}",
+         "wrap": false,
+         "size": "Small",
+         "isSubtle": true,
+         "horizontalAlignment": "Right"
+        }
+       ],
+       "$when": "${interval != ''}"
+      }
+     ],
+     "spacing": "None",
+     "$data": "${rows}"
+    }
+   ],
+   "$when": "${$host.widgetSize==\"large\"}",
+   "height": "stretch"
+  },
+  {
+   "type": "TextBlock",
+   "text": "${stale}",
+   "wrap": false,
+   "size": "Small",
+   "isSubtle": true,
+   "spacing": "Small",
+   "$when": "${stale != ''}"
+  }
+ ]
+}

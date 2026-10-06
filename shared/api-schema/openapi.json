@@ -1,0 +1,1930 @@
+{
+ "openapi": "3.1.0",
+ "info": {
+  "title": "APEX API",
+  "description": "The F1 data layer that lives everywhere.",
+  "version": "1.0.0"
+ },
+ "paths": {
+  "/api/season/current": {
+   "get": {
+    "summary": "Season Current",
+    "operationId": "season_current_api_season_current_get",
+    "parameters": [
+     {
+      "name": "x-api-key",
+      "in": "header",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "X-Api-Key"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Season"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/races": {
+   "get": {
+    "summary": "Races",
+    "operationId": "races_api_races_get",
+    "parameters": [
+     {
+      "name": "x-api-key",
+      "in": "header",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "X-Api-Key"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "array",
+         "items": {
+          "$ref": "#/components/schemas/Race"
+         },
+         "title": "Response Races Api Races Get"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/races/next": {
+   "get": {
+    "summary": "Races Next",
+    "operationId": "races_next_api_races_next_get",
+    "parameters": [
+     {
+      "name": "x-api-key",
+      "in": "header",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "X-Api-Key"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Race"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/races/{round}": {
+   "get": {
+    "summary": "Race By Round",
+    "operationId": "race_by_round_api_races__round__get",
+    "parameters": [
+     {
+      "name": "round",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "integer",
+       "maximum": 30,
+       "minimum": 1,
+       "title": "Round"
+      }
+     },
+     {
+      "name": "x-api-key",
+      "in": "header",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "X-Api-Key"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Race"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/session/next": {
+   "get": {
+    "summary": "Session Next",
+    "operationId": "session_next_api_session_next_get",
+    "parameters": [
+     {
+      "name": "x-api-key",
+      "in": "header",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "X-Api-Key"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Session"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/session/live": {
+   "get": {
+    "summary": "Session Live",
+    "operationId": "session_live_api_session_live_get",
+    "parameters": [
+     {
+      "name": "x-api-key",
+      "in": "header",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "X-Api-Key"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Timing"
+        }
+       }
+      }
+     },
+     "204": {
+      "description": "No live session"
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/session/live/stream": {
+   "get": {
+    "summary": "Session Live Stream",
+    "description": "SSE: `event: timing` with a Timing payload on every change; comment heartbeat every 15 s.",
+    "operationId": "session_live_stream_api_session_live_stream_get",
+    "parameters": [
+     {
+      "name": "x-api-key",
+      "in": "header",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "X-Api-Key"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/session/{session_id}/timing": {
+   "get": {
+    "summary": "Session Timing",
+    "operationId": "session_timing_api_session__session_id__timing_get",
+    "parameters": [
+     {
+      "name": "session_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "pattern": "^\\d{4}-\\d{1,2}-[a-z_]+$",
+       "title": "Session Id"
+      }
+     },
+     {
+      "name": "x-api-key",
+      "in": "header",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "X-Api-Key"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Timing"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/standings/drivers": {
+   "get": {
+    "summary": "Standings Drivers",
+    "operationId": "standings_drivers_api_standings_drivers_get",
+    "parameters": [
+     {
+      "name": "x-api-key",
+      "in": "header",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "X-Api-Key"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "array",
+         "items": {
+          "$ref": "#/components/schemas/DriverStanding"
+         },
+         "title": "Response Standings Drivers Api Standings Drivers Get"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/standings/constructors": {
+   "get": {
+    "summary": "Standings Constructors",
+    "operationId": "standings_constructors_api_standings_constructors_get",
+    "parameters": [
+     {
+      "name": "x-api-key",
+      "in": "header",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "X-Api-Key"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "array",
+         "items": {
+          "$ref": "#/components/schemas/ConstructorStanding"
+         },
+         "title": "Response Standings Constructors Api Standings Constructors Get"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/drivers": {
+   "get": {
+    "summary": "Drivers",
+    "operationId": "drivers_api_drivers_get",
+    "parameters": [
+     {
+      "name": "x-api-key",
+      "in": "header",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "X-Api-Key"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "array",
+         "items": {
+          "$ref": "#/components/schemas/Driver"
+         },
+         "title": "Response Drivers Api Drivers Get"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/drivers/{driver_id}": {
+   "get": {
+    "summary": "Driver",
+    "operationId": "driver_api_drivers__driver_id__get",
+    "parameters": [
+     {
+      "name": "driver_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "pattern": "^[a-z0-9_]{1,40}$",
+       "title": "Driver Id"
+      }
+     },
+     {
+      "name": "x-api-key",
+      "in": "header",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "X-Api-Key"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/DriverDetail"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/teams": {
+   "get": {
+    "summary": "Teams",
+    "operationId": "teams_api_teams_get",
+    "parameters": [
+     {
+      "name": "x-api-key",
+      "in": "header",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "X-Api-Key"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "array",
+         "items": {
+          "$ref": "#/components/schemas/Team"
+         },
+         "title": "Response Teams Api Teams Get"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/teams/{team_id}": {
+   "get": {
+    "summary": "Team",
+    "operationId": "team_api_teams__team_id__get",
+    "parameters": [
+     {
+      "name": "driver_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "pattern": "^[a-z0-9_]{1,40}$",
+       "title": "Driver Id"
+      }
+     },
+     {
+      "name": "x-api-key",
+      "in": "header",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "X-Api-Key"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Team"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/status": {
+   "get": {
+    "summary": "Api Status",
+    "operationId": "api_status_api_status_get",
+    "parameters": [
+     {
+      "name": "x-api-key",
+      "in": "header",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "X-Api-Key"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Status"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/widgets/snapshot": {
+   "get": {
+    "summary": "Widget Snapshot",
+    "description": "Everything any widget needs, in one request. 30 s cache per driver.",
+    "operationId": "widget_snapshot_api_widgets_snapshot_get",
+    "parameters": [
+     {
+      "name": "driver",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string",
+         "pattern": "^[a-z0-9_]{1,40}$"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Driver"
+      }
+     },
+     {
+      "name": "x-api-key",
+      "in": "header",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "X-Api-Key"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/WidgetSnapshot"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  }
+ },
+ "components": {
+  "schemas": {
+   "ConstructorStanding": {
+    "properties": {
+     "position": {
+      "type": "integer",
+      "title": "Position"
+     },
+     "team_id": {
+      "type": "string",
+      "title": "Team Id"
+     },
+     "name": {
+      "type": "string",
+      "title": "Name"
+     },
+     "short_name": {
+      "type": "string",
+      "title": "Short Name"
+     },
+     "color": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Color"
+     },
+     "points": {
+      "type": "number",
+      "title": "Points"
+     },
+     "wins": {
+      "type": "integer",
+      "title": "Wins"
+     }
+    },
+    "type": "object",
+    "required": [
+     "position",
+     "team_id",
+     "name",
+     "short_name",
+     "color",
+     "points",
+     "wins"
+    ],
+    "title": "ConstructorStanding"
+   },
+   "Driver": {
+    "properties": {
+     "id": {
+      "type": "string",
+      "title": "Id"
+     },
+     "code": {
+      "type": "string",
+      "title": "Code"
+     },
+     "number": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Number"
+     },
+     "first_name": {
+      "type": "string",
+      "title": "First Name"
+     },
+     "last_name": {
+      "type": "string",
+      "title": "Last Name"
+     },
+     "nationality": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Nationality"
+     },
+     "country_code": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Country Code"
+     },
+     "team_id": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Team Id"
+     },
+     "team_name": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Team Name"
+     },
+     "team_color": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Team Color"
+     }
+    },
+    "type": "object",
+    "required": [
+     "id",
+     "code",
+     "number",
+     "first_name",
+     "last_name",
+     "nationality",
+     "country_code",
+     "team_id",
+     "team_name",
+     "team_color"
+    ],
+    "title": "Driver"
+   },
+   "DriverDetail": {
+    "properties": {
+     "id": {
+      "type": "string",
+      "title": "Id"
+     },
+     "code": {
+      "type": "string",
+      "title": "Code"
+     },
+     "number": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Number"
+     },
+     "first_name": {
+      "type": "string",
+      "title": "First Name"
+     },
+     "last_name": {
+      "type": "string",
+      "title": "Last Name"
+     },
+     "nationality": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Nationality"
+     },
+     "country_code": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Country Code"
+     },
+     "team_id": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Team Id"
+     },
+     "team_name": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Team Name"
+     },
+     "team_color": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Team Color"
+     },
+     "season": {
+      "type": "integer",
+      "title": "Season"
+     },
+     "position": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Position"
+     },
+     "points": {
+      "type": "number",
+      "title": "Points"
+     },
+     "wins": {
+      "type": "integer",
+      "title": "Wins"
+     },
+     "podiums": {
+      "type": "integer",
+      "title": "Podiums"
+     },
+     "poles": {
+      "type": "integer",
+      "title": "Poles"
+     },
+     "last5": {
+      "items": {
+       "anyOf": [
+        {
+         "type": "integer"
+        },
+        {
+         "type": "null"
+        }
+       ]
+      },
+      "type": "array",
+      "title": "Last5"
+     },
+     "weekend": {
+      "items": {
+       "$ref": "#/components/schemas/WeekendResult"
+      },
+      "type": "array",
+      "title": "Weekend"
+     }
+    },
+    "type": "object",
+    "required": [
+     "id",
+     "code",
+     "number",
+     "first_name",
+     "last_name",
+     "nationality",
+     "country_code",
+     "team_id",
+     "team_name",
+     "team_color",
+     "season",
+     "position",
+     "points",
+     "wins",
+     "podiums",
+     "poles",
+     "last5",
+     "weekend"
+    ],
+    "title": "DriverDetail"
+   },
+   "DriverStanding": {
+    "properties": {
+     "position": {
+      "type": "integer",
+      "title": "Position"
+     },
+     "driver_id": {
+      "type": "string",
+      "title": "Driver Id"
+     },
+     "code": {
+      "type": "string",
+      "title": "Code"
+     },
+     "name": {
+      "type": "string",
+      "title": "Name"
+     },
+     "team_id": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Team Id"
+     },
+     "team_name": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Team Name"
+     },
+     "team_color": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Team Color"
+     },
+     "points": {
+      "type": "number",
+      "title": "Points"
+     },
+     "wins": {
+      "type": "integer",
+      "title": "Wins"
+     }
+    },
+    "type": "object",
+    "required": [
+     "position",
+     "driver_id",
+     "code",
+     "name",
+     "team_id",
+     "team_name",
+     "team_color",
+     "points",
+     "wins"
+    ],
+    "title": "DriverStanding"
+   },
+   "HTTPValidationError": {
+    "properties": {
+     "detail": {
+      "items": {
+       "$ref": "#/components/schemas/ValidationError"
+      },
+      "type": "array",
+      "title": "Detail"
+     }
+    },
+    "type": "object",
+    "title": "HTTPValidationError"
+   },
+   "Race": {
+    "properties": {
+     "season": {
+      "type": "integer",
+      "title": "Season"
+     },
+     "round": {
+      "type": "integer",
+      "title": "Round"
+     },
+     "name": {
+      "type": "string",
+      "title": "Name"
+     },
+     "short_name": {
+      "type": "string",
+      "title": "Short Name"
+     },
+     "circuit_name": {
+      "type": "string",
+      "title": "Circuit Name"
+     },
+     "locality": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Locality"
+     },
+     "country": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Country"
+     },
+     "country_code": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Country Code"
+     },
+     "laps_total": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Laps Total"
+     },
+     "sessions": {
+      "items": {
+       "$ref": "#/components/schemas/Session"
+      },
+      "type": "array",
+      "title": "Sessions"
+     }
+    },
+    "type": "object",
+    "required": [
+     "season",
+     "round",
+     "name",
+     "short_name",
+     "circuit_name",
+     "locality",
+     "country",
+     "country_code",
+     "laps_total",
+     "sessions"
+    ],
+    "title": "Race"
+   },
+   "Season": {
+    "properties": {
+     "year": {
+      "type": "integer",
+      "title": "Year"
+     },
+     "rounds": {
+      "type": "integer",
+      "title": "Rounds"
+     },
+     "next_round": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Next Round"
+     }
+    },
+    "type": "object",
+    "required": [
+     "year",
+     "rounds",
+     "next_round"
+    ],
+    "title": "Season"
+   },
+   "Session": {
+    "properties": {
+     "id": {
+      "type": "string",
+      "title": "Id"
+     },
+     "round": {
+      "type": "integer",
+      "title": "Round"
+     },
+     "type": {
+      "type": "string",
+      "enum": [
+       "FP1",
+       "FP2",
+       "FP3",
+       "SPRINT_QUALIFYING",
+       "SPRINT",
+       "QUALIFYING",
+       "RACE"
+      ],
+      "title": "Type"
+     },
+     "label": {
+      "type": "string",
+      "title": "Label"
+     },
+     "starts_at": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Starts At"
+     },
+     "ends_at": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Ends At"
+     },
+     "state": {
+      "type": "string",
+      "enum": [
+       "upcoming",
+       "starting_soon",
+       "live",
+       "finished"
+      ],
+      "title": "State"
+     }
+    },
+    "type": "object",
+    "required": [
+     "id",
+     "round",
+     "type",
+     "label",
+     "starts_at",
+     "ends_at",
+     "state"
+    ],
+    "title": "Session"
+   },
+   "SourceStatus": {
+    "properties": {
+     "ok": {
+      "type": "boolean",
+      "title": "Ok"
+     },
+     "last_success": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "date-time"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Last Success"
+     },
+     "error": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Error"
+     }
+    },
+    "type": "object",
+    "required": [
+     "ok",
+     "last_success"
+    ],
+    "title": "SourceStatus"
+   },
+   "Status": {
+    "properties": {
+     "ok": {
+      "type": "boolean",
+      "title": "Ok"
+     },
+     "database": {
+      "type": "string",
+      "title": "Database"
+     },
+     "cache": {
+      "type": "string",
+      "title": "Cache"
+     },
+     "live": {
+      "type": "boolean",
+      "title": "Live"
+     },
+     "live_unavailable": {
+      "type": "boolean",
+      "title": "Live Unavailable"
+     },
+     "sources": {
+      "additionalProperties": {
+       "$ref": "#/components/schemas/SourceStatus"
+      },
+      "type": "object",
+      "title": "Sources"
+     },
+     "now": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Now"
+     }
+    },
+    "type": "object",
+    "required": [
+     "ok",
+     "database",
+     "cache",
+     "live",
+     "live_unavailable",
+     "sources",
+     "now"
+    ],
+    "title": "Status"
+   },
+   "Team": {
+    "properties": {
+     "id": {
+      "type": "string",
+      "title": "Id"
+     },
+     "name": {
+      "type": "string",
+      "title": "Name"
+     },
+     "short_name": {
+      "type": "string",
+      "title": "Short Name"
+     },
+     "color": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Color"
+     },
+     "nationality": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Nationality"
+     },
+     "drivers": {
+      "items": {
+       "type": "string"
+      },
+      "type": "array",
+      "title": "Drivers",
+      "default": []
+     }
+    },
+    "type": "object",
+    "required": [
+     "id",
+     "name",
+     "short_name",
+     "color",
+     "nationality"
+    ],
+    "title": "Team"
+   },
+   "Timing": {
+    "properties": {
+     "session_id": {
+      "type": "string",
+      "title": "Session Id"
+     },
+     "session_type": {
+      "type": "string",
+      "enum": [
+       "FP1",
+       "FP2",
+       "FP3",
+       "SPRINT_QUALIFYING",
+       "SPRINT",
+       "QUALIFYING",
+       "RACE"
+      ],
+      "title": "Session Type"
+     },
+     "phase": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Phase"
+     },
+     "lap": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Lap"
+     },
+     "laps_total": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Laps Total"
+     },
+     "final": {
+      "type": "boolean",
+      "title": "Final"
+     },
+     "updated_at": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Updated At"
+     },
+     "rows": {
+      "items": {
+       "$ref": "#/components/schemas/TimingRow"
+      },
+      "type": "array",
+      "title": "Rows"
+     }
+    },
+    "type": "object",
+    "required": [
+     "session_id",
+     "session_type",
+     "phase",
+     "lap",
+     "laps_total",
+     "final",
+     "updated_at",
+     "rows"
+    ],
+    "title": "Timing"
+   },
+   "TimingRow": {
+    "properties": {
+     "position": {
+      "type": "integer",
+      "title": "Position"
+     },
+     "driver_number": {
+      "type": "integer",
+      "title": "Driver Number"
+     },
+     "code": {
+      "type": "string",
+      "title": "Code"
+     },
+     "team_color": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Team Color"
+     },
+     "time": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Time"
+     },
+     "gap": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Gap"
+     },
+     "interval": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Interval"
+     },
+     "sectors": {
+      "anyOf": [
+       {
+        "items": {
+         "anyOf": [
+          {
+           "type": "string",
+           "enum": [
+            "purple",
+            "green",
+            "yellow"
+           ]
+          },
+          {
+           "type": "null"
+          }
+         ]
+        },
+        "type": "array"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Sectors"
+     },
+     "in_pit": {
+      "type": "boolean",
+      "title": "In Pit"
+     },
+     "drs": {
+      "anyOf": [
+       {
+        "type": "boolean"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Drs"
+     }
+    },
+    "type": "object",
+    "required": [
+     "position",
+     "driver_number",
+     "code",
+     "team_color",
+     "time",
+     "gap",
+     "interval",
+     "sectors",
+     "in_pit",
+     "drs"
+    ],
+    "title": "TimingRow"
+   },
+   "ValidationError": {
+    "properties": {
+     "loc": {
+      "items": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "integer"
+        }
+       ]
+      },
+      "type": "array",
+      "title": "Location"
+     },
+     "msg": {
+      "type": "string",
+      "title": "Message"
+     },
+     "type": {
+      "type": "string",
+      "title": "Error Type"
+     },
+     "input": {
+      "title": "Input"
+     },
+     "ctx": {
+      "type": "object",
+      "title": "Context"
+     }
+    },
+    "type": "object",
+    "required": [
+     "loc",
+     "msg",
+     "type"
+    ],
+    "title": "ValidationError"
+   },
+   "WeekendResult": {
+    "properties": {
+     "session_type": {
+      "type": "string",
+      "enum": [
+       "FP1",
+       "FP2",
+       "FP3",
+       "SPRINT_QUALIFYING",
+       "SPRINT",
+       "QUALIFYING",
+       "RACE"
+      ],
+      "title": "Session Type"
+     },
+     "position": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Position"
+     },
+     "gap": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Gap"
+     }
+    },
+    "type": "object",
+    "required": [
+     "session_type",
+     "position",
+     "gap"
+    ],
+    "title": "WeekendResult"
+   },
+   "WidgetSnapshot": {
+    "properties": {
+     "generated_at": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Generated At"
+     },
+     "mode": {
+      "type": "string",
+      "enum": [
+       "live",
+       "results",
+       "countdown",
+       "next"
+      ],
+      "title": "Mode"
+     },
+     "race": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/Race"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "next_session": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/Session"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "live": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/Timing"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "results": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/Timing"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "drivers": {
+      "items": {
+       "$ref": "#/components/schemas/DriverStanding"
+      },
+      "type": "array",
+      "title": "Drivers"
+     },
+     "constructors": {
+      "items": {
+       "$ref": "#/components/schemas/ConstructorStanding"
+      },
+      "type": "array",
+      "title": "Constructors"
+     },
+     "driver": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/DriverDetail"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "live_unavailable": {
+      "type": "boolean",
+      "title": "Live Unavailable"
+     }
+    },
+    "type": "object",
+    "required": [
+     "generated_at",
+     "mode",
+     "race",
+     "next_session",
+     "live",
+     "results",
+     "drivers",
+     "constructors",
+     "driver",
+     "live_unavailable"
+    ],
+    "title": "WidgetSnapshot"
+   }
+  }
+ }
+}

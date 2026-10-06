@@ -1,0 +1,165 @@
+{
+ "type": "AdaptiveCard",
+ "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+ "version": "1.6",
+ "body": [
+  {
+   "type": "Container",
+   "items": [
+    {
+     "type": "TextBlock",
+     "text": "FAVOURITE DRIVER",
+     "wrap": false,
+     "size": "Small",
+     "weight": "Bolder",
+     "isSubtle": true
+    },
+    {
+     "type": "Container",
+     "height": "stretch",
+     "items": []
+    },
+    {
+     "type": "TextBlock",
+     "text": "Choose a driver",
+     "wrap": false,
+     "size": "Medium",
+     "weight": "Bolder"
+    },
+    {
+     "type": "TextBlock",
+     "text": "Open the widget menu, then Customize.",
+     "wrap": true,
+     "size": "Small",
+     "isSubtle": true,
+     "spacing": "None"
+    }
+   ],
+   "$when": "${!chosen}",
+   "height": "stretch"
+  },
+  {
+   "type": "Container",
+   "items": [
+    {
+     "type": "ColumnSet",
+     "columns": [
+      {
+       "type": "Column",
+       "width": "stretch",
+       "items": [
+        {
+         "type": "TextBlock",
+         "text": "${label}",
+         "wrap": false,
+         "size": "Small",
+         "weight": "Bolder",
+         "color": "${if(live,'Attention','Default')}",
+         "isSubtle": "${!live}"
+        }
+       ]
+      },
+      {
+       "type": "Column",
+       "width": "auto",
+       "items": [
+        {
+         "type": "TextBlock",
+         "text": "${name}",
+         "wrap": false,
+         "size": "Small",
+         "weight": "Bolder",
+         "horizontalAlignment": "Right"
+        }
+       ],
+       "$when": "${$host.widgetSize!=\"small\"}"
+      }
+     ]
+    },
+    {
+     "type": "Container",
+     "height": "stretch",
+     "items": []
+    },
+    {
+     "type": "ColumnSet",
+     "columns": [
+      {
+       "type": "Column",
+       "width": "stretch",
+       "items": [
+        {
+         "type": "TextBlock",
+         "text": "${big}",
+         "wrap": false,
+         "size": "ExtraLarge",
+         "weight": "Bolder"
+        }
+       ]
+      },
+      {
+       "type": "Column",
+       "width": "auto",
+       "items": [
+        {
+         "type": "TextBlock",
+         "text": "${top}",
+         "wrap": false,
+         "size": "Small",
+         "weight": "Bolder",
+         "horizontalAlignment": "Right"
+        }
+       ],
+       "verticalContentAlignment": "Bottom"
+      }
+     ]
+    },
+    {
+     "type": "ColumnSet",
+     "columns": [
+      {
+       "type": "Column",
+       "width": "stretch",
+       "items": [
+        {
+         "type": "TextBlock",
+         "text": "${code}",
+         "wrap": false,
+         "size": "Medium",
+         "weight": "Bolder"
+        }
+       ]
+      },
+      {
+       "type": "Column",
+       "width": "auto",
+       "items": [
+        {
+         "type": "TextBlock",
+         "text": "${sub}",
+         "wrap": false,
+         "size": "Small",
+         "isSubtle": true,
+         "horizontalAlignment": "Right"
+        }
+       ],
+       "verticalContentAlignment": "Center"
+      }
+     ],
+     "spacing": "None"
+    }
+   ],
+   "$when": "${chosen}",
+   "height": "stretch"
+  },
+  {
+   "type": "TextBlock",
+   "text": "${stale}",
+   "wrap": false,
+   "size": "Small",
+   "isSubtle": true,
+   "spacing": "Small",
+   "$when": "${stale != ''}"
+  }
+ ]
+}

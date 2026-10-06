@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
+    <application
+        android:label="APEX"
+        android:icon="@drawable/ic_launcher"
+        android:networkSecurityConfig="@xml/network_security"
+        android:theme="@android:style/Theme.Material.NoActionBar"
+        android:allowBackup="true">
+        <activity android:name=".MainActivity" android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <receiver android:name=".widgets.RaceModeReceiver" android:exported="true" android:label="APEX">
+            <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_racemode" />
+        </receiver>
+        <receiver android:name=".widgets.NextSessionReceiver" android:exported="true" android:label="Next session">
+            <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_next" />
+        </receiver>
+        <receiver android:name=".widgets.CountdownReceiver" android:exported="true" android:label="Countdown">
+            <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_countdown" />
+        </receiver>
+        <receiver android:name=".widgets.LiveTimingReceiver" android:exported="true" android:label="Live timing">
+            <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_timing" />
+        </receiver>
+        <receiver android:name=".widgets.DriverReceiver" android:exported="true" android:label="Driver">
+            <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_driver" />
+        </receiver>
+        <receiver android:name=".widgets.FavouriteDriverReceiver" android:exported="true" android:label="Favourite driver">
+            <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_favourite" />
+        </receiver>
+        <receiver android:name=".widgets.WdcReceiver" android:exported="true" android:label="Drivers' title">
+            <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_wdc" />
+        </receiver>
+        <receiver android:name=".widgets.WccReceiver" android:exported="true" android:label="Constructors' title">
+            <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_wcc" />
+        </receiver>
+        <receiver android:name=".widgets.WeekendReceiver" android:exported="true" android:label="Race weekend">
+            <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_weekend" />
+        </receiver>
+    </application>
+</manifest>
