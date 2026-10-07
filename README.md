@@ -2,7 +2,7 @@
 
 > The F1 data layer that lives everywhere.
 
-APEX is a set of glanceable F1 widgets for iOS, Android and Windows, plus the backend that feeds them. The widgets are
+APEX is a set of glanceable F1 widgets for iOS, Android, Windows and Linux, plus the backend that feeds them. The widgets are
 the product. The companion apps only configure and preview them.
 
 Built from [`APEX_F1_Widget_Master_Prompt.md`](APEX_F1_Widget_Master_Prompt.md). Start with
@@ -14,15 +14,16 @@ Built from [`APEX_F1_Widget_Master_Prompt.md`](APEX_F1_Widget_Master_Prompt.md).
 | `ios/` | SwiftUI + WidgetKit (9 widgets, lock screen), App Intents, Live Activity + Dynamic Island | source; needs Xcode |
 | `android/` | Kotlin, Jetpack Glance (9 responsive widgets), WorkManager, Material 3 app | builds, lint clean |
 | `windows/` | Windows App SDK Widgets Board provider (COM) + Adaptive Cards, WinUI companion window | builds |
+| `linux/` | GTK 3 + WebKit2GTK desktop widgets (layer-shell on Wayland) and APEX app | runs on Hyprland |
 | `shared/` | design tokens, brand marks, OpenAPI schema | — |
 
 ## Backend + web preview
 
 ```sh
 cd backend
-python -m venv .venv && .venv/Scripts/pip install -r requirements.txt   # .venv/bin on macOS/Linux
-.venv/Scripts/python -m uvicorn apex.main:app --port 8077
-.venv/Scripts/python -m pytest -q
+python -m venv .venv && .venv/bin/pip install -r requirements.txt   # .venv/Scripts on Windows
+.venv/bin/python -m uvicorn apex.main:app --port 8077
+.venv/bin/python -m pytest -q
 ```
 
 Open http://localhost:8077 to see the widget preview: every widget at every size, live data, the platform and theme
@@ -80,6 +81,40 @@ session and Countdown, show the upcoming track in 3D, built from a real lap of a
 
 Debug without the board: `APEX.exe -DumpCards <dir> [driver]` writes the exact template and data every widget would
 get, at every size. WinUI crashes are logged to `%LOCALAPPDATA%\APEX\crash.log`.
+
+## Linux
+
+The same desktop widgets and APEX app as on Windows, for GTK desktops. Install the system packages first. They come
+from your distro, not pip, because the client runs on the system Python:
+
+```sh
+sudo pacman -S python-gobject gtk3 webkit2gtk-4.1 gtk-layer-shell                              # Arch
+sudo apt install python3-gi gir1.2-gtk-3.0 gir1.2-webkit2-4.1 gir1.2-gtklayershell-0.1         # Debian/Ubuntu
+sudo dnf install python3-gobject gtk3 webkit2gtk4.1 gtk-layer-shell                            # Fedora
+```
+
+Then one script does the rest: the data server as a systemd user service (`apex-backend`, now and at every login,
+logs in `backend/apex.log`), the `apex` command in `~/.local/bin`, **APEX** in your app menu, and the desktop
+widgets, started now and at login. Re-run it after pulling changes.
+
+```sh
+linux/install.sh
+```
+
+- **Desktop:** frameless F1-style widgets on the right edge of the screen (Race Mode and your favourite driver to
+  start). Drag to move, right-click to resize or remove. Add more from the **APEX** app (`apex`).
+- **Wayland with layer-shell (Hyprland, sway, KDE Plasma):** widgets sit on the bottom layer, under your windows and
+  outside tiling. They use the layer namespace `apex-widget` for compositor rules. Hyprland and sway don't run
+  autostart entries, so add `exec-once = ~/.local/bin/apex --desktop` (Hyprland) or `exec ~/.local/bin/apex --desktop`
+  (sway) to your config.
+- **X11:** widgets are undecorated windows kept below the others and on every workspace.
+- **GNOME on Wayland:** there's no layer-shell, so widgets are ordinary undecorated windows that GNOME places and
+  stacks itself.
+- There is no Widgets board or lock screen on Linux, so the app hides that section.
+
+Settings are in `~/.local/share/APEX` (`desktop.json` and `defaults.json`, the same format as on Windows), and
+crashes are logged to `crash.log` there. Run `apex --desktop` or `apex` from a terminal to see errors.
+`APEX_BASE_URL` points the client at another server. Unit tests: `cd linux && python3 -m pytest tests`.
 
 ## iOS
 
