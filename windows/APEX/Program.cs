@@ -35,6 +35,21 @@ public static class Program
                 }
             return;
         }
+        if (args is ["-DumpImages", var imageDir, ..])
+        {
+            // Debug: write the picture the board and lock screen would show, for every widget and size.
+            Directory.CreateDirectory(imageDir);
+            var cfg = new WidgetSettings(args.ElementAtOrDefault(2));
+            foreach (var kind in Enum.GetValues<Kind>())
+                foreach (var size in new[] { "small", "medium", "large" })
+                {
+                    var uri = WidgetImages.Render(kind, size, cfg).GetAwaiter().GetResult();
+                    var file = Path.Combine(imageDir, $"{kind}-{size}");
+                    if (uri is null) File.WriteAllText(file + ".failed", "");
+                    else File.WriteAllBytes(file + ".png", Convert.FromBase64String(uri[(uri.IndexOf(',') + 1)..]));
+                }
+            return;
+        }
         if (args.Contains("-Desktop"))
         {
             // Desktop widgets: one host per user session; later launches just exit (the host watches desktop.json).

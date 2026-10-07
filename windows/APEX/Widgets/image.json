@@ -1,0 +1,19 @@
+{
+ "type": "AdaptiveCard",
+ "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+ "version": "1.6",
+ "speak": "${alt}",
+ "backgroundImage": {
+  "url": "${image}",
+  "fillMode": "Cover",
+  "horizontalAlignment": "Center",
+  "verticalAlignment": "Top"
+ },
+ "body": [
+  {
+   "type": "TextBlock",
+   "text": "${alt}",
+   "isVisible": false
+  }
+ ]
+}

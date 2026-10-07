@@ -73,13 +73,19 @@ You get APEX in three places:
 - **Widgets board:** Win + W → + (Add widgets) → APEX. Each widget's menu → **Customize** sets its driver and density.
 - **Lock screen:** Settings → Personalization → Lock screen → Widgets → add an APEX widget (small ones fit there).
 
+The board and lock screen show a picture of the same widget the desktop shows (taken by an offscreen WebView2 at
+the board's tile size, refreshed when its data changes, at most once a minute). If the data server can't be reached
+they fall back to plain text cards.
+
 Open **APEX** from the Start menu to pick your driver (cards show each driver's silhouette and number), browse every
 widget as a live preview and add it to the desktop in one click. The **Circuit** widget, and the space in Next
 session and Countdown, show the upcoming track in 3D, built from a real lap of an earlier race there
 (`GET /api/races/{round}/track`; new circuits get a map after their first race). Re-run the script after pulling changes; it installs each build as a package update, so pinned widgets stay.
 
-Debug without the board: `APEX.exe -DumpCards <dir> [driver]` writes the exact template and data every widget would
-get, at every size. WinUI crashes are logged to `%LOCALAPPDATA%\APEX\crash.log`.
+Debug without the board: `APEX.exe -DumpImages <dir> [driver]` writes the picture every widget would show, at every
+size; `APEX.exe -DumpCards <dir> [driver]` writes the text-card fallback (template and data).
+After changing how the widgets look, refresh the **Add widgets** previews: `APEX.exe -DumpImages <dir> max_verstappen`,
+then `backend\.venv\Scripts\python windows\screenshots.py <dir>`, and re-run the install script. WinUI crashes are logged to `%LOCALAPPDATA%\APEX\crash.log`.
 
 ## iOS
 

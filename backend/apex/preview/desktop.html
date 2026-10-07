@@ -16,6 +16,14 @@
   #menu button:hover, #menu button:focus-visible { background: #33333F; }
   #menu button[aria-checked="true"]::after { content: "●"; color: #E10600; }
   #menu hr { border: 0; height: 1px; background: #33333F; margin: 4px 0; }
+  /* Capture mode (Widgets board / lock screen pictures): the widget sits below the host's own header strip, and
+     the moving effects hold still for the photo. */
+  html.capture #root { padding-top: var(--inset); background: #15151E; height: 100vh; box-sizing: border-box; }
+  html.capture #root > .w { height: calc(100vh - var(--inset)); }
+  html.capture .dc .shine { display: none; }
+  html.capture *, html.capture *::before, html.capture *::after { animation-play-state: paused !important; transition: none !important; }
+  html.capture .dc .sil::before { animation: none; opacity: .85; }
+  html.capture .track3d.flow { min-height: 0; }  /* the small board tile is only 98 px tall below the header */
 </style>
 </head>
 <body>
@@ -89,10 +97,26 @@ menu.addEventListener("click", e => { const b = e.target.closest("[data-cmd]"); 
 document.addEventListener("click", e => { if (!e.target.closest("#menu")) menu.hidden = true; });
 document.addEventListener("keydown", e => { if (e.key === "Escape") menu.hidden = true; });
 
-render();
-load();
-setInterval(render, 1000);
-setInterval(load, 30e3);
+// ?capture=<inset px>: one still picture for the Widgets board / lock screen (WidgetImages.cs). Fresh data only, then
+// "ready" once fonts and images are in (or "failed", so the host falls back to its text card).
+const capture = q.get("capture");
+if (capture !== null) {
+  document.documentElement.classList.add("capture");
+  document.documentElement.style.setProperty("--inset", `${Math.min(96, Math.max(0, parseInt(capture, 10) || 0))}px`);
+  snap = null;
+  load().then(async () => {
+    if (!snap) return post("failed");
+    await document.fonts.ready;
+    await Promise.all([...root.querySelectorAll("img")].map(i => i.complete ? null : new Promise(r => {
+      i.addEventListener("load", r); i.addEventListener("error", r); })));
+    requestAnimationFrame(() => requestAnimationFrame(() => post("ready")));
+  });
+} else {
+  render();
+  load();
+  setInterval(render, 1000);
+  setInterval(load, 30e3);
+}
 </script>
 </body>
 </html>

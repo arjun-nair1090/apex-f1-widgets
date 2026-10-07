@@ -2,7 +2,7 @@ using System.Text.Json;
 
 namespace Apex;
 
-public enum Kind { Race, Next, Countdown, Timing, Driver, Favourite, Wdc, Wcc, Weekend }
+public enum Kind { Race, Next, Countdown, Timing, Driver, Favourite, Wdc, Wcc, Weekend, Circuit }
 
 /// Per-widget settings, stored in the widget's CustomState by the Widgets Board.
 public record WidgetSettings(string? Driver = null, string Density = "standard");
@@ -30,7 +30,7 @@ public static class Cards
                 Mode.Countdown => Countdown(s, RaceMode.NextSession(s, now), now, stale),
                 _ => Next(s, now, stale),
             },
-            Kind.Next => Next(s, now, stale),
+            Kind.Next or Kind.Circuit => Next(s, now, stale),  // Circuit: its text fallback is the next session
             Kind.Countdown => Countdown(s, s.Race?.Sessions.FirstOrDefault(x => x.Type == "RACE"), now, stale),
             Kind.Timing => Timing(s, mode == Mode.Results ? s.Results : s.Live, size, cfg, now, stale),
             Kind.Driver => Driver(s, stale, loaded.Silhouette),

@@ -59,7 +59,7 @@
                 </Capabilities>
                 <ThemeResources>
                   <Icons><Icon Path="Assets\WidgetIcon.png" /></Icons>
-                  <Screenshots><Screenshot Path="Assets\WidgetScreenshot.png" DisplayAltText="APEX" /></Screenshots>
+                  <Screenshots><Screenshot Path="Assets\Screenshots\Race.png" DisplayAltText="APEX" /></Screenshots>
                   <DarkMode />
                   <LightMode />
                 </ThemeResources>
@@ -72,7 +72,7 @@
                 </Capabilities>
                 <ThemeResources>
                   <Icons><Icon Path="Assets\WidgetIcon.png" /></Icons>
-                  <Screenshots><Screenshot Path="Assets\WidgetScreenshot.png" DisplayAltText="Next session" /></Screenshots>
+                  <Screenshots><Screenshot Path="Assets\Screenshots\Next.png" DisplayAltText="Next session" /></Screenshots>
                   <DarkMode />
                   <LightMode />
                 </ThemeResources>
@@ -85,7 +85,7 @@
                 </Capabilities>
                 <ThemeResources>
                   <Icons><Icon Path="Assets\WidgetIcon.png" /></Icons>
-                  <Screenshots><Screenshot Path="Assets\WidgetScreenshot.png" DisplayAltText="Countdown" /></Screenshots>
+                  <Screenshots><Screenshot Path="Assets\Screenshots\Countdown.png" DisplayAltText="Countdown" /></Screenshots>
                   <DarkMode />
                   <LightMode />
                 </ThemeResources>
@@ -98,7 +98,7 @@
                 </Capabilities>
                 <ThemeResources>
                   <Icons><Icon Path="Assets\WidgetIcon.png" /></Icons>
-                  <Screenshots><Screenshot Path="Assets\WidgetScreenshot.png" DisplayAltText="Live timing" /></Screenshots>
+                  <Screenshots><Screenshot Path="Assets\Screenshots\Timing.png" DisplayAltText="Live timing" /></Screenshots>
                   <DarkMode />
                   <LightMode />
                 </ThemeResources>
@@ -111,7 +111,7 @@
                 </Capabilities>
                 <ThemeResources>
                   <Icons><Icon Path="Assets\WidgetIcon.png" /></Icons>
-                  <Screenshots><Screenshot Path="Assets\WidgetScreenshot.png" DisplayAltText="Driver" /></Screenshots>
+                  <Screenshots><Screenshot Path="Assets\Screenshots\Driver.png" DisplayAltText="Driver" /></Screenshots>
                   <DarkMode />
                   <LightMode />
                 </ThemeResources>
@@ -124,7 +124,7 @@
                 </Capabilities>
                 <ThemeResources>
                   <Icons><Icon Path="Assets\WidgetIcon.png" /></Icons>
-                  <Screenshots><Screenshot Path="Assets\WidgetScreenshot.png" DisplayAltText="Favourite driver" /></Screenshots>
+                  <Screenshots><Screenshot Path="Assets\Screenshots\Favourite.png" DisplayAltText="Favourite driver" /></Screenshots>
                   <DarkMode />
                   <LightMode />
                 </ThemeResources>
@@ -137,7 +137,7 @@
                 </Capabilities>
                 <ThemeResources>
                   <Icons><Icon Path="Assets\WidgetIcon.png" /></Icons>
-                  <Screenshots><Screenshot Path="Assets\WidgetScreenshot.png" DisplayAltText="Drivers&apos; championship" /></Screenshots>
+                  <Screenshots><Screenshot Path="Assets\Screenshots\Wdc.png" DisplayAltText="Drivers&apos; championship" /></Screenshots>
                   <DarkMode />
                   <LightMode />
                 </ThemeResources>
@@ -150,7 +150,7 @@
                 </Capabilities>
                 <ThemeResources>
                   <Icons><Icon Path="Assets\WidgetIcon.png" /></Icons>
-                  <Screenshots><Screenshot Path="Assets\WidgetScreenshot.png" DisplayAltText="Constructors&apos; championship" /></Screenshots>
+                  <Screenshots><Screenshot Path="Assets\Screenshots\Wcc.png" DisplayAltText="Constructors&apos; championship" /></Screenshots>
                   <DarkMode />
                   <LightMode />
                 </ThemeResources>
@@ -163,7 +163,20 @@
                 </Capabilities>
                 <ThemeResources>
                   <Icons><Icon Path="Assets\WidgetIcon.png" /></Icons>
-                  <Screenshots><Screenshot Path="Assets\WidgetScreenshot.png" DisplayAltText="Race weekend" /></Screenshots>
+                  <Screenshots><Screenshot Path="Assets\Screenshots\Weekend.png" DisplayAltText="Race weekend" /></Screenshots>
+                  <DarkMode />
+                  <LightMode />
+                </ThemeResources>
+              </Definition>
+              <Definition Id="apex.circuit" DisplayName="Circuit" Description="The next track in 3D." IsCustomizable="true">
+                <Capabilities>
+                  <Capability><Size Name="small" /></Capability>
+                  <Capability><Size Name="medium" /></Capability>
+                  <Capability><Size Name="large" /></Capability>
+                </Capabilities>
+                <ThemeResources>
+                  <Icons><Icon Path="Assets\WidgetIcon.png" /></Icons>
+                  <Screenshots><Screenshot Path="Assets\Screenshots\Circuit.png" DisplayAltText="Circuit" /></Screenshots>
                   <DarkMode />
                   <LightMode />
                 </ThemeResources>
