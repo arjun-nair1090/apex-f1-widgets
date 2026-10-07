@@ -250,3 +250,32 @@ def test_driver_silhouette_in_team_colour(monkeypatch):
     assert client.get("/api/drivers/antonelli").json()["race_number"] == 12
     assert client.get("/api/drivers/antonelli/silhouette.png", params={"size": 206}).status_code == 200
     assert client.get("/api/drivers/antonelli/silhouette.png", params={"size": 5000}).status_code == 422
+
+
+def test_track_layout_from_a_real_lap(monkeypatch, tmp_path):
+    from apex import tracks
+    monkeypatch.setattr(tracks, "CACHE_DIR", tmp_path)
+    calls = []
+
+    def fake(client, endpoint, query):
+        calls.append(endpoint)
+        if endpoint == "sessions":
+            return [{"session_key": 6, "location": "Sakhir", "country_name": "Singapore", "year": 2025},  # same country, other venue
+                    {"session_key": 7, "location": "Marina Bay", "country_name": "Singapore", "year": 2025}]
+        if endpoint == "laps":
+            assert "session_key=7" in query  # Marina Bay, not the other venue in the same country
+            return [{"driver_number": 1, "lap_number": 9, "lap_duration": 95.0, "date_start": "2025-10-05T12:18:20+00:00"},
+                    {"driver_number": 4, "lap_number": 9, "lap_duration": 94.0, "date_start": "2025-10-05T12:18:30+00:00", "is_pit_out_lap": True},
+                    {"driver_number": 16, "lap_number": 1, "lap_duration": 90.0, "date_start": "2025-10-05T12:01:00+00:00"}]
+        assert "driver_number=1" in query  # fastest *clean* lap: the pit-out lap is skipped
+        return [{"x": i * 10, "y": (i % 30) * 5, "z": 180 + i % 7} for i in range(400)]
+
+    monkeypatch.setattr(tracks, "_openf1", fake)
+    t = client.get("/api/races/17/track").json()
+    assert len(t["points"]) == tracks.POINTS and t["circuit"] == "Marina Bay"
+    assert all(-1 <= x <= 1 and -1 <= y <= 1 and z >= 0 for x, y, z in t["points"])
+    assert t["elevation_m"] == 0.6 and t["source_year"] == 2025
+    n = len(calls)
+    assert client.get("/api/races/17/track").status_code == 200 and len(calls) == n  # second time: from disk
+    # A venue with no earlier race (a new circuit) gets no map, even with races elsewhere in the country.
+    assert client.get("/api/races/16/track").status_code == 404

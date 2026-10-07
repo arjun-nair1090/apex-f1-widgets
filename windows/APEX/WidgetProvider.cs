@@ -182,11 +182,8 @@ public static class Defaults
     static readonly string FilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "APEX", "defaults.json");
     public static WidgetSettings Load()
     {
-        try { return JsonSerializer.Deserialize<WidgetSettings>(File.ReadAllText(FilePath)) ?? new(); } catch { return new(); }
+        try { return SharedFile.Read(FilePath) is { } json ? JsonSerializer.Deserialize<WidgetSettings>(json) ?? new() : new(); }
+        catch { return new(); }
     }
-    public static void Save(WidgetSettings s)
-    {
-        Directory.CreateDirectory(Path.GetDirectoryName(FilePath)!);
-        File.WriteAllText(FilePath, JsonSerializer.Serialize(s));
-    }
+    public static void Save(WidgetSettings s) => SharedFile.Write(FilePath, JsonSerializer.Serialize(s));
 }

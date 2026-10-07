@@ -60,6 +60,7 @@ const root = document.getElementById("root");
 function render() {
   const now = Date.now();
   APEX.flip(root, () => { root.innerHTML = APEX.render(id, z, view(now), now, { ...opts, snap, fetchedAt }); });
+  APEX.paint(root);
 }
 
 async function load() {

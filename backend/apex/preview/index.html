@@ -238,6 +238,7 @@ function render() {
   lr.hidden = !showLock; if (showLock) lr.innerHTML = APEX.lock(view, now);
   const g = document.getElementById("gallery");
   APEX.flip(g, () => { g.innerHTML = WIDGETS.map(([id, name]) => `<button data-w="${id}" aria-current="${id === S.widget}">${widgetHTML(id, "m", view, now)}<span>${name}</span></button>`).join(""); });
+  APEX.paint(document);
   const w = WIDGETS.find(w => w[0] === S.widget);
   document.getElementById("stage-title").textContent = w[1];
   document.getElementById("stage-hint").textContent = view.loading ? "Loading the latest data…" : {

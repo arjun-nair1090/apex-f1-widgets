@@ -1,0 +1,251 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>APEX</title>
+<!-- The APEX app's settings screen. Hosted by APEX.exe (WebView2, windows/APEX/App.cs), which owns the actual settings
+     files: the page asks the host to change things through chrome.webview messages and re-renders from its replies. -->
+<link rel="stylesheet" href="widgets.css">
+<style>
+  :root { --bg: #0E0E14; --panel: #15151E; --raised: #22222C; --line: #2D2D38; --t1: #FFFFFF; --t2: #A7A7B3; --t3: #6E6E7B; --red: #E10600;
+    --f1: "Formula1 Display", "Titillium Web", "Segoe UI", sans-serif; color-scheme: dark; }
+  * { box-sizing: border-box; margin: 0; }
+  body { background: var(--bg); color: var(--t1); font: 600 14px/1.4 var(--f1); -webkit-font-smoothing: antialiased; }
+  button { font: inherit; color: inherit; }
+  :focus-visible { outline: 2px solid var(--red); outline-offset: 2px; }
+  main { max-width: 1100px; margin: 0 auto; padding: 28px 32px 64px; }
+
+  header { display: flex; align-items: center; gap: 16px; margin-bottom: 36px; }
+  header svg { display: block; }
+  .status { margin-left: auto; display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--t2); }
+  .status i { width: 8px; height: 8px; border-radius: 50%; background: #2CD46B; }
+  .status.off i { background: var(--red); }
+
+  section { margin-top: 40px; }
+  h2 { font: 900 22px/1 var(--f1); text-transform: uppercase; letter-spacing: .01em; display: flex; align-items: center; gap: 12px; }
+  h2::before { content: ""; width: 4px; height: 20px; background: var(--red); transform: skewX(-16deg); }
+  .sub { color: var(--t2); margin: 8px 0 18px 16px; max-width: 70ch; font-weight: 400; }
+
+  /* driver picker */
+  .drivers { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+  .dcard { all: unset; position: relative; cursor: pointer; height: 150px; overflow: hidden; background: var(--panel);
+    box-shadow: inset 0 0 0 1px var(--line); padding: 12px; display: flex; flex-direction: column; justify-content: flex-end; transition: box-shadow .15s; }
+  .dcard:hover { box-shadow: inset 0 0 0 1px var(--t3); }
+  .dcard[aria-checked="true"] { box-shadow: inset 0 0 0 2px var(--red); }
+  .dcard[aria-checked="true"]::after { content: "Your driver"; position: absolute; top: 10px; left: 10px; background: var(--red); color: #fff;
+    font: 900 9px/1 var(--f1); letter-spacing: .1em; text-transform: uppercase; padding: 4px 8px 3px 6px;
+    clip-path: polygon(0 0, 100% 0, calc(100% - 6px) 100%, 0 100%); }
+  .dcard .no { position: absolute; right: 6px; top: -6px; font: 900 76px/1 var(--f1); color: transparent; -webkit-text-stroke: 1.5px var(--team); opacity: .7; }
+  .dcard img { position: absolute; right: -6px; bottom: 0; height: 88%; }
+  .dcard::before { content: ""; position: absolute; inset: 0; z-index: 1; background: linear-gradient(transparent 42%, rgba(14,14,20,.94) 92%); }
+  .dcard .nm, .dcard .fn, .dcard .tm { z-index: 2; }
+  .dcard[aria-checked="true"]::after { z-index: 3; }
+  .dcard .nm { position: relative; font: 900 16px/1 var(--f1); text-transform: uppercase; }
+  .dcard .fn { position: relative; font-size: 11px; color: var(--t2); text-transform: uppercase; letter-spacing: .04em; }
+  .dcard .tm { position: relative; margin-top: 6px; display: flex; align-items: center; gap: 6px; font-size: 10px; color: var(--t2); text-transform: uppercase; letter-spacing: .06em; }
+  .dcard .tm::before { content: ""; width: 14px; height: 3px; background: var(--team); transform: skewX(-20deg); }
+
+  /* widget gallery */
+  .gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(364px, 1fr)); gap: 22px; }
+  .tile { background: var(--panel); box-shadow: inset 0 0 0 1px var(--line); padding: 14px; display: grid; gap: 12px; justify-items: center; }
+  .tile .preview { display: grid; place-items: center; min-height: 176px; width: 100%; }
+  .tile .w.l { transform: scale(.46); transform-origin: center; margin: -103px -98px; }
+  .tile .controls { display: flex; align-items: center; gap: 10px; width: 100%; }
+  .tile .name { font: 900 14px/1 var(--f1); text-transform: uppercase; margin-right: auto; }
+  .chips { display: inline-flex; background: var(--bg); box-shadow: inset 0 0 0 1px var(--line); padding: 2px; }
+  .chips button { all: unset; cursor: pointer; padding: 5px 9px; font: 700 11px/1 var(--f1); color: var(--t2); }
+  .chips button[aria-pressed="true"] { background: var(--raised); color: var(--t1); }
+  .add { all: unset; cursor: pointer; background: var(--red); color: #fff; font: 900 12px/1 var(--f1); letter-spacing: .06em; text-transform: uppercase;
+    padding: 9px 16px 8px 12px; clip-path: polygon(0 0, 100% 0, calc(100% - 8px) 100%, 0 100%); }
+  .add:hover { filter: brightness(1.12); }
+  .add:disabled { background: var(--raised); color: var(--t3); cursor: default; }
+
+  /* desktop list, options */
+  .list { display: grid; gap: 6px; }
+  .item { display: flex; align-items: center; gap: 12px; background: var(--panel); box-shadow: inset 0 0 0 1px var(--line); padding: 10px 12px; }
+  .item b { font-weight: 900; text-transform: uppercase; }
+  .item span { color: var(--t2); font-size: 12px; }
+  .item button { all: unset; cursor: pointer; margin-left: auto; color: var(--t2); font-size: 12px; padding: 4px 8px; }
+  .item button:hover { color: var(--t1); }
+  .empty { color: var(--t3); font-weight: 400; padding: 10px 0; }
+  .seg { display: inline-flex; background: var(--panel); box-shadow: inset 0 0 0 1px var(--line); padding: 3px; }
+  .seg button { all: unset; cursor: pointer; padding: 9px 18px; color: var(--t2); font-weight: 700; }
+  .seg button[aria-pressed="true"] { background: var(--raised); color: var(--t1); box-shadow: inset 0 -2px 0 var(--red); }
+  .places { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; }
+  .place { background: var(--panel); box-shadow: inset 0 0 0 1px var(--line); padding: 16px; display: grid; gap: 8px; align-content: start; }
+  .place b { font: 900 15px/1 var(--f1); text-transform: uppercase; }
+  .place p { color: var(--t2); font-weight: 400; }
+  .place kbd { font: 700 12px/1 var(--f1); padding: 2px 6px; background: var(--raised); box-shadow: inset 0 -1px 0 var(--line); }
+  .link { all: unset; cursor: pointer; color: var(--t1); font-weight: 700; text-decoration: underline; text-decoration-color: var(--red); text-underline-offset: 4px; justify-self: start; }
+
+  #toast { position: fixed; left: 50%; bottom: 24px; transform: translate(-50%, 20px); opacity: 0; transition: .2s; background: var(--t1); color: var(--bg);
+    font: 900 13px/1 var(--f1); text-transform: uppercase; letter-spacing: .04em; padding: 12px 18px; pointer-events: none; }
+  #toast.on { opacity: 1; transform: translate(-50%, 0); }
+  #toast.err { background: var(--red); color: #fff; }
+  .nohost { background: var(--raised); padding: 10px 14px; color: var(--t2); margin-bottom: 20px; }
+  @media (prefers-reduced-motion: reduce) { #toast, .dcard { transition: none; } }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <svg viewBox="-2 -2 84 28" width="96" height="32" role="img" aria-label="APEX">
+      <g fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="square" stroke-linejoin="miter">
+        <path d="M1 22 L9.5 2 L18 22"/><path d="M25 22 V2 H32 A5 5 0 0 1 32 12 H25"/>
+        <path d="M55 2 H43 V22 H55 M43 12 H52"/><path d="M61 2 L77 22 M77 2 L61 22"/>
+      </g>
+      <path d="M3.5 16.5 L19 13" fill="none" stroke="#E10600" stroke-width="2.25" stroke-linecap="square"/>
+    </svg>
+    <div class="status" id="status" role="status"><i></i><span>Connecting…</span></div>
+  </header>
+  <p class="nohost" id="nohost" hidden>Open this page from the APEX app to change your settings. Here you can only look around.</p>
+
+  <section aria-labelledby="h-driver">
+    <h2 id="h-driver">Your driver</h2>
+    <p class="sub">Their silhouette, team colour and number go on the driver widgets. You can change this any time.</p>
+    <div class="drivers" id="drivers" role="radiogroup" aria-labelledby="h-driver"></div>
+  </section>
+
+  <section aria-labelledby="h-add">
+    <h2 id="h-add">Add to your desktop</h2>
+    <p class="sub">Choose a size and click Add. Drag a widget on the desktop to move it; right-click it to resize or remove it.</p>
+    <div class="gallery" id="gallery"></div>
+  </section>
+
+  <section aria-labelledby="h-now">
+    <h2 id="h-now">On your desktop now</h2>
+    <div class="list" id="desktop" style="margin-top:16px"></div>
+  </section>
+
+  <section aria-labelledby="h-info">
+    <h2 id="h-info">How much to show</h2>
+    <p class="sub">Minimal keeps widgets to the essentials; Detailed adds sectors, gaps and more rows.</p>
+    <div class="seg" id="density" role="radiogroup" aria-labelledby="h-info">
+      <button data-v="minimal">Minimal</button><button data-v="standard">Standard</button><button data-v="detailed">Detailed</button>
+    </div>
+  </section>
+
+  <section aria-labelledby="h-more">
+    <h2 id="h-more">Widgets board and lock screen</h2>
+    <div class="places" style="margin-top:16px">
+      <div class="place"><b>Widgets board</b><p>Press <kbd>Win</kbd> + <kbd>W</kbd>, click <kbd>+</kbd>, and pick APEX. Use a widget's ⋯ menu → Customize to change it.</p></div>
+      <div class="place"><b>Lock screen</b><p>In lock screen settings, choose Widgets and add an APEX widget. Small ones fit best.</p>
+        <button class="link" id="lockscreen">Open lock screen settings</button></div>
+    </div>
+  </section>
+</main>
+<div id="toast" role="status" aria-live="polite"></div>
+
+<script src="widgets.js"></script>
+<script>
+"use strict";
+const host = window.chrome?.webview;
+const send = msg => host ? host.postMessage(msg) : toast("Open this from the APEX app to change settings", true);
+let state = { driver: null, density: "standard", desktop: [] }, snap = null, drivers = [];
+const sizes = {};  // widget kind → chosen size for Add
+const name = id => APEX.WIDGETS.find(w => w[0] === id)?.[1] ?? id;
+const esc = APEX.esc;
+
+function toast(text, err) {
+  const t = document.getElementById("toast");
+  t.textContent = text; t.className = `on${err ? " err" : ""}`;
+  clearTimeout(toast.timer); toast.timer = setTimeout(() => t.className = "", 2600);
+}
+
+function renderDrivers() {
+  document.getElementById("drivers").innerHTML = drivers.map(d => {
+    const team = APEX.hexColor(d.team_color) ?? "#6E6E7B";
+    return `<button class="dcard" role="radio" aria-checked="${d.id === state.driver}" data-driver="${esc(d.id)}" style="--team:${team}" aria-label="${esc(d.first_name)} ${esc(d.last_name)}, ${esc(d.team_name ?? "")}">
+      <span class="no" aria-hidden="true">${esc(d.race_number ?? d.number ?? "")}</span>
+      <img src="/api/drivers/${encodeURIComponent(d.id)}/silhouette.png?size=206" alt="" loading="lazy" onerror="this.remove()">
+      <span class="fn">${esc(d.first_name)}</span><span class="nm">${esc(d.last_name)}</span><span class="tm">${esc(d.team_name ?? "")}</span></button>`;
+  }).join("");
+}
+
+const previewOpts = () => ({ platform: "windows", theme: "dark", accent: "system", density: state.density, teamColors: true, snap, fetchedAt: Date.now() });
+
+/** Tiles (names, size chips, Add buttons) are built once and on size/density changes. Only the previews re-render
+    every second, so a click is never lost to a button being rebuilt under the pointer. */
+function renderGallery() {
+  document.getElementById("gallery").innerHTML = APEX.WIDGETS.map(([id, label, tag]) => {
+    const z = sizes[id] ?? "m";
+    return `<div class="tile"><div class="preview" data-kind="${id}"></div>
+      <div class="controls"><span class="name">${esc(label)}${tag ? ` <span style="color:var(--t3);font-weight:700;font-size:11px">${esc(tag)}</span>` : ""}</span>
+        <span class="chips" role="group" aria-label="${esc(label)} size">${["s", "m", "l"].map(s => `<button data-size="${s}" data-kind="${id}" aria-pressed="${s === z}">${{ s: "S", m: "M", l: "L" }[s]}</button>`).join("")}</span>
+        <button class="add" data-add="${id}" ${host ? "" : "disabled"}>Add</button></div></div>`;
+  }).join("");
+  tickPreviews();
+}
+function tickPreviews() {
+  const now = Date.now(), v = snap ? structuredClone(snap) : { loading: true }, o = previewOpts();
+  for (const p of document.querySelectorAll("#gallery .preview")) p.innerHTML = APEX.render(p.dataset.kind, sizes[p.dataset.kind] ?? "m", v, now, o);
+  APEX.paint(document.getElementById("gallery"));
+}
+
+function renderDesktop() {
+  const list = state.desktop;
+  document.getElementById("desktop").innerHTML = list.length ? list.map(w =>
+    `<div class="item"><b>${esc(name(w.kind))}</b><span>${{ s: "Small", m: "Medium", l: "Large" }[w.size] ?? w.size}</span>
+      <button data-remove="${esc(w.id)}" aria-label="Remove ${esc(name(w.kind))} from the desktop">Remove</button></div>`).join("")
+    : `<p class="empty">No widgets on your desktop yet. Add one above.</p>`;
+  document.querySelectorAll("#density button").forEach(b => b.setAttribute("aria-pressed", b.dataset.v === state.density));
+}
+
+// ---------- host messages ----------
+host?.addEventListener("message", e => {
+  const m = e.data;
+  if (m?.type !== "state") return;
+  const driverChanged = m.driver !== state.driver, prevDensity = state.density;
+  state = { driver: m.driver ?? null, density: m.density ?? "standard", desktop: m.desktop ?? [] };
+  if (m.done) toast(m.done);
+  if (m.error) toast(m.error, true);
+  const densityChanged = m.density !== undefined && m.density !== prevDensity;
+  renderDrivers(); renderDesktop();
+  if (densityChanged) renderGallery();
+  if (driverChanged) loadSnapshot();
+});
+
+document.addEventListener("click", e => {
+  const t = e.target.closest("button"); if (!t) return;
+  if (t.dataset.driver) send({ cmd: "setDriver", id: t.dataset.driver });
+  else if (t.dataset.size) { sizes[t.dataset.kind] = t.dataset.size; renderGallery(); }
+  else if (t.dataset.add) send({ cmd: "addDesktop", kind: t.dataset.add, size: sizes[t.dataset.add] ?? "m" });
+  else if (t.dataset.remove) send({ cmd: "removeDesktop", id: t.dataset.remove });
+  else if (t.dataset.v) send({ cmd: "setDensity", value: t.dataset.v });
+  else if (t.id === "lockscreen") send({ cmd: "openLockScreen" });
+});
+
+// ---------- data ----------
+async function loadSnapshot() {
+  const st = document.getElementById("status");
+  try {
+    const r = await fetch(`/api/widgets/snapshot${state.driver ? `?driver=${encodeURIComponent(state.driver)}` : ""}`);
+    if (!r.ok) throw new Error(r.status);
+    snap = await r.json();
+    st.className = "status"; st.querySelector("span").textContent = snap.live_unavailable ? "Schedule and standings OK · live timing unavailable" : "Live data connected";
+  } catch {
+    st.className = "status off"; st.querySelector("span").textContent = "Can't reach the APEX data server";
+  }
+  tickPreviews();
+}
+async function loadDrivers() {
+  try {
+    const [list, standing] = await Promise.all([fetch("/api/drivers").then(r => r.json()), fetch("/api/standings/drivers").then(r => r.json())]);
+    const order = Object.fromEntries(standing.map(s => [s.driver_id, s.position]));
+    drivers = list.sort((a, b) => (order[a.id] ?? 99) - (order[b.id] ?? 99));
+  } catch { drivers = []; }
+  renderDrivers();
+}
+
+document.getElementById("nohost").hidden = !!host;
+renderDesktop();
+loadDrivers();
+loadSnapshot();
+renderGallery();
+host?.postMessage({ cmd: "state" });
+setInterval(tickPreviews, 1000);  // countdowns tick
+setInterval(loadSnapshot, 30e3);
+</script>
+</body>
+</html>

@@ -6,7 +6,7 @@ const APEX = (() => {
   const WIDGETS = [
     ["race", "APEX", "Race Mode"], ["next", "Next session", ""], ["countdown", "Countdown", ""], ["timing", "Live timing", ""],
     ["driver", "Driver", ""], ["fav", "Favourite driver", "smart"], ["wdc", "Drivers' title", "WDC"],
-    ["wcc", "Constructors' title", "WCC"], ["weekend", "Race weekend", ""],
+    ["wcc", "Constructors' title", "WCC"], ["weekend", "Race weekend", ""], ["track", "Circuit", "3D"],
   ];
   let O = {};  // options for the render in progress
 
@@ -114,9 +114,9 @@ const APEX = (() => {
       <div class="lbl dim" style="margin:4px 0 8px">${dayTime(ns.starts_at)}</div>${boxes(ns.starts_at, now, "small", 3, soon)}${rl}${stale(v)}`;
     const bottom = `<div class="row" style="align-items:flex-end;gap:12px"><div class="col" style="gap:5px;flex:1">
         <div class="hd">${esc(label)}</div><div class="lbl dim">${dayTime(ns.starts_at)}</div></div>${boxes(ns.starts_at, now, "", 3, soon)}</div>`;
-    if (z === "m") return `${head(t, raceRight(v))}<div class="grow"></div>${bottom}${rl}${stale(v)}`;
+    if (z === "m") return `${head(t, raceRight(v))}${trackCanvas(v, "flow")}${bottom}${rl}${stale(v)}`;
     return `${head(t, raceRight(v))}<div style="margin-top:14px">${weekendList(v, now)}</div>
-      <div class="lbl dim" style="margin-top:10px">${esc(v.race?.circuit_name ?? "")}</div><div class="grow"></div>
+      ${trackCanvas(v, "flow")}<div class="lbl dim" style="margin-bottom:8px">${esc(v.race?.circuit_name ?? "")}</div>
       <div class="hd" style="font-size:26px">${esc(label)}</div><div class="lbl dim" style="margin:5px 0 10px">${dayTime(ns.starts_at)}</div>
       ${boxes(ns.starts_at, now, "big", 4, soon)}${rl}${stale(v)}`;
   };
@@ -137,7 +137,7 @@ const APEX = (() => {
       <div class="num lg" style="margin-top:8px">${esc(v.race?.short_name ?? "")}</div>
       <div class="lbl dim" style="margin:6px 0 16px">${esc(v.race?.circuit_name ?? "")}</div>
       ${boxes(sess.starts_at, now, "big", 4, soon)}<div class="lbl" style="margin-top:10px">${dayTime(sess.starts_at)}</div>
-      <div class="grow"></div><div style="margin-bottom:6px">${weekendList(v, now, 3)}</div>${rl}${stale(v)}`;
+      ${trackCanvas(v, "flow")}<div style="margin-bottom:6px">${weekendList(v, now, 3)}</div>${rl}${stale(v)}`;
   };
 
   R.timing = (v, z, now, results) => {
@@ -258,6 +258,84 @@ const APEX = (() => {
   R.race = (v, z, now) => v.mode === "live" ? R.timing(v, z, now) : v.mode === "results" ? R.timing(v, z, now, true)
     : v.mode === "countdown" ? R.countdown(v, z, now, v.next_session) : R.next(v, z, now);
 
+  R.track = (v, z, now) => {
+    const r = v.race;
+    if (!r) return head(tab("Circuit"));
+    const d = trackData(r.season, r.round);
+    const rs = r.sessions.find(s => s.type === "RACE");
+    const facts = [r.laps_total ? `${r.laps_total} laps` : "", d?.elevation_m != null ? `${Math.round(d.elevation_m)} m elevation` : ""].filter(Boolean).join(" · ");
+    const none = d === null ? `<div class="lbl dim" style="margin:auto 0">New circuit: the map arrives after its first race</div>` : "";
+    if (z === "s") return `${head(tab(`Round ${r.round}`), country(r.country_code))}${none || trackCanvas(v, "flow")}
+      <div class="lbl trunc" style="color:var(--wt1)">${esc(shortCountry(r))}</div>${stale(v)}`;
+    if (z === "m") return `<div class="row" style="flex:1;min-height:0;gap:10px;align-items:stretch">
+      <div class="col" style="width:128px;flex:none">${tab(`Round ${r.round}`)}<div class="grow"></div>
+        <div class="hd" style="font-size:20px">${esc(shortCountry(r))}</div>
+        <div class="lbl dim" style="margin-top:4px;line-height:1.3">${esc(r.circuit_name)}</div>
+        <div class="lbl" style="margin-top:6px">${facts}</div></div>
+      ${none || trackCanvas(v, "fill")}</div>${stale(v)}`;
+    return `${head(tab(`Round ${r.round}`), raceRight(v))}<div class="num md" style="margin-top:12px">${esc(r.circuit_name)}</div>
+      <div class="lbl" style="margin-top:6px">${facts}</div>${none || trackCanvas(v, "flow")}
+      ${rs && stateOf(rs, now) === "upcoming" ? `<div class="lbl" style="margin-bottom:6px">Lights out in</div>${boxes(rs.starts_at, now, "big", 4)}` : ""}${stale(v)}`;
+  };
+
+  // ---------- 3D track: real x/y/z from a lap at this circuit (GET /api/races/{round}/track) ----------
+  const tracks = {};  // "season-round" → layout | null (no map) | "loading"
+  const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  function trackData(season, round) {
+    const key = `${season}-${round}`;
+    if (!(key in tracks)) {
+      tracks[key] = "loading";
+      let saved = null;
+      try { saved = JSON.parse(localStorage.getItem(`apex.track.${key}`)); } catch {}
+      if (saved?.points) tracks[key] = saved;
+      else fetch(`/api/races/${round}/track`)
+        .then(r => r.status === 404 ? null : r.ok ? r.json() : Promise.reject(r.status))
+        .then(d => { tracks[key] = d?.points ? d : null; if (d?.points) try { localStorage.setItem(`apex.track.${key}`, JSON.stringify(d)); } catch {} })
+        .catch(() => setTimeout(() => delete tracks[key], 60e3));  // offline / busy: try again in a minute
+    }
+    return tracks[key] === "loading" ? undefined : tracks[key];
+  }
+  const trackCanvas = (v, fit) => v.race ? `<canvas class="track3d ${fit}" data-season="${v.race.season}" data-round="${v.race.round}" role="img" aria-label="${esc(v.race.circuit_name)} track map"></canvas>` : "";
+
+  /** Paint every track canvas under `root`: tilted camera, slow turn, elevation drawn as height (exaggerated ×4). */
+  function paint(root = document, t = performance.now()) {
+    for (const cv of root.querySelectorAll("canvas.track3d")) {
+      const d = trackData(cv.dataset.season, cv.dataset.round);
+      const w = cv.clientWidth, h = cv.clientHeight;
+      if (!d || w < 24 || h < 24) continue;
+      const dpr = devicePixelRatio || 1;
+      if (cv.width !== Math.round(w * dpr) || cv.height !== Math.round(h * dpr)) { cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr); }
+      const g = cv.getContext("2d");
+      g.setTransform(dpr, 0, 0, dpr, 0, 0);
+      g.clearRect(0, 0, w, h);
+      const css = getComputedStyle(cv), ink = css.color, accent = css.getPropertyValue("--acc").trim() || "#E10600";
+      const yaw = 0.6 + (reduceMotion ? 0 : t / 48000 * 2 * Math.PI);      // one turn per 48 s
+      const tilt = 1.0, ct = Math.cos(tilt), st = Math.sin(tilt), cy = Math.cos(yaw), sy = Math.sin(yaw);
+      const zs = 4 / Math.max(200, d.span_m / 2);                             // metres → map units, ×4
+      const s = Math.min(w / 2.25, h / (2.1 * ct + 0.35));
+      const ox = w / 2, oy = h / 2 + h * 0.04;
+      const P = (x, y, z) => { const xr = x * cy - y * sy, yr = x * sy + y * cy; return [ox + s * xr, oy - s * (yr * ct + z * zs * st)]; };
+      const pts = d.points, n = pts.length;
+      const path = z0 => { g.beginPath(); pts.forEach(([x, y, z], i) => { const [px, py] = P(x, y, z0 ?? z); i ? g.lineTo(px, py) : g.moveTo(px, py); }); g.closePath(); };
+      g.lineJoin = g.lineCap = "round";
+      path(0); g.strokeStyle = "rgba(0,0,0,.45)"; g.lineWidth = 6; g.stroke();          // ground shadow
+      g.strokeStyle = "rgba(127,127,140,.18)"; g.lineWidth = 1;                         // elevation "curtain"
+      g.beginPath(); for (let i = 0; i < n; i += 3) { const [x, y, z] = pts[i]; const a = P(x, y, 0), b = P(x, y, z); g.moveTo(...a); g.lineTo(...b); } g.stroke();
+      path(); g.globalAlpha = .22; g.strokeStyle = ink; g.lineWidth = 6; g.stroke();    // soft halo
+      g.globalAlpha = 1; g.lineWidth = 2.2; g.stroke();                                 // the track
+      const [ax, ay] = P(...pts[0]), [bx, by] = P(...pts[1]);                            // start/finish line
+      const len = Math.hypot(bx - ax, by - ay) || 1, nx = -(by - ay) / len * 6, ny = (bx - ax) / len * 6;
+      g.strokeStyle = accent; g.lineWidth = 3; g.beginPath(); g.moveTo(ax - nx, ay - ny); g.lineTo(ax + nx, ay + ny); g.stroke();
+      if (!reduceMotion) {                                                              // a car lapping every 24 s
+        const [cx2, cy2] = P(...pts[Math.floor((t / 24000 % 1) * n) % n]);
+        g.fillStyle = accent; g.beginPath(); g.arc(cx2, cy2, 3.4, 0, 7); g.fill();
+        g.strokeStyle = ink; g.lineWidth = 1.2; g.stroke();
+      }
+    }
+    if (!loop) { loop = true; const tick = t2 => { paint(document, t2); setTimeout(() => requestAnimationFrame(tick), 40); }; requestAnimationFrame(tick); }
+  }
+  let loop = false;
+
   function skeleton(z) {
     const rows = z === "s" ? 2 : z === "m" ? 3 : 9;
     return `<div class="skel" style="width:40%"></div><div class="grow"></div>${z === "s" ? `<div class="skel h" style="width:60%;margin-bottom:10px"></div>` : ""}
@@ -304,5 +382,5 @@ const APEX = (() => {
     }
   }
 
-  return { WIDGETS, render, flip, lock, raceMode, stateOf, esc, ago, hexColor, retry: () => {} };
+  return { WIDGETS, render, flip, paint, lock, raceMode, stateOf, esc, ago, hexColor, retry: () => {} };
 })();

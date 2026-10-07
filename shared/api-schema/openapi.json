@@ -205,6 +205,65 @@
     }
    }
   },
+  "/api/races/{round}/track": {
+   "get": {
+    "summary": "Race Track",
+    "description": "3D outline of the round's circuit, from a real lap of an earlier race there: points are [x, y, metres up],\nx/y scaled into [-1, 1]. Built once per circuit, then served from disk.",
+    "operationId": "race_track_api_races__round__track_get",
+    "parameters": [
+     {
+      "name": "round",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "integer",
+       "maximum": 30,
+       "minimum": 1,
+       "title": "Round"
+      }
+     },
+     {
+      "name": "x-api-key",
+      "in": "header",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "X-Api-Key"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "404": {
+      "description": "No earlier race here with position data"
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
   "/api/session/next": {
    "get": {
     "summary": "Session Next",
@@ -1067,6 +1126,17 @@
        }
       ],
       "title": "Team Color"
+     },
+     "race_number": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Race Number"
      }
     },
     "type": "object",

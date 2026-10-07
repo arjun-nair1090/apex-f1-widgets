@@ -20,20 +20,13 @@ public static class DesktopConfig
     public static readonly string Dir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "APEX");
     static readonly string FilePath = Path.Combine(Dir, "desktop.json");
 
-    public static List<DesktopWidget>? Load()
-    {
-        try { return JsonSerializer.Deserialize<List<DesktopWidget>>(File.ReadAllText(FilePath)); }
-        catch (FileNotFoundException) { return null; }
-        catch { return []; }  // unreadable mid-write: treat as empty for this pass; the watcher fires again
-    }
+    /// null = no file yet. Throws only if the file stays locked for half a second.
+    public static List<DesktopWidget>? Load() =>
+        SharedFile.Read(FilePath) is { } json ? JsonSerializer.Deserialize<List<DesktopWidget>>(json) ?? [] : null;
 
-    public static void Save(IEnumerable<DesktopWidget> items)
-    {
-        Directory.CreateDirectory(Dir);
-        var tmp = FilePath + ".tmp";
-        File.WriteAllText(tmp, JsonSerializer.Serialize(items.ToList()));
-        File.Move(tmp, FilePath, overwrite: true);
-    }
+    public static void Save(IEnumerable<DesktopWidget> items) => SharedFile.Write(FilePath, JsonSerializer.Serialize(items.ToList()));
+
+    public static void Remove(string id) => Save((Load() ?? []).Where(w => w.Id != id));
 
     public static void Add(string kind, string size) =>
         Save([.. Load() ?? [], new DesktopWidget(Guid.NewGuid().ToString("N")[..8], kind, size)]);
@@ -78,7 +71,9 @@ public sealed class DesktopApp : Application, IXamlMetadataProvider
     /// Make the open windows match desktop.json (adds from the companion, size changes, removals).
     void Sync()
     {
-        var items = DesktopConfig.Load() ?? [];
+        List<DesktopWidget> items;
+        try { items = DesktopConfig.Load() ?? []; }
+        catch (IOException) { return; }  // still locked: keep the widgets as they are; the next change event retries
         foreach (var id in windows.Keys.Except(items.Select(i => i.Id)).ToList())
         {
             windows[id].Close();
@@ -100,7 +95,9 @@ public sealed class DesktopApp : Application, IXamlMetadataProvider
 
     void OnCommand(WidgetWindow w, string cmd)
     {
-        var items = DesktopConfig.Load() ?? [];
+        List<DesktopWidget> items;
+        try { items = DesktopConfig.Load() ?? []; }
+        catch (IOException) { return; }
         var i = items.FindIndex(x => x.Id == w.Item.Id);
         if (i < 0) return;
         switch (cmd)
@@ -207,6 +204,9 @@ sealed class WidgetWindow : Window
         switch (message)
         {
             case "drag":
+                // The page's message can arrive after the button is already up; entering the move loop then waits
+                // for a release that already happened (the window hangs, following the cursor).
+                if ((GetAsyncKeyState(0x01 /* VK_LBUTTON */) & 0x8000) == 0) break;
                 ReleaseCapture();
                 SendMessage(hwnd, 0xA1 /* WM_NCLBUTTONDOWN */, 2 /* HTCAPTION */, 0);  // native move until mouse-up
                 Item = Item with { X = AppWindow.Position.X, Y = AppWindow.Position.Y };
@@ -232,6 +232,7 @@ sealed class WidgetWindow : Window
     [DllImport("comctl32.dll")] static extern bool SetWindowSubclass(IntPtr hwnd, SubclassProc proc, nint id, nint data);
     [DllImport("comctl32.dll")] static extern nint DefSubclassProc(IntPtr hwnd, uint msg, nint wParam, nint lParam);
     [DllImport("user32.dll")] static extern bool ReleaseCapture();
+    [DllImport("user32.dll")] static extern short GetAsyncKeyState(int key);
     [DllImport("user32.dll")] static extern IntPtr SendMessage(IntPtr hwnd, uint msg, IntPtr wParam, IntPtr lParam);
     [DllImport("user32.dll")] static extern bool SetWindowPos(IntPtr hwnd, IntPtr after, int x, int y, int cx, int cy, uint flags);
 }

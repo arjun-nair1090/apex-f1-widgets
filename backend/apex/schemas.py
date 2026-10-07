@@ -60,6 +60,7 @@ class Driver(BaseModel):
     team_id: str | None
     team_name: str | None
     team_color: str | None
+    race_number: int | None = None  # number on the car this season (the champion runs #1); `number` is permanent
 
 
 class DriverStanding(BaseModel):
@@ -91,7 +92,6 @@ class WeekendResult(BaseModel):
 
 
 class DriverDetail(Driver):
-    race_number: int | None = None  # number on the car this season (the champion runs #1); `number` is permanent
     season: int
     position: int | None
     points: float

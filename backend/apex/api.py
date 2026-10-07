@@ -1,14 +1,15 @@
 import asyncio
 import json
 import secrets
-from typing import Annotated
 from datetime import datetime, timezone
+from typing import Annotated
 
+import httpx
 from fastapi import APIRouter, Depends, Header, HTTPException, Path, Query, Request, Response
 from fastapi.responses import StreamingResponse
 from sqlalchemy import func, select
 
-from . import cache, live, portraits, schemas
+from . import cache, live, portraits, schemas, tracks
 from .config import settings
 from .ingest import short_race_name, short_team_name, status
 from .models import ConstructorStanding, Driver, DriverStanding, Race, Result, Session, SessionLocal, Team
@@ -72,7 +73,8 @@ def next_race(db, t: datetime) -> Race | None:
 def driver_out(d: Driver, team: Team | None) -> schemas.Driver:
     return schemas.Driver(id=d.id, code=d.code, number=d.number, first_name=d.first_name, last_name=d.last_name,
                           nationality=d.nationality, country_code=d.country_code, team_id=d.team_id,
-                          team_name=team.name if team else None, team_color=team.color if team else None)
+                          team_name=team.name if team else None, team_color=team.color if team else None,
+                          race_number=portraits.openf1_driver(d.code).get("number") or d.number)
 
 
 def driver_standings(db, season: int) -> list[schemas.DriverStanding]:
@@ -111,7 +113,6 @@ def driver_detail(db, driver_id: str, season: int, t: datetime) -> schemas.Drive
         weekend = [schemas.WeekendResult(session_type=r.session_type, position=r.position, gap=r.gap)
                    for r in sorted(rows, key=lambda r: order.get(r.session_type, 9))]
     return schemas.DriverDetail(**driver_out(d, team).model_dump(), season=season,
-                                race_number=portraits.openf1_driver(d.code).get("number") or d.number,
                                 position=standing.position if standing else None,
                                 points=standing.points if standing else 0, wins=standing.wins if standing else 0,
                                 podiums=sum(1 for r in races if r.position and r.position <= 3),
@@ -185,6 +186,21 @@ def race_by_round(round: int = ROUND):
         if race is None:
             raise HTTPException(404, "No such round")
         return race_out(db, race, now())
+
+
+@router.get("/races/{round}/track", responses={404: {"description": "No earlier race here with position data"}})
+def race_track(round: int = ROUND):
+    """3D outline of the round's circuit, from a real lap of an earlier race there: points are [x, y, metres up],
+    x/y scaled into [-1, 1]. Built once per circuit, then served from disk."""
+    with SessionLocal() as db:
+        race = db.get(Race, (current_season(db), round))
+    try:
+        data = tracks.layout(race) if race else None
+    except httpx.HTTPError:  # OpenF1 busy or down: nothing is cached, so the next request tries again
+        raise HTTPException(503, "Track data is temporarily unavailable")
+    if data is None:
+        raise HTTPException(404, "No track layout for this round")
+    return Response(json.dumps(data), media_type="application/json", headers={"Cache-Control": "public, max-age=86400"})
 
 
 @router.get("/session/next", response_model=schemas.Session)

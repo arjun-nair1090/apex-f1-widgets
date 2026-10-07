@@ -93,6 +93,33 @@ public static class Api
     }
 }
 
+/// Settings files are shared by three processes (APEX app, desktop host, widget provider). Write to a temp file and
+/// swap it in; retry briefly on sharing violations. A reader and a writer can then never crash each other.
+public static class SharedFile
+{
+    public static string? Read(string path)
+    {
+        for (int attempt = 0; ; attempt++)
+        {
+            try { return File.ReadAllText(path); }
+            catch (Exception e) when (e is FileNotFoundException or DirectoryNotFoundException) { return null; }
+            catch (IOException) when (attempt < 20) { Thread.Sleep(25); }
+        }
+    }
+
+    public static void Write(string path, string text)
+    {
+        Directory.CreateDirectory(Path.GetDirectoryName(path)!);
+        var tmp = $"{path}.{Environment.ProcessId}.tmp";
+        File.WriteAllText(tmp, text);
+        for (int attempt = 0; ; attempt++)
+        {
+            try { File.Move(tmp, path, overwrite: true); return; }
+            catch (IOException) when (attempt < 20) { Thread.Sleep(25); }
+        }
+    }
+}
+
 public enum Mode { Live, Results, Countdown, Next }
 
 /// Mirror of backend/apex/racemode.py, evaluated at render time so cards flip at boundaries without a fetch.

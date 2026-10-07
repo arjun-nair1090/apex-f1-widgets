@@ -73,8 +73,10 @@ You get APEX in three places:
 - **Widgets board:** Win + W → + (Add widgets) → APEX. Each widget's menu → **Customize** sets its driver and density.
 - **Lock screen:** Settings → Personalization → Lock screen → Widgets → add an APEX widget (small ones fit there).
 
-Pick your favourite driver in the APEX app: the driver widgets show their silhouette in team color with their race
-number. Re-run the script after pulling changes; it installs each build as a package update, so pinned widgets stay.
+Open **APEX** from the Start menu to pick your driver (cards show each driver's silhouette and number), browse every
+widget as a live preview and add it to the desktop in one click. The **Circuit** widget, and the space in Next
+session and Countdown, show the upcoming track in 3D, built from a real lap of an earlier race there
+(`GET /api/races/{round}/track`; new circuits get a map after their first race). Re-run the script after pulling changes; it installs each build as a package update, so pinned widgets stay.
 
 Debug without the board: `APEX.exe -DumpCards <dir> [driver]` writes the exact template and data every widget would
 get, at every size. WinUI crashes are logged to `%LOCALAPPDATA%\APEX\crash.log`.

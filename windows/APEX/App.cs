@@ -1,18 +1,16 @@
+using System.Text.Json;
+using System.Text.Json.Nodes;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Controls.Primitives;
 using Microsoft.UI.Xaml.Markup;
-using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.XamlTypeInfo;
 
 namespace Apex;
 
-/// Companion window (spec §17). Widgets are customized natively on the board (Customize menu); this sets defaults for new
-/// widgets and shows data health. Built in code (no XAML pages) and themed by the system, so it feels native.
+/// The APEX app (spec §17): settings and the widget gallery. The screen itself is app.html from the data server, in a
+/// WebView2 (same F1 look and live previews as the widgets); this class is the bridge that owns the settings files.
 public sealed class App : Application, IXamlMetadataProvider
 {
-    Window? window;
-
     // With no XAML pages, nothing generates the type-info provider WinUI's control styles need
     // (otherwise: "Cannot find a resource with the given key: AcrylicBackgroundFillColorDefaultBrush").
     readonly XamlControlsXamlMetaDataProvider controlsMetadata = new();
@@ -20,117 +18,99 @@ public sealed class App : Application, IXamlMetadataProvider
     public IXamlType GetXamlType(string fullName) => controlsMetadata.GetXamlType(fullName);
     public XmlnsDefinition[] GetXmlnsDefinitions() => controlsMetadata.GetXmlnsDefinitions();
 
+    static readonly Windows.UI.Color Carbon = Windows.UI.Color.FromArgb(255, 0x0E, 0x0E, 0x14);
+    Window? window;
+    // Created in OnLaunched, not as a field: a XAML control built during App construction initializes WinUI before
+    // our metadata provider is in place, and XamlControlsResources then fails ("AcrylicBackgroundFillColorDefaultBrush").
+    WebView2 web = null!;
+
     public App()
     {
         // WinUI crashes surface only as 0xc000027b in the event log; keep the real message.
-        UnhandledException += (_, e) => File.AppendAllText(
-            Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "APEX", "crash.log"),
-            $"{DateTimeOffset.Now:u} {e.Exception}\n");
-        Directory.CreateDirectory(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "APEX"));
+        Directory.CreateDirectory(DesktopConfig.Dir);
+        UnhandledException += (_, e) => File.AppendAllText(Path.Combine(DesktopConfig.Dir, "crash.log"), $"{DateTimeOffset.Now:u} {e.Exception}\n");
     }
 
     protected override void OnLaunched(LaunchActivatedEventArgs args)
     {
         Resources.MergedDictionaries.Add(new XamlControlsResources());
-        window = new Window { Title = "APEX", SystemBackdrop = new MicaBackdrop(), ExtendsContentIntoTitleBar = true };
-        window.AppWindow.Resize(new Windows.Graphics.SizeInt32(560, 720));
-        window.Content = Build();
+        web = new WebView2 { DefaultBackgroundColor = Carbon };
+        window = new Window { Title = "APEX", Content = web };
+        var bar = window.AppWindow.TitleBar;  // carbon title bar, so the window reads as one piece
+        bar.BackgroundColor = bar.InactiveBackgroundColor = bar.ButtonBackgroundColor = bar.ButtonInactiveBackgroundColor = Carbon;
+        bar.ForegroundColor = bar.ButtonForegroundColor = Microsoft.UI.Colors.White;
+        bar.ButtonHoverBackgroundColor = Windows.UI.Color.FromArgb(255, 0x22, 0x22, 0x2C);
+        var area = Microsoft.UI.Windowing.DisplayArea.Primary.WorkArea;
+        window.AppWindow.Resize(new Windows.Graphics.SizeInt32(Math.Min(1280, area.Width * 9 / 10), Math.Min(1000, area.Height * 9 / 10)));
         window.Activate();
+        _ = InitAsync();
     }
 
-    UIElement Build()
+    async Task InitAsync()
     {
-        var defaults = Defaults.Load();
-        var status = new TextBlock { Text = "Checking…", Opacity = 0.7 };
-        var driver = new ComboBox { Header = "Favourite driver", PlaceholderText = "Loading drivers…", MinWidth = 320 };
-        var density = new RadioButtons { Header = "Information", MaxColumns = 3 };
-        foreach (var d in new[] { "Minimal", "Standard", "Detailed" }) density.Items.Add(d);
-        density.SelectedIndex = defaults.Density switch { "minimal" => 0, "detailed" => 2, _ => 1 };
-
-        List<DriverSummary> drivers = [];
-        bool loading = false;  // rebuilding the list fires SelectionChanged: those aren't the user's choices
-        void Save()
+        await web.EnsureCoreWebView2Async();
+        web.CoreWebView2.Settings.AreDevToolsEnabled = false;
+        web.CoreWebView2.Settings.IsStatusBarEnabled = false;
+        web.CoreWebView2.WebMessageReceived += (_, e) => OnMessage(e.WebMessageAsJson);
+        // The data server may still be starting (just after logon): retry until the page loads.
+        web.CoreWebView2.NavigationCompleted += async (_, e) =>
         {
-            if (loading) return;
-            Defaults.Save(new WidgetSettings(
-                driver.SelectedIndex > 0 ? drivers[driver.SelectedIndex - 1].Id : null,
-                new[] { "minimal", "standard", "detailed" }[Math.Clamp(density.SelectedIndex, 0, 2)]));
-        }
-        driver.SelectionChanged += (_, _) => Save();
-        density.SelectionChanged += (_, _) => Save();
+            if (e.IsSuccess) return;
+            web.NavigateToString("<body style='background:#0E0E14;color:#fff;font:600 16px Segoe UI;display:grid;place-items:center;height:90vh'>Starting the APEX data server…</body>");
+            await Task.Delay(4000);
+            web.Source = new Uri($"{Api.BaseUrl}/app.html");
+        };
+        web.Source = new Uri($"{Api.BaseUrl}/app.html");
+    }
 
-        async void Refresh()
+    /// Commands from app.html. Every reply carries the full state, so the page never drifts from the files.
+    void OnMessage(string json)
+    {
+        string? done = null, error = null;
+        try
         {
-            var current = Defaults.Load().Driver;
-            var list = await Api.Drivers();
-            loading = true;
-            if (list.Count > 0)  // offline: keep what's shown rather than collapsing to "None"
+            var m = JsonNode.Parse(json)!;
+            var d = Defaults.Load();
+            switch ((string?)m["cmd"])
             {
-                drivers = list;
-                driver.Items.Clear();
-                driver.Items.Add("None");
-                foreach (var d in drivers) driver.Items.Add($"{d.FirstName} {d.LastName}");
-                driver.SelectedIndex = Math.Max(0, drivers.FindIndex(d => d.Id == current) + 1);
+                case "setDriver":
+                    Defaults.Save(d with { Driver = (string?)m["id"] });
+                    done = "Driver updated";
+                    break;
+                case "setDensity" when (string?)m["value"] is "minimal" or "standard" or "detailed":
+                    Defaults.Save(d with { Density = (string)m["value"]! });
+                    break;
+                case "addDesktop" when (string?)m["size"] is "s" or "m" or "l":
+                    DesktopConfig.Add((string)m["kind"]!, (string)m["size"]!);
+                    DesktopConfig.EnsureHostRunning();
+                    done = "Added to your desktop";
+                    break;
+                case "removeDesktop":
+                    DesktopConfig.Remove((string)m["id"]!);
+                    done = "Removed from your desktop";
+                    break;
+                case "openLockScreen":
+                    _ = Windows.System.Launcher.LaunchUriAsync(new Uri("ms-settings:lockscreen"));
+                    break;
             }
-            loading = false;
-            var snap = await Api.Snapshot(current);
-            status.Text = snap switch
-            {
-                null => "Can't reach the APEX service. Widgets keep showing the last data they received.",
-                { StaleSince: { } since } => $"Offline. Showing data from {Fmt.Ago(since, DateTimeOffset.Now).ToLowerInvariant()} ago.",
-                { Snapshot: var s } => s.LiveUnavailable ? "Schedule and standings: OK · Live timing: unavailable" : "Schedule, standings and live timing: OK",
-            };
         }
-        Refresh();
-
-        var refresh = new Button { Content = "Refresh" };
-        refresh.Click += (_, _) => Refresh();
-
-        // Desktop widgets (APEX.exe -Desktop): pick one, add it; drag to move, right-click to resize or remove.
-        (string Id, string Name)[] kinds = [("race", "APEX · Race Mode"), ("next", "Next session"), ("countdown", "Countdown"),
-            ("timing", "Live timing"), ("driver", "Driver"), ("fav", "Favourite driver"), ("wdc", "Drivers' championship"),
-            ("wcc", "Constructors' championship"), ("weekend", "Race weekend")];
-        var widget = new ComboBox { Header = "Widget", MinWidth = 320 };
-        foreach (var k in kinds) widget.Items.Add(k.Name);
-        widget.SelectedIndex = 0;
-        var size = new RadioButtons { Header = "Size", MaxColumns = 3 };
-        foreach (var s in new[] { "Small", "Medium", "Large" }) size.Items.Add(s);
-        size.SelectedIndex = 1;
-        var add = new Button { Content = "Add to desktop" };
-        add.Click += (_, _) =>
+        catch (Exception e)  // a busy file, a malformed message: say so on screen, never close the app
         {
-            DesktopConfig.Add(kinds[widget.SelectedIndex].Id, "sml"[size.SelectedIndex].ToString());
-            DesktopConfig.EnsureHostRunning();
-        };
-        var lockScreen = new HyperlinkButton { Content = "Open lock screen settings", Padding = new Thickness(0) };
-        lockScreen.Click += async (_, _) => await Windows.System.Launcher.LaunchUriAsync(new Uri("ms-settings:lockscreen"));
-        TextBlock H(string t) => new() { Text = t, FontSize = 18, FontWeight = Microsoft.UI.Text.FontWeights.SemiBold };
-        TextBlock P(string t) => new() { Text = t, TextWrapping = TextWrapping.Wrap, Opacity = 0.75 };
+            error = e is IOException ? "Couldn't save just now. Try again." : "Something went wrong. Try again.";
+            File.AppendAllText(Path.Combine(DesktopConfig.Dir, "crash.log"), $"{DateTimeOffset.Now:u} (handled) {e}\n");
+        }
+        SendState(done, error);
+    }
 
-        return new ScrollViewer
+    void SendState(string? done = null, string? error = null)
+    {
+        var d = Defaults.Load();
+        List<DesktopWidget> desktop;
+        try { desktop = DesktopConfig.Load() ?? []; } catch (IOException) { desktop = []; }
+        web.CoreWebView2.PostWebMessageAsJson(JsonSerializer.Serialize(new
         {
-            Content = new StackPanel
-            {
-                Spacing = 24,
-                Padding = new Thickness(32, 48, 32, 32),
-                Children =
-                {
-                    new TextBlock { Text = "APEX", FontSize = 28, FontWeight = Microsoft.UI.Text.FontWeights.SemiBold },
-                    driver,
-                    density,
-                    H("On your desktop"),
-                    P("Drag a widget to move it. Right-click it to change its size or remove it."),
-                    widget,
-                    size,
-                    add,
-                    H("Widgets board and lock screen"),
-                    P("Press Win + W, then Add widgets, and pick APEX. For the lock screen, open lock screen settings, choose Widgets, and add an APEX widget (small widgets fit there)."),
-                    lockScreen,
-                    H("Data"),
-                    status,
-                    refresh,
-                },
-            },
-        };
+            type = "state", driver = d.Driver, density = d.Density, done, error,
+            desktop = desktop.Select(w => new { id = w.Id, kind = w.Kind, size = w.Size }),
+        }));
     }
 }

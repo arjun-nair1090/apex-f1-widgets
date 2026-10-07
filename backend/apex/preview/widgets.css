@@ -111,6 +111,11 @@
 .last5 span { font: 900 11px/18px var(--f1); min-width: 28px; text-align: center; background: var(--wel); }
 .last5 span.pod { background: var(--wt1); color: var(--wbg); }
 
+/* ---------- 3D track ---------- */
+.track3d { display: block; color: var(--wt1); pointer-events: none; }
+.track3d.flow { flex: 1 1 0; height: 0; min-height: 36px; width: 100%; margin: 4px 0; }
+.track3d.fill { flex: 1 1 0; min-width: 0; height: 100%; }
+
 /* ---------- rail: progress along the bottom edge ---------- */
 .rail { position: absolute; left: 0; right: 0; bottom: 0; height: 3px; background: var(--wbd); }
 .rail > i { display: block; height: 100%; background: var(--wt1); transition: width .24s ease-in-out; }
