@@ -42,44 +42,13 @@
    "type": "Container",
    "items": [
     {
-     "type": "ColumnSet",
-     "columns": [
-      {
-       "type": "Column",
-       "width": "stretch",
-       "items": [
-        {
-         "type": "TextBlock",
-         "text": "${label}",
-         "wrap": false,
-         "size": "Small",
-         "weight": "Bolder",
-         "color": "${if(live,'Attention','Default')}",
-         "isSubtle": "${!live}"
-        }
-       ]
-      },
-      {
-       "type": "Column",
-       "width": "auto",
-       "items": [
-        {
-         "type": "TextBlock",
-         "text": "${name}",
-         "wrap": false,
-         "size": "Small",
-         "weight": "Bolder",
-         "horizontalAlignment": "Right"
-        }
-       ],
-       "$when": "${$host.widgetSize!=\"small\"}"
-      }
-     ]
-    },
-    {
-     "type": "Container",
-     "height": "stretch",
-     "items": []
+     "type": "TextBlock",
+     "text": "${label}",
+     "wrap": false,
+     "size": "Small",
+     "weight": "Bolder",
+     "color": "${if(live,'Attention','Default')}",
+     "isSubtle": "${!live}"
     },
     {
      "type": "ColumnSet",
@@ -88,65 +57,171 @@
        "type": "Column",
        "width": "stretch",
        "items": [
+        {
+         "type": "Container",
+         "height": "stretch",
+         "items": []
+        },
         {
          "type": "TextBlock",
          "text": "${big}",
          "wrap": false,
          "size": "ExtraLarge",
          "weight": "Bolder"
-        }
-       ]
-      },
-      {
-       "type": "Column",
-       "width": "auto",
-       "items": [
+        },
         {
          "type": "TextBlock",
-         "text": "${top}",
-         "wrap": false,
-         "size": "Small",
-         "weight": "Bolder",
-         "horizontalAlignment": "Right"
-        }
-       ],
-       "verticalContentAlignment": "Bottom"
-      }
-     ]
-    },
-    {
-     "type": "ColumnSet",
-     "columns": [
-      {
-       "type": "Column",
-       "width": "stretch",
-       "items": [
-        {
-         "type": "TextBlock",
-         "text": "${code}",
+         "text": "${name}",
          "wrap": false,
          "size": "Medium",
-         "weight": "Bolder"
-        }
-       ]
-      },
-      {
-       "type": "Column",
-       "width": "auto",
-       "items": [
+         "weight": "Bolder",
+         "spacing": "None"
+        },
         {
          "type": "TextBlock",
          "text": "${sub}",
          "wrap": false,
          "size": "Small",
          "isSubtle": true,
-         "horizontalAlignment": "Right"
+         "spacing": "None"
         }
        ],
-       "verticalContentAlignment": "Center"
+       "verticalContentAlignment": "Bottom"
+      },
+      {
+       "type": "Column",
+       "width": "auto",
+       "items": [
+        {
+         "type": "TextBlock",
+         "text": "${number}",
+         "wrap": false,
+         "size": "ExtraLarge",
+         "weight": "Bolder",
+         "isSubtle": true,
+         "horizontalAlignment": "Right",
+         "$when": "${number != ''}"
+        },
+        {
+         "type": "Image",
+         "url": "${silhouette}",
+         "height": "72px",
+         "horizontalAlignment": "Right",
+         "spacing": "None",
+         "altText": "${name}",
+         "$when": "${silhouette != ''}"
+        }
+       ],
+       "verticalContentAlignment": "Bottom",
+       "$when": "${$host.widgetSize==\"small\"}"
+      },
+      {
+       "type": "Column",
+       "width": "auto",
+       "items": [
+        {
+         "type": "TextBlock",
+         "text": "${number}",
+         "wrap": false,
+         "size": "ExtraLarge",
+         "weight": "Bolder",
+         "isSubtle": true,
+         "horizontalAlignment": "Right",
+         "$when": "${number != ''}"
+        },
+        {
+         "type": "Image",
+         "url": "${silhouette}",
+         "height": "110px",
+         "horizontalAlignment": "Right",
+         "spacing": "None",
+         "altText": "${name}",
+         "$when": "${silhouette != ''}"
+        }
+       ],
+       "verticalContentAlignment": "Bottom",
+       "$when": "${$host.widgetSize==\"medium\"}"
       }
      ],
-     "spacing": "None"
+     "height": "stretch",
+     "$when": "${$host.widgetSize!=\"large\"}"
+    },
+    {
+     "type": "Container",
+     "items": [
+      {
+       "type": "ColumnSet",
+       "columns": [
+        {
+         "type": "Column",
+         "width": "stretch",
+         "items": [
+          {
+           "type": "Container",
+           "height": "stretch",
+           "items": []
+          }
+         ]
+        },
+        {
+         "type": "Column",
+         "width": "auto",
+         "items": [
+          {
+           "type": "TextBlock",
+           "text": "${number}",
+           "wrap": false,
+           "size": "ExtraLarge",
+           "weight": "Bolder",
+           "isSubtle": true,
+           "horizontalAlignment": "Right",
+           "$when": "${number != ''}"
+          },
+          {
+           "type": "Image",
+           "url": "${silhouette}",
+           "height": "220px",
+           "horizontalAlignment": "Right",
+           "spacing": "None",
+           "altText": "${name}",
+           "$when": "${silhouette != ''}"
+          }
+         ],
+         "verticalContentAlignment": "Bottom"
+        }
+       ]
+      },
+      {
+       "type": "Container",
+       "height": "stretch",
+       "items": []
+      },
+      {
+       "type": "TextBlock",
+       "text": "${big}",
+       "wrap": false,
+       "size": "ExtraLarge",
+       "weight": "Bolder"
+      },
+      {
+       "type": "TextBlock",
+       "text": "${name}",
+       "wrap": false,
+       "size": "Large",
+       "weight": "Bolder",
+       "spacing": "None"
+      },
+      {
+       "type": "TextBlock",
+       "text": "${sub}",
+       "wrap": false,
+       "size": "Small",
+       "isSubtle": true,
+       "spacing": "None"
+      }
+     ],
+     "$when": "${$host.widgetSize==\"large\"}",
+     "height": "stretch"
     }
    ],
    "$when": "${chosen}",

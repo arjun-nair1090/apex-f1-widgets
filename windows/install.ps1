@@ -21,17 +21,37 @@ Register-ScheduledTask -TaskName "APEX backend" -Description "APEX F1 widgets da
     -Action $action -Trigger $trigger -Settings $settings -Force | Out-Null
 Start-ScheduledTask -TaskName "APEX backend"
 
-# 2. App + widget provider: self-contained build (no .NET install needed), registered in place.
-Get-Process -Name APEX -ErrorAction SilentlyContinue | Stop-Process -Force
-& $Dotnet build "$PSScriptRoot\APEX" -c Release -p:Platform=x64 -p:RuntimeIdentifier=win-x64 -p:SelfContained=true -v:q -nologo
+# 2. App + widget provider: self-contained build (no .NET install needed). Each install is copied to its own versioned
+#    folder and registered as a package update: builds never touch files Windows has open, and pinned widgets survive.
+$stage = Join-Path $env:LOCALAPPDATA "APEX\build"  # never the registered folder: Windows memory-maps its resources.pri
+& $Dotnet build "$PSScriptRoot\APEX" -c Release -p:Platform=x64 -p:RuntimeIdentifier=win-x64 -p:SelfContained=true `
+    "-p:OutDir=$stage\" -v:q -nologo
 if ($LASTEXITCODE) { throw "build failed" }
-$manifest = Get-ChildItem "$PSScriptRoot\APEX\bin\x64\Release" -Recurse -Filter AppxManifest.xml | Select-Object -First 1
-Add-AppxPackage -Register $manifest.FullName
+$out = Get-Item $stage
+$now = Get-Date
+$version = "1.{0}.{1}.0" -f [int]($now - [datetime]"2026-01-01").TotalDays, ($now.Hour * 60 + $now.Minute)
+$apps = Join-Path $env:LOCALAPPDATA "APEX\app"
+$dest = Join-Path $apps $version
+Copy-Item $out.FullName $dest -Recurse -Force
+$manifest = Join-Path $dest "AppxManifest.xml"
+(Get-Content $manifest -Raw) -replace '(<Identity [^>]*Version=")[^"]+', "`${1}$version" | Set-Content $manifest -Encoding UTF8
+Add-AppxPackage -Register $manifest -ForceApplicationShutdown
+Get-ChildItem $apps -Directory | Where-Object Name -ne $version |
+    ForEach-Object { Remove-Item $_.FullName -Recurse -Force -ErrorAction SilentlyContinue }  # in-use ones go next time
 
-# 3. Let the Widgets board pick up the provider (Windows restarts these on its own).
+# 3. Desktop widgets: start at logon (just after the data server) via the package's `apex.exe` alias, and now.
+$alias = Join-Path $env:LOCALAPPDATA "Microsoft\WindowsApps\apex.exe"
+$desktopTrigger = New-ScheduledTaskTrigger -AtLogOn -User $env:USERNAME
+$desktopTrigger.Delay = "PT15S"
+Register-ScheduledTask -TaskName "APEX desktop widgets" -Description "APEX F1 widgets on the desktop" `
+    -Action (New-ScheduledTaskAction -Execute $alias -Argument "-Desktop") -Trigger $desktopTrigger -Settings $settings -Force | Out-Null
+Start-ScheduledTask -TaskName "APEX desktop widgets"
+
+# 4. Let the Widgets board pick up the provider (Windows restarts these on its own).
 Get-Process -Name Widgets, WidgetService -ErrorAction SilentlyContinue | Stop-Process -Force
 
 Start-Sleep -Seconds 5
 $status = (Invoke-RestMethod http://localhost:8077/api/season/current -TimeoutSec 20)
 Write-Host "APEX installed. Data server: season $($status.year), next round $($status.next_round)."
-Write-Host "Press Win + W, choose + (Add widgets), and pick APEX."
+Write-Host "Desktop widgets are on the right edge of your screen: drag to move, right-click for options."
+Write-Host "Widgets board: Win + W, + (Add widgets), APEX. Lock screen: Settings > Personalization > Lock screen > Widgets."

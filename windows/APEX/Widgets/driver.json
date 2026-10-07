@@ -42,51 +42,100 @@
    "type": "Container",
    "items": [
     {
+     "type": "ColumnSet",
+     "columns": [
+      {
+       "type": "Column",
+       "width": "stretch",
+       "items": [
+        {
+         "type": "TextBlock",
+         "text": "${team}",
+         "wrap": false,
+         "size": "Small",
+         "weight": "Bolder",
+         "isSubtle": true
+        },
+        {
+         "type": "Container",
+         "height": "stretch",
+         "items": []
+        },
+        {
+         "type": "TextBlock",
+         "text": "${pos}",
+         "wrap": false,
+         "size": "ExtraLarge",
+         "weight": "Bolder"
+        },
+        {
+         "type": "TextBlock",
+         "text": "${code}",
+         "wrap": false,
+         "size": "Medium",
+         "weight": "Bolder",
+         "spacing": "None"
+        },
+        {
+         "type": "TextBlock",
+         "text": "${points} PTS",
+         "wrap": false,
+         "size": "Small",
+         "isSubtle": true,
+         "spacing": "None"
+        }
+       ],
+       "verticalContentAlignment": "Bottom"
+      },
+      {
+       "type": "Column",
+       "width": "auto",
+       "items": [
+        {
+         "type": "TextBlock",
+         "text": "${number}",
+         "wrap": false,
+         "size": "ExtraLarge",
+         "weight": "Bolder",
+         "isSubtle": true,
+         "horizontalAlignment": "Right",
+         "$when": "${number != ''}"
+        },
+        {
+         "type": "Image",
+         "url": "${silhouette}",
+         "height": "72px",
+         "horizontalAlignment": "Right",
+         "spacing": "None",
+         "altText": "${name}",
+         "$when": "${silhouette != ''}"
+        }
+       ],
+       "verticalContentAlignment": "Bottom"
+      }
+     ],
+     "height": "stretch",
+     "$when": "${$host.widgetSize==\"small\"}"
+    },
+    {
      "type": "Container",
      "items": [
+      {
+       "type": "TextBlock",
+       "text": "${name}",
+       "wrap": false,
+       "size": "Medium",
+       "weight": "Bolder"
+      },
       {
        "type": "TextBlock",
        "text": "${team}",
        "wrap": false,
        "size": "Small",
        "weight": "Bolder",
-       "isSubtle": true
-      },
-      {
-       "type": "Container",
-       "height": "stretch",
-       "items": []
-      },
-      {
-       "type": "TextBlock",
-       "text": "${pos}",
-       "wrap": false,
-       "size": "ExtraLarge",
-       "weight": "Bolder"
-      },
-      {
-       "type": "TextBlock",
-       "text": "${code}",
-       "wrap": false,
-       "size": "Medium",
-       "weight": "Bolder",
-       "spacing": "None"
-      },
-      {
-       "type": "TextBlock",
-       "text": "${points} PTS",
-       "wrap": false,
-       "size": "Small",
        "isSubtle": true,
        "spacing": "None"
-      }
-     ],
-     "$when": "${$host.widgetSize==\"small\"}",
-     "height": "stretch"
-    },
-    {
-     "type": "Container",
-     "items": [
+      },
       {
        "type": "ColumnSet",
        "columns": [
@@ -95,11 +144,95 @@
          "width": "stretch",
          "items": [
           {
+           "type": "Container",
+           "height": "stretch",
+           "items": []
+          },
+          {
+           "type": "ColumnSet",
+           "columns": [
+            {
+             "type": "Column",
+             "width": "auto",
+             "items": [
+              {
+               "type": "TextBlock",
+               "text": "${pos}",
+               "wrap": false,
+               "size": "ExtraLarge",
+               "weight": "Bolder"
+              }
+             ]
+            },
+            {
+             "type": "Column",
+             "width": "stretch",
+             "items": [
+              {
+               "type": "TextBlock",
+               "text": "${points} PTS",
+               "wrap": false,
+               "size": "Medium",
+               "weight": "Bolder"
+              }
+             ],
+             "verticalContentAlignment": "Bottom"
+            }
+           ]
+          }
+         ],
+         "verticalContentAlignment": "Bottom"
+        },
+        {
+         "type": "Column",
+         "width": "auto",
+         "items": [
+          {
            "type": "TextBlock",
-           "text": "${name}",
+           "text": "${number}",
+           "wrap": false,
+           "size": "ExtraLarge",
+           "weight": "Bolder",
+           "isSubtle": true,
+           "horizontalAlignment": "Right",
+           "$when": "${number != ''}"
+          },
+          {
+           "type": "Image",
+           "url": "${silhouette}",
+           "height": "110px",
+           "horizontalAlignment": "Right",
+           "spacing": "None",
+           "altText": "${name}",
+           "$when": "${silhouette != ''}"
+          }
+         ],
+         "verticalContentAlignment": "Bottom"
+        }
+       ],
+       "height": "stretch"
+      },
+      {
+       "type": "ColumnSet",
+       "columns": [
+        {
+         "type": "Column",
+         "width": "auto",
+         "items": [
+          {
+           "type": "TextBlock",
+           "text": "WINS",
            "wrap": false,
            "size": "Small",
-           "weight": "Bolder"
+           "weight": "Bolder",
+           "isSubtle": true
+          },
+          {
+           "type": "TextBlock",
+           "text": "${wins}",
+           "wrap": false,
+           "weight": "Bolder",
+           "spacing": "None"
           }
          ]
         },
@@ -109,14 +242,108 @@
          "items": [
           {
            "type": "TextBlock",
-           "text": "${cc}  ${team}",
+           "text": "PODIUMS",
            "wrap": false,
            "size": "Small",
            "weight": "Bolder",
-           "isSubtle": true,
-           "horizontalAlignment": "Right"
+           "isSubtle": true
+          },
+          {
+           "type": "TextBlock",
+           "text": "${podiums}",
+           "wrap": false,
+           "weight": "Bolder",
+           "spacing": "None"
           }
          ]
+        },
+        {
+         "type": "Column",
+         "width": "auto",
+         "items": [
+          {
+           "type": "TextBlock",
+           "text": "POLES",
+           "wrap": false,
+           "size": "Small",
+           "weight": "Bolder",
+           "isSubtle": true
+          },
+          {
+           "type": "TextBlock",
+           "text": "${poles}",
+           "wrap": false,
+           "weight": "Bolder",
+           "spacing": "None"
+          }
+         ]
+        }
+       ],
+       "spacing": "Medium",
+       "$when": "${showStats}"
+      }
+     ],
+     "$when": "${$host.widgetSize==\"medium\"}",
+     "height": "stretch"
+    },
+    {
+     "type": "Container",
+     "items": [
+      {
+       "type": "TextBlock",
+       "text": "${name}",
+       "wrap": false,
+       "size": "Medium",
+       "weight": "Bolder"
+      },
+      {
+       "type": "TextBlock",
+       "text": "${team}",
+       "wrap": false,
+       "size": "Small",
+       "weight": "Bolder",
+       "isSubtle": true,
+       "spacing": "None"
+      },
+      {
+       "type": "ColumnSet",
+       "columns": [
+        {
+         "type": "Column",
+         "width": "stretch",
+         "items": [
+          {
+           "type": "Container",
+           "height": "stretch",
+           "items": []
+          }
+         ]
+        },
+        {
+         "type": "Column",
+         "width": "auto",
+         "items": [
+          {
+           "type": "TextBlock",
+           "text": "${number}",
+           "wrap": false,
+           "size": "ExtraLarge",
+           "weight": "Bolder",
+           "isSubtle": true,
+           "horizontalAlignment": "Right",
+           "$when": "${number != ''}"
+          },
+          {
+           "type": "Image",
+           "url": "${silhouette}",
+           "height": "190px",
+           "horizontalAlignment": "Right",
+           "spacing": "None",
+           "altText": "${name}",
+           "$when": "${silhouette != ''}"
+          }
+         ],
+         "verticalContentAlignment": "Bottom"
         }
        ]
       },
@@ -149,9 +376,8 @@
            "type": "TextBlock",
            "text": "${points} PTS",
            "wrap": false,
-           "size": "Large",
-           "weight": "Bolder",
-           "horizontalAlignment": "Right"
+           "size": "Medium",
+           "weight": "Bolder"
           }
          ],
          "verticalContentAlignment": "Bottom"
@@ -238,7 +464,7 @@
          "size": "Small",
          "weight": "Bolder",
          "isSubtle": true,
-         "spacing": "Large"
+         "spacing": "Medium"
         },
         {
          "type": "TextBlock",
@@ -247,10 +473,10 @@
          "spacing": "Small"
         }
        ],
-       "$when": "${$host.widgetSize==\"large\" && last5 != ''}"
+       "$when": "${last5 != ''}"
       }
      ],
-     "$when": "${$host.widgetSize!=\"small\"}",
+     "$when": "${$host.widgetSize==\"large\"}",
      "height": "stretch"
     }
    ],

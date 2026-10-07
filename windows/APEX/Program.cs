@@ -35,11 +35,23 @@ public static class Program
                 }
             return;
         }
-        // WinUI needs an STA thread; Main stays MTA for the COM server path.
+        if (args.Contains("-Desktop"))
+        {
+            // Desktop widgets: one host per user session; later launches just exit (the host watches desktop.json).
+            using var single = new Mutex(true, @"Local\APEX.DesktopWidgets", out var first);
+            if (first) RunUi(() => new DesktopApp());
+            return;
+        }
+        RunUi(() => new App());
+    }
+
+    /// WinUI needs an STA thread; Main stays MTA for the COM server path.
+    static void RunUi(Func<Application> create)
+    {
         var ui = new Thread(() => Application.Start(p =>
         {
             SynchronizationContext.SetSynchronizationContext(new DispatcherQueueSynchronizationContext(DispatcherQueue.GetForCurrentThread()));
-            _ = new App();
+            _ = create();
         }));
         ui.SetApartmentState(ApartmentState.STA);
         ui.Start();

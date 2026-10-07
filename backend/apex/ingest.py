@@ -8,7 +8,7 @@ from datetime import datetime, timedelta, timezone
 import httpx
 from sqlalchemy import delete, select
 
-from . import cache
+from . import cache, portraits
 from .config import settings
 from .models import ConstructorStanding, Driver, DriverStanding, Race, Result, Session, SessionLocal, Team
 from .racemode import DURATION_MIN
@@ -226,7 +226,11 @@ def _sync_team_colors(client, db):
     headers = {"Authorization": f"Bearer {settings.openf1_token}"} if settings.openf1_token else {}
     r = client.get(f"{settings.openf1_base}/drivers", params={"session_key": "latest"}, headers=headers)
     r.raise_for_status()
-    colour_by_code = {d["name_acronym"]: c for d in r.json() if (c := safe_hex(d.get("team_colour")))}
+    drivers = r.json()
+    colour_by_code = {d["name_acronym"]: c for d in drivers if (c := safe_hex(d.get("team_colour")))}
+    # Race number (the champion runs #1) and official headshot, for the driver widgets' silhouette.
+    cache.set_json(portraits.DRIVERS_KEY, {d["name_acronym"]: {"number": d.get("driver_number"), "headshot": d.get("headshot_url")}
+                                      for d in drivers if d.get("name_acronym")}, 7 * 86400)
     for driver in db.scalars(select(Driver)):
         team = db.get(Team, driver.team_id) if driver.team_id else None
         if team and driver.code in colour_by_code:

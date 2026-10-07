@@ -33,8 +33,8 @@ public static class Cards
             Kind.Next => Next(s, now, stale),
             Kind.Countdown => Countdown(s, s.Race?.Sessions.FirstOrDefault(x => x.Type == "RACE"), now, stale),
             Kind.Timing => Timing(s, mode == Mode.Results ? s.Results : s.Live, size, cfg, now, stale),
-            Kind.Driver => Driver(s, stale),
-            Kind.Favourite => Favourite(s, mode, now, stale),
+            Kind.Driver => Driver(s, stale, loaded.Silhouette),
+            Kind.Favourite => Favourite(s, mode, now, stale, loaded.Silhouette),
             Kind.Wdc or Kind.Wcc => Standings(s, kind == Kind.Wdc, size, cfg, stale),
             _ => Weekend(s, now, stale),
         };
@@ -119,19 +119,20 @@ public static class Cards
         }));
     }
 
-    static (string, string) Driver(WidgetSnapshot s, string stale)
+    static (string, string) Driver(WidgetSnapshot s, string stale, string? silhouette)
     {
         var d = s.Driver;
         if (d is null) return ("driver", Json(new { chosen = false, stale }));
         return ("driver", Json(new
         {
-            chosen = true, name = $"{d.FirstName} {d.LastName}".ToUpperInvariant(), code = d.Code, team = d.TeamName ?? "", cc = d.CountryCode ?? "",
+            chosen = true, number = d.RaceNumber?.ToString() ?? "", silhouette = silhouette ?? "",
+            name = $"{d.FirstName} {d.LastName}".ToUpperInvariant(), code = d.Code, team = d.TeamName ?? "", cc = d.CountryCode ?? "",
             pos = d.Position is { } p ? $"P{p}" : "—", points = Fmt.Points(d.Points), wins = d.Wins.ToString(), podiums = d.Podiums.ToString(), poles = d.Poles.ToString(),
             showStats = true, last5 = string.Join(" · ", d.Last5.Select(x => x is { } v ? $"P{v}" : "DNF")), last5Count = d.Last5.Count, stale,
         }));
     }
 
-    static (string, string) Favourite(WidgetSnapshot s, Mode mode, DateTimeOffset now, string stale)
+    static (string, string) Favourite(WidgetSnapshot s, Mode mode, DateTimeOffset now, string stale, string? silhouette)
     {
         var d = s.Driver;
         if (d is null) return ("favourite", Json(new { chosen = false, stale }));
@@ -145,7 +146,8 @@ public static class Cards
             : race is not null ? ("✓ RACE", false, $"P{race.Position}", "", race.Gap ?? (race.Position == 1 ? "WINNER" : ""))
             : quali is not null ? ("GRID", false, $"QUALI P{quali.Position}", "", "")
             : ("CHAMPIONSHIP", false, d.Position is { } p ? $"P{p}" : "—", "", $"{Fmt.Points(d.Points)} PTS");
-        return ("favourite", Json(new { chosen = true, label = live ? $"● LIVE · {label}" : label, live, big, top, sub, code = d.Code,
+        return ("favourite", Json(new { chosen = true, number = d.RaceNumber?.ToString() ?? "", silhouette = silhouette ?? "",
+            label = live ? $"● LIVE · {label}" : label, live, big, top, sub, code = d.Code,
             name = d.LastName.ToUpperInvariant(), stale }));
     }
 

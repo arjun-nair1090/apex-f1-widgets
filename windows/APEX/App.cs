@@ -42,26 +42,38 @@ public sealed class App : Application, IXamlMetadataProvider
     {
         var defaults = Defaults.Load();
         var status = new TextBlock { Text = "Checking…", Opacity = 0.7 };
-        var driver = new ComboBox { Header = "Driver for new widgets", PlaceholderText = "Loading drivers…", MinWidth = 320 };
+        var driver = new ComboBox { Header = "Favourite driver", PlaceholderText = "Loading drivers…", MinWidth = 320 };
         var density = new RadioButtons { Header = "Information", MaxColumns = 3 };
         foreach (var d in new[] { "Minimal", "Standard", "Detailed" }) density.Items.Add(d);
         density.SelectedIndex = defaults.Density switch { "minimal" => 0, "detailed" => 2, _ => 1 };
 
         List<DriverSummary> drivers = [];
-        void Save() => Defaults.Save(new WidgetSettings(
-            driver.SelectedIndex > 0 ? drivers[driver.SelectedIndex - 1].Id : null,
-            ((string)density.SelectedItem).ToLowerInvariant()));
+        bool loading = false;  // rebuilding the list fires SelectionChanged: those aren't the user's choices
+        void Save()
+        {
+            if (loading) return;
+            Defaults.Save(new WidgetSettings(
+                driver.SelectedIndex > 0 ? drivers[driver.SelectedIndex - 1].Id : null,
+                new[] { "minimal", "standard", "detailed" }[Math.Clamp(density.SelectedIndex, 0, 2)]));
+        }
         driver.SelectionChanged += (_, _) => Save();
         density.SelectionChanged += (_, _) => Save();
 
         async void Refresh()
         {
-            drivers = await Api.Drivers();
-            driver.Items.Clear();
-            driver.Items.Add("None");
-            foreach (var d in drivers) driver.Items.Add($"{d.FirstName} {d.LastName}");
-            driver.SelectedIndex = Math.Max(0, drivers.FindIndex(d => d.Id == defaults.Driver) + 1);
-            var snap = await Api.Snapshot(defaults.Driver);
+            var current = Defaults.Load().Driver;
+            var list = await Api.Drivers();
+            loading = true;
+            if (list.Count > 0)  // offline: keep what's shown rather than collapsing to "None"
+            {
+                drivers = list;
+                driver.Items.Clear();
+                driver.Items.Add("None");
+                foreach (var d in drivers) driver.Items.Add($"{d.FirstName} {d.LastName}");
+                driver.SelectedIndex = Math.Max(0, drivers.FindIndex(d => d.Id == current) + 1);
+            }
+            loading = false;
+            var snap = await Api.Snapshot(current);
             status.Text = snap switch
             {
                 null => "Can't reach the APEX service. Widgets keep showing the last data they received.",
@@ -74,6 +86,27 @@ public sealed class App : Application, IXamlMetadataProvider
         var refresh = new Button { Content = "Refresh" };
         refresh.Click += (_, _) => Refresh();
 
+        // Desktop widgets (APEX.exe -Desktop): pick one, add it; drag to move, right-click to resize or remove.
+        (string Id, string Name)[] kinds = [("race", "APEX · Race Mode"), ("next", "Next session"), ("countdown", "Countdown"),
+            ("timing", "Live timing"), ("driver", "Driver"), ("fav", "Favourite driver"), ("wdc", "Drivers' championship"),
+            ("wcc", "Constructors' championship"), ("weekend", "Race weekend")];
+        var widget = new ComboBox { Header = "Widget", MinWidth = 320 };
+        foreach (var k in kinds) widget.Items.Add(k.Name);
+        widget.SelectedIndex = 0;
+        var size = new RadioButtons { Header = "Size", MaxColumns = 3 };
+        foreach (var s in new[] { "Small", "Medium", "Large" }) size.Items.Add(s);
+        size.SelectedIndex = 1;
+        var add = new Button { Content = "Add to desktop" };
+        add.Click += (_, _) =>
+        {
+            DesktopConfig.Add(kinds[widget.SelectedIndex].Id, "sml"[size.SelectedIndex].ToString());
+            DesktopConfig.EnsureHostRunning();
+        };
+        var lockScreen = new HyperlinkButton { Content = "Open lock screen settings", Padding = new Thickness(0) };
+        lockScreen.Click += async (_, _) => await Windows.System.Launcher.LaunchUriAsync(new Uri("ms-settings:lockscreen"));
+        TextBlock H(string t) => new() { Text = t, FontSize = 18, FontWeight = Microsoft.UI.Text.FontWeights.SemiBold };
+        TextBlock P(string t) => new() { Text = t, TextWrapping = TextWrapping.Wrap, Opacity = 0.75 };
+
         return new ScrollViewer
         {
             Content = new StackPanel
@@ -83,10 +116,17 @@ public sealed class App : Application, IXamlMetadataProvider
                 Children =
                 {
                     new TextBlock { Text = "APEX", FontSize = 28, FontWeight = Microsoft.UI.Text.FontWeights.SemiBold },
-                    new TextBlock { Text = "Add APEX widgets from the Widgets board: press Win + W, then Add widgets. Use a widget's menu → Customize to change it.", TextWrapping = TextWrapping.Wrap, Opacity = 0.8 },
                     driver,
                     density,
-                    new TextBlock { Text = "Data", FontWeight = Microsoft.UI.Text.FontWeights.SemiBold },
+                    H("On your desktop"),
+                    P("Drag a widget to move it. Right-click it to change its size or remove it."),
+                    widget,
+                    size,
+                    add,
+                    H("Widgets board and lock screen"),
+                    P("Press Win + W, then Add widgets, and pick APEX. For the lock screen, open lock screen settings, choose Widgets, and add an APEX widget (small widgets fit there)."),
+                    lockScreen,
+                    H("Data"),
                     status,
                     refresh,
                 },

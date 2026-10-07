@@ -8,7 +8,7 @@ from fastapi import APIRouter, Depends, Header, HTTPException, Path, Query, Requ
 from fastapi.responses import StreamingResponse
 from sqlalchemy import func, select
 
-from . import cache, live, schemas
+from . import cache, live, portraits, schemas
 from .config import settings
 from .ingest import short_race_name, short_team_name, status
 from .models import ConstructorStanding, Driver, DriverStanding, Race, Result, Session, SessionLocal, Team
@@ -111,6 +111,7 @@ def driver_detail(db, driver_id: str, season: int, t: datetime) -> schemas.Drive
         weekend = [schemas.WeekendResult(session_type=r.session_type, position=r.position, gap=r.gap)
                    for r in sorted(rows, key=lambda r: order.get(r.session_type, 9))]
     return schemas.DriverDetail(**driver_out(d, team).model_dump(), season=season,
+                                race_number=portraits.openf1_driver(d.code).get("number") or d.number,
                                 position=standing.position if standing else None,
                                 points=standing.points if standing else 0, wins=standing.wins if standing else 0,
                                 podiums=sum(1 for r in races if r.position and r.position <= 3),
@@ -274,6 +275,21 @@ def driver(driver_id: Slug, season: Season = None):
     if detail is None:
         raise HTTPException(404, "No such driver")
     return detail
+
+
+@router.get("/drivers/{driver_id}/silhouette.png", response_class=Response,
+            responses={200: {"content": {"image/png": {}}, "description": "Team-colour silhouette"}, 404: {}})
+def driver_silhouette(driver_id: Slug, size: Annotated[int, Query(ge=1, le=1336)] = 432):
+    """The driver's official headshot cut-out, filled with their team colour. Square PNG, transparent background."""
+    with SessionLocal() as db:
+        d = db.get(Driver, driver_id)
+        team = db.get(Team, d.team_id) if d and d.team_id else None
+    # Served at the smallest official rendition that covers the requested size.
+    size = min((r for r in portraits.RENDITIONS if r >= size), default=max(portraits.RENDITIONS))
+    png = portraits.silhouette(d.code, team.color or "FFFFFF", size) if d and team else None
+    if png is None:
+        raise HTTPException(404, "No portrait for this driver")
+    return Response(png, media_type="image/png", headers={"Cache-Control": "public, max-age=86400"})
 
 
 @router.get("/teams", response_model=list[schemas.Team])

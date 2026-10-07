@@ -627,6 +627,74 @@
     }
    }
   },
+  "/api/drivers/{driver_id}/silhouette.png": {
+   "get": {
+    "summary": "Driver Silhouette",
+    "description": "The driver's official headshot cut-out, filled with their team colour. Square PNG, transparent background.",
+    "operationId": "driver_silhouette_api_drivers__driver_id__silhouette_png_get",
+    "parameters": [
+     {
+      "name": "driver_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "pattern": "^[a-z0-9_]{1,40}$",
+       "title": "Driver Id"
+      }
+     },
+     {
+      "name": "size",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "integer",
+       "maximum": 1336,
+       "minimum": 1,
+       "default": 432,
+       "title": "Size"
+      }
+     },
+     {
+      "name": "x-api-key",
+      "in": "header",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "X-Api-Key"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Team-colour silhouette",
+      "content": {
+       "image/png": {}
+      }
+     },
+     "404": {
+      "description": "Not Found"
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
   "/api/teams": {
    "get": {
     "summary": "Teams",
@@ -1099,6 +1167,17 @@
        }
       ],
       "title": "Team Color"
+     },
+     "race_number": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Race Number"
      },
      "season": {
       "type": "integer",

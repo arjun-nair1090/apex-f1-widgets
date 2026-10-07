@@ -1,0 +1,131 @@
+/* APEX widgets: shared by the preview page (index.html) and desktop widgets (desktop.html).
+   Visual language: F1 broadcast graphics. Carbon, F1 red, heavy uppercase type, slanted tabs, timing-tower rows.
+   Type: the official "Formula1 Display" if installed on this machine, else Titillium Web (OFL, bundled). */
+
+@font-face { font-family: "Titillium Web"; font-weight: 400; src: url(fonts/TitilliumWeb-Regular.ttf) format("truetype"); font-display: swap; }
+@font-face { font-family: "Titillium Web"; font-weight: 600; src: url(fonts/TitilliumWeb-SemiBold.ttf) format("truetype"); font-display: swap; }
+@font-face { font-family: "Titillium Web"; font-weight: 700; src: url(fonts/TitilliumWeb-Bold.ttf) format("truetype"); font-display: swap; }
+@font-face { font-family: "Titillium Web"; font-weight: 900; src: url(fonts/TitilliumWeb-Black.ttf) format("truetype"); font-display: swap; }
+
+.w, .w *, .w *::before, .w *::after { box-sizing: border-box; }  /* self-contained: pages may not set it */
+.w {
+  --f1: "Formula1 Display", "Formula1 Display Regular", "Titillium Web", "Segoe UI", sans-serif;
+  --wbg: #15151E; --wel: #22222C; --wbd: #33333F; --wt1: #FFFFFF; --wt2: #B4B4C0; --wt3: #6E6E7B;
+  --acc: #E10600; --purple: #B26CFF; --green: #2CD46B; --yellow: #F5D000;
+  position: relative; overflow: hidden; display: flex; flex-direction: column;
+  padding: 14px 16px 16px; border-radius: 22px; text-align: left;
+  font: 600 13px/1.25 var(--f1); font-variant-numeric: tabular-nums; color: var(--wt1);
+  background:
+    repeating-linear-gradient(135deg, rgba(255,255,255,.022) 0 2px, transparent 2px 7px),  /* carbon weave */
+    var(--wbg);
+  box-shadow: inset 0 0 0 1px var(--wbd);
+  -webkit-font-smoothing: antialiased;
+}
+/* The speed line: a short F1-red stroke along the top edge with a slanted tail. */
+.w::before { content: ""; position: absolute; top: 0; left: 16px; width: 56px; height: 3px; background: var(--acc);
+  clip-path: polygon(0 0, 100% 0, calc(100% - 3px) 100%, 0 100%); }
+.w.s { width: 170px; height: 170px; } .w.m { width: 364px; height: 170px; } .w.l { width: 364px; height: 382px; }
+.th-amoled { --wbg: #000; --wel: #111116; --wbd: #23232B; }
+.th-light { --wbg: #FFFFFF; --wel: #F0F0F3; --wbd: #E1E1E7; --wt1: #15151E; --wt2: #4C4C58; --wt3: #8E8E99; }
+.th-light.w { background: repeating-linear-gradient(135deg, rgba(0,0,0,.025) 0 2px, transparent 2px 7px), var(--wbg); }
+.p-android.w { border-radius: 24px; } .p-windows.w { border-radius: 8px; }
+
+/* ---------- type ---------- */
+.lbl { font: 700 10px/1 var(--f1); letter-spacing: .1em; text-transform: uppercase; color: var(--wt2); }
+.lbl.dim { color: var(--wt3); }
+.hd { font: 900 22px/1 var(--f1); text-transform: uppercase; letter-spacing: -.005em; }
+.num { font: 900 34px/0.9 var(--f1); letter-spacing: -.02em; }
+.num.xl { font-size: 58px; } .num.lg { font-size: 44px; } .num.md { font-size: 26px; } .num.sm { font-size: 20px; }
+.t2 { color: var(--wt2); } .t3 { color: var(--wt3); } .acc { color: var(--acc); }
+.row { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.sp { flex: 1; } .grow { flex: 1; min-height: 0; } .col { display: flex; flex-direction: column; min-width: 0; }
+.trunc { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cc { font: 700 9px/1 var(--f1); letter-spacing: .08em; padding: 3px 4px 2px; background: var(--wel); color: var(--wt2); }
+.flag { font-size: 12px; line-height: 1; }
+
+/* ---------- slanted tab (F1 TV lower-third) ---------- */
+.tab { display: inline-flex; align-items: center; gap: 6px; height: 18px; padding: 0 12px 0 7px;
+  font: 900 10px/1 var(--f1); letter-spacing: .1em; text-transform: uppercase;
+  background: var(--wel); color: var(--wt1); clip-path: polygon(0 0, 100% 0, calc(100% - 7px) 100%, 0 100%); }
+.tab.red { background: var(--acc); color: #fff; }
+.tab .dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; animation: pulse 2s ease-in-out infinite; }
+.tab .dot.still { animation: none; }
+@keyframes pulse { 50% { opacity: .35; } }
+
+/* ---------- countdown boxes (F1.com style) ---------- */
+.boxes { display: flex; gap: 4px; }
+.box { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; background: var(--wel);
+  padding: 6px 0 5px; min-width: 44px; }
+.box b { font: 900 26px/0.9 var(--f1); letter-spacing: -.01em; }
+.box span { font: 700 8px/1 var(--f1); letter-spacing: .12em; color: var(--wt2); }
+.boxes.big .box { min-width: 70px; padding: 9px 0 7px; } .boxes.big .box b { font-size: 40px; }
+.boxes.small .box { min-width: 0; flex: 1; padding: 5px 0 4px; } .boxes.small .box b { font-size: 20px; }
+.boxes.soon .box b { color: var(--acc); }
+
+/* ---------- timing tower ---------- */
+.tower { display: grid; row-gap: 3px; }
+.tr { display: grid; grid-template-columns: 22px 4px minmax(0, 1fr) auto; column-gap: 7px; align-items: center; height: 18px;
+  font: 700 13px/1 var(--f1); position: relative; }
+.tr .p { text-align: center; font-weight: 900; font-size: 12px; color: var(--wt1); background: var(--wel); height: 18px; line-height: 18px; }
+.tr:nth-child(-n+3) .p { background: var(--wt1); color: var(--wbg); }
+.tr .stripe { width: 4px; height: 14px; background: var(--c, var(--wt3)); transform: skewX(-14deg); }
+.no-team .tr .stripe { background: var(--wt3); }
+.tr .code { font-weight: 900; letter-spacing: .02em; }
+.tr .team { font-weight: 700; font-size: 12px; letter-spacing: .04em; text-transform: uppercase; }
+.tr .v { text-align: right; color: var(--wt2); font-weight: 600; white-space: nowrap; }
+.tr .v.lead { color: var(--wt1); font-weight: 700; }
+.tr.fav .code, .tr.fav .team { color: var(--acc); }
+.tr.fav::after { content: ""; position: absolute; left: -16px; top: 2px; bottom: 2px; width: 3px; background: var(--acc); }
+.tr.more { opacity: .8; }
+.tr .sec { font-size: 9px; letter-spacing: 1px; margin-right: 6px; }
+.sec .pu { color: var(--purple); } .sec .gr { color: var(--green); } .sec .ye { color: var(--yellow); } .sec .na { color: var(--wt3); }
+.pit { font: 900 9px/1 var(--f1); letter-spacing: .1em; padding: 3px 5px 2px; background: var(--wt1); color: var(--wbg); }
+.cols2 { display: grid; grid-template-columns: 1fr 1fr; column-gap: 18px; }
+
+/* ---------- weekend schedule ---------- */
+.wk { display: grid; grid-template-columns: 34px minmax(0, 1fr) 16px 40px; column-gap: 8px; row-gap: 4px; align-items: center; }
+.wk .d { font: 900 9px/18px var(--f1); letter-spacing: .1em; text-align: center; background: var(--wel); color: var(--wt2); }
+.wk .n { font: 900 12px/1 var(--f1); letter-spacing: .03em; text-transform: uppercase; }
+.wk .g { text-align: center; font-size: 12px; }
+.wk .tm { font: 700 12px/1 var(--f1); color: var(--wt2); text-align: right; }
+.wk .fin { color: var(--wt3); }
+.wk .now { color: var(--acc); }
+.wk .now.d { background: var(--acc); color: #fff; }
+
+/* ---------- driver card: giant outlined number + team-colour silhouette ---------- */
+.dc { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+.dc::before { content: ""; position: absolute; inset: 0;
+  background: linear-gradient(115deg, transparent 38%, color-mix(in srgb, var(--team) 22%, transparent) 100%); }
+.dc .bignum { position: absolute; right: 6px; top: -2px; font: 900 150px/0.85 var(--f1); letter-spacing: -.04em;
+  color: transparent; -webkit-text-stroke: 2px color-mix(in srgb, var(--team) 70%, transparent); }
+.dc img { position: absolute; right: -4px; bottom: 0; height: 96%; filter: drop-shadow(0 0 12px color-mix(in srgb, var(--team) 35%, transparent)); }
+.w.s .dc .bignum { font-size: 104px; right: 2px; } .w.s .dc img { height: 74%; right: -10px; }
+.w.l .dc .bignum { font-size: 220px; } .w.l .dc img { height: 62%; }
+.dc-text { position: relative; z-index: 1; }
+.dn-first { font: 600 13px/1 var(--f1); text-transform: uppercase; letter-spacing: .04em; color: var(--wt2); }
+.dn-last { font: 900 24px/0.95 var(--f1); text-transform: uppercase; letter-spacing: -.005em; }
+.teamline { display: inline-block; height: 3px; width: 28px; background: var(--team); transform: skewX(-20deg); }
+.stats { display: flex; gap: 14px; }
+.stats b { display: block; font: 900 18px/1 var(--f1); margin-top: 3px; }
+.last5 { display: flex; gap: 4px; }
+.last5 span { font: 900 11px/18px var(--f1); min-width: 28px; text-align: center; background: var(--wel); }
+.last5 span.pod { background: var(--wt1); color: var(--wbg); }
+
+/* ---------- rail: progress along the bottom edge ---------- */
+.rail { position: absolute; left: 0; right: 0; bottom: 0; height: 3px; background: var(--wbd); }
+.rail > i { display: block; height: 100%; background: var(--wt1); transition: width .24s ease-in-out; }
+.rail.on > i { background: var(--acc); }
+
+/* ---------- states ---------- */
+.skel { background: var(--wel); height: 10px; }
+.skel.h { height: 26px; }
+.stale { position: absolute; left: 16px; bottom: 6px; font: 700 8px/1 var(--f1); letter-spacing: .1em; text-transform: uppercase; color: var(--wt3); }
+.retry { all: unset; cursor: pointer; font: 900 10px/1 var(--f1); letter-spacing: .1em; padding: 6px 10px; background: var(--wt1); color: var(--wbg); }
+
+/* motion: FLIP rows to their new places (spec §25) */
+.tr.moving { transition: transform .35s cubic-bezier(.2,.9,.25,1); }
+@media (prefers-reduced-motion: reduce) {
+  .tab .dot { animation: none; }
+  .tr.moving { transition: opacity .2s; transform: none !important; }
+  .rail > i { transition: none; }
+}

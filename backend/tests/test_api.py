@@ -220,3 +220,30 @@ def test_unconfirmed_session_times_are_not_scheduled():
     from apex.ingest import _dt
     assert _dt({"date": "2026-11-01"}) is None
     assert _dt({"date": "2026-11-01", "time": "14:00:00Z"}).hour == 14
+
+
+def test_driver_silhouette_in_team_colour(monkeypatch):
+    import io
+
+    from PIL import Image
+
+    from apex import portraits
+    photo = Image.new("RGBA", (8, 8), (0, 0, 0, 0))
+    photo.paste((200, 150, 120, 255), (2, 2, 6, 8))  # an opaque "driver" on a transparent background
+    buf = io.BytesIO()
+    photo.save(buf, "PNG")
+    monkeypatch.setattr(portraits, "_download", lambda url: buf.getvalue())
+    portraits._render.cache_clear()
+    cache.set_json(portraits.DRIVERS_KEY, {
+        "ANT": {"number": 12, "headshot": "https://media.formula1.com/x/andant01.png.transform/1col/image.png"},
+        "VER": {"number": 3, "headshot": "https://evil.example/ver.png"}}, 60)
+
+    r = client.get("/api/drivers/antonelli/silhouette.png")
+    assert r.status_code == 200 and r.headers["content-type"] == "image/png"
+    img = Image.open(io.BytesIO(r.content))
+    assert img.getpixel((3, 4)) == (0x00, 0xD7, 0xB6, 255)  # Mercedes teal where the driver is
+    assert img.getpixel((0, 0))[3] == 0                      # still transparent around them
+    assert client.get("/api/drivers/max_verstappen/silhouette.png").status_code == 404  # non-F1 host: refused
+    assert client.get("/api/drivers/antonelli").json()["race_number"] == 12
+    assert client.get("/api/drivers/antonelli/silhouette.png", params={"size": 206}).status_code == 200
+    assert client.get("/api/drivers/antonelli/silhouette.png", params={"size": 5000}).status_code == 422

@@ -5,6 +5,27 @@ Spec §39 deliverables 2, 3, 4. Token values live in
 
 ---
 
+## 0. F1 broadcast restyle (current look)
+
+The web preview, the **desktop widgets** and the Windows widget cards now use the language of F1 broadcast graphics.
+iOS and Android still use the original APEX look below; porting them is the next design task.
+
+- **Carbon and F1 red.** Carbon black `#15151E` with a faint diagonal weave, and F1 red `#E10600` for live, the speed
+  line along the top edge, slanted tabs and the favourite highlight. Team colors appear as slanted stripes.
+- **Type.** The official *Formula1 Display* is proprietary, so it isn't bundled. If it's installed on the machine,
+  widgets use it automatically; otherwise **Titillium Web** (OFL, `backend/apex/preview/fonts`). Heavy (900) uppercase
+  for names and numbers. Titillium's digits are tabular, so countdowns don't jitter.
+- **Slanted tabs** (F1 TV lower-thirds) label every widget: `NEXT`, `● LIVE · RACE`, `LIGHTS OUT IN`, `WDC`.
+- **Countdowns in boxes** (F1.com style): `DAYS HRS MINS SECS`.
+- **Timing tower** rows: position chip (white for the podium), slanted team stripe, three-letter code, gap.
+- **Driver card:** the favourite driver's silhouette in team color (from the official F1 headshot, served by
+  `/api/drivers/{id}/silhouette.png`) in front of their race number, giant and outlined.
+- **Windows cards** can't load fonts or colors (the board owns them), so they get the silhouette and race number,
+  uppercase labels and semantic red for live; the type stays Segoe UI.
+
+The renderer is shared: `backend/apex/preview/widgets.css` + `widgets.js`, used by `index.html` (preview) and
+`desktop.html` (one desktop widget per window).
+
 ## 1. Brand
 
 **APEX** is the point where a car is closest to the inside of a corner. It's the moment of precision, and

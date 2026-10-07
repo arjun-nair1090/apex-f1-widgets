@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>APEX widget</title>
+<!-- One desktop widget, filling its window. Hosted by APEX.exe -Desktop (WebView2); see windows/APEX/DesktopHost.cs.
+     ?w=race|next|countdown|timing|driver|fav|wdc|wcc|weekend &s=s|m|l &driver=<id> &density=… &theme=… &accent=… -->
+<link rel="stylesheet" href="widgets.css">
+<style>
+  html, body { margin: 0; height: 100%; overflow: hidden; background: #15151E; user-select: none; cursor: default; }
+  #root > .w { width: 100vw; height: 100vh; border-radius: 0; box-shadow: none; }
+  #menu { position: fixed; z-index: 10; min-width: 168px; padding: 4px 0; background: #22222C; box-shadow: 0 8px 24px rgba(0,0,0,.5), inset 0 0 0 1px #33333F;
+    font: 700 11px/1 "Formula1 Display", "Titillium Web", "Segoe UI", sans-serif; letter-spacing: .08em; text-transform: uppercase; }
+  #menu::before { content: ""; position: absolute; top: 0; left: 0; width: 40px; height: 3px; background: #E10600; }
+  #menu button { all: unset; display: flex; justify-content: space-between; width: 100%; box-sizing: border-box; padding: 9px 14px; color: #fff; cursor: pointer; }
+  #menu button:hover, #menu button:focus-visible { background: #33333F; }
+  #menu button[aria-checked="true"]::after { content: "●"; color: #E10600; }
+  #menu hr { border: 0; height: 1px; background: #33333F; margin: 4px 0; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<div id="menu" role="menu" hidden>
+  <button role="menuitemradio" data-cmd="size:s">Small</button>
+  <button role="menuitemradio" data-cmd="size:m">Medium</button>
+  <button role="menuitemradio" data-cmd="size:l">Large</button>
+  <hr>
+  <button role="menuitem" data-cmd="settings">APEX settings</button>
+  <button role="menuitem" data-cmd="remove">Remove from desktop</button>
+</div>
+<script src="widgets.js"></script>
+<script>
+"use strict";
+const q = new URLSearchParams(location.search);
+const pick = (v, ok, dflt) => ok.includes(v) ? v : dflt;
+const id = pick(q.get("w"), APEX.WIDGETS.map(w => w[0]), "race");
+const z = pick(q.get("s"), ["s", "m", "l"], "m");
+const driver = /^[a-z0-9_]{1,40}$/.test(q.get("driver") ?? "") ? q.get("driver") : null;
+const opts = { platform: "windows", theme: pick(q.get("theme"), ["dark", "amoled", "light"], "dark"),
+  accent: pick(q.get("accent"), ["system", "team"], "system"), density: pick(q.get("density"), ["minimal", "standard", "detailed"], "standard"),
+  teamColors: true };
+const key = `apex.desktop.${driver}`;
+let snap = null, fetchedAt = 0, failed = false;
+try { snap = JSON.parse(localStorage.getItem(key)); fetchedAt = snap ? Date.parse(snap.generated_at) : 0; } catch {}
+const post = m => window.chrome?.webview?.postMessage(m);
+
+function view(now) {
+  if (!snap) return { loading: true };
+  const v = structuredClone(snap);
+  v.stale = failed ? now - fetchedAt : 0;
+  if (v.race) {  // flip Countdown → LIVE at the boundary without waiting for a fetch (spec §8)
+    v.race.sessions.forEach(s => s.state = APEX.stateOf(s, now));
+    const [m] = APEX.raceMode(v.race.sessions, now);
+    if (m !== v.mode && !(m === "results" && !v.results)) v.mode = m;
+  }
+  return v;
+}
+
+const root = document.getElementById("root");
+function render() {
+  const now = Date.now();
+  APEX.flip(root, () => { root.innerHTML = APEX.render(id, z, view(now), now, { ...opts, snap, fetchedAt }); });
+}
+
+async function load() {
+  try {
+    const r = await fetch(`/api/widgets/snapshot${driver ? `?driver=${driver}` : ""}`);
+    if (!r.ok) throw new Error(r.status);
+    snap = await r.json(); fetchedAt = Date.now(); failed = false;
+    try { localStorage.setItem(key, JSON.stringify(snap)); } catch {}
+  } catch { failed = true; }
+  render();
+}
+APEX.retry = load;
+
+// Drag anywhere to move (the host turns this into a native window move). Right-click for options.
+const menu = document.getElementById("menu");
+document.addEventListener("mousedown", e => { if (e.button === 0 && !e.target.closest("#menu, button")) post("drag"); });
+document.addEventListener("contextmenu", e => {
+  e.preventDefault();
+  menu.querySelectorAll("[data-cmd^=size]").forEach(b => b.setAttribute("aria-checked", b.dataset.cmd === `size:${z}`));
+  menu.hidden = false;
+  menu.style.left = `${Math.max(0, Math.min(e.clientX, innerWidth - menu.offsetWidth))}px`;
+  menu.style.top = `${Math.max(0, Math.min(e.clientY, innerHeight - menu.offsetHeight))}px`;
+  menu.querySelector("button").focus();
+});
+menu.addEventListener("click", e => { const b = e.target.closest("[data-cmd]"); if (b) { menu.hidden = true; post(b.dataset.cmd); } });
+document.addEventListener("click", e => { if (!e.target.closest("#menu")) menu.hidden = true; });
+document.addEventListener("keydown", e => { if (e.key === "Escape") menu.hidden = true; });
+
+render();
+load();
+setInterval(render, 1000);
+setInterval(load, 30e3);
+</script>
+</body>
+</html>

@@ -65,9 +65,16 @@ data server now and at every logon (hidden, logs in `backend/apex.log`). Turn on
 powershell -ExecutionPolicy Bypass -File windows\install.ps1
 ```
 
-Press **Win + W → + (Add widgets) → APEX**. Each widget's menu → **Customize** sets its driver and information
-density. The APEX app in the Start menu sets defaults for new widgets and shows data status. Re-run the script after
-pulling changes.
+You get APEX in three places:
+
+- **Desktop:** frameless F1-style widgets on the right edge of the screen (Race Mode and your favourite driver to
+  start). Drag to move, right-click to resize or remove. Add more from the **APEX** app (Start menu → On your desktop).
+  They start at every logon.
+- **Widgets board:** Win + W → + (Add widgets) → APEX. Each widget's menu → **Customize** sets its driver and density.
+- **Lock screen:** Settings → Personalization → Lock screen → Widgets → add an APEX widget (small ones fit there).
+
+Pick your favourite driver in the APEX app: the driver widgets show their silhouette in team color with their race
+number. Re-run the script after pulling changes; it installs each build as a package update, so pinned widgets stay.
 
 Debug without the board: `APEX.exe -DumpCards <dir> [driver]` writes the exact template and data every widget would
 get, at every size. WinUI crashes are logged to `%LOCALAPPDATA%\APEX\crash.log`.

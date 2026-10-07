@@ -11,7 +11,8 @@ public record DriverStanding(int Position, string DriverId, string Code, string 
 public record ConstructorStanding(int Position, string TeamId, string Name, string ShortName, string? Color, double Points, int Wins);
 public record WeekendResult(string SessionType, int? Position, string? Gap);
 public record DriverDetail(string Id, string Code, string FirstName, string LastName, string? CountryCode, string? TeamId, string? TeamName,
-    string? TeamColor, int? Position, double Points, int Wins, int Podiums, int Poles, List<int?> Last5, List<WeekendResult> Weekend);
+    string? TeamColor, int? Position, double Points, int Wins, int Podiums, int Poles, List<int?> Last5, List<WeekendResult> Weekend,
+    int? RaceNumber = null);
 public record DriverSummary(string Id, string Code, string FirstName, string LastName, string? TeamName);
 public record TimingRow(int Position, int DriverNumber, string Code, string? TeamColor, string? Time, string? Gap, string? Interval,
     List<string?>? Sectors, bool InPit, bool? Drs);
@@ -22,7 +23,8 @@ public record Timing(string SessionId, string SessionType, string? Phase, int? L
 public record WidgetSnapshot(DateTimeOffset GeneratedAt, string Mode, Race? Race, Session? NextSession, Timing? Live, Timing? Results,
     List<DriverStanding> Drivers, List<ConstructorStanding> Constructors, DriverDetail? Driver, bool LiveUnavailable);
 
-public record Loaded(WidgetSnapshot Snapshot, DateTimeOffset? StaleSince);
+/// Silhouette: the favourite driver's team-colour silhouette as a data: URI (cards can't fetch from localhost).
+public record Loaded(WidgetSnapshot Snapshot, DateTimeOffset? StaleSince, string? Silhouette = null);
 
 /// One request per refresh; last good snapshot per driver on disk so a widget is never empty (spec §23).
 public static class Api
@@ -45,7 +47,7 @@ public static class Api
             var snap = JsonSerializer.Deserialize<WidgetSnapshot>(text, Json)!;
             Directory.CreateDirectory(CacheDir);
             await File.WriteAllTextAsync(CachePath(driver), text);
-            return new Loaded(snap, null);
+            return new Loaded(snap, null, await Silhouette(snap.Driver?.Id));
         }
         catch (Exception) when (Cached(driver) is { } cached)
         {
@@ -57,12 +59,29 @@ public static class Api
         }
     }
 
+    /// 206 px PNG from /api/drivers/{id}/silhouette.png, cached on disk so cards keep it offline.
+    static async Task<string?> Silhouette(string? driverId)
+    {
+        if (driverId is null) return null;
+        var file = Path.Combine(CacheDir, $"silhouette-{driverId}.png");
+        try
+        {
+            var png = await Http.GetByteArrayAsync($"{BaseUrl}/api/drivers/{Uri.EscapeDataString(driverId)}/silhouette.png?size=206");
+            await File.WriteAllBytesAsync(file, png);
+        }
+        catch (Exception) when (File.Exists(file)) { }  // offline: last good one
+        catch (Exception) { return null; }               // no portrait for this driver
+        return "data:image/png;base64," + Convert.ToBase64String(await File.ReadAllBytesAsync(file));
+    }
+
     public static Loaded? Cached(string? driver)
     {
         try
         {
             var snap = JsonSerializer.Deserialize<WidgetSnapshot>(File.ReadAllText(CachePath(driver)), Json)!;
-            return new Loaded(snap, snap.GeneratedAt);
+            var png = Path.Combine(CacheDir, $"silhouette-{snap.Driver?.Id}.png");
+            return new Loaded(snap, snap.GeneratedAt,
+                File.Exists(png) ? "data:image/png;base64," + Convert.ToBase64String(File.ReadAllBytes(png)) : null);
         }
         catch { return null; }
     }

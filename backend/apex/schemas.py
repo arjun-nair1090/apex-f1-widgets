@@ -91,6 +91,7 @@ class WeekendResult(BaseModel):
 
 
 class DriverDetail(Driver):
+    race_number: int | None = None  # number on the car this season (the champion runs #1); `number` is permanent
     season: int
     position: int | None
     points: float
