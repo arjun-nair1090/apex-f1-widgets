@@ -244,6 +244,9 @@ def test_driver_silhouette_in_team_colour(monkeypatch):
     assert img.getpixel((3, 4)) == (0x00, 0xD7, 0xB6, 255)  # Mercedes teal where the driver is
     assert img.getpixel((0, 0))[3] == 0                      # still transparent around them
     assert client.get("/api/drivers/max_verstappen/silhouette.png").status_code == 404  # non-F1 host: refused
+    for sneaky in ["https://media.formula1.com.evil.example/x.png", "https://media.formula1.com@evil.example/x.png",
+                   "https://media.formula1.com:8443/x.png", "http://media.formula1.com/x.png"]:
+        assert not portraits._is_f1_media(sneaky), sneaky
     assert client.get("/api/drivers/antonelli").json()["race_number"] == 12
     assert client.get("/api/drivers/antonelli/silhouette.png", params={"size": 206}).status_code == 200
     assert client.get("/api/drivers/antonelli/silhouette.png", params={"size": 5000}).status_code == 422
