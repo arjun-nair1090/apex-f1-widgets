@@ -1,6 +1,8 @@
-"""Run the APEX backend with no console window (Task Scheduler / Startup on Windows). Logs go to apex.log.
+"""Run the APEX backend with no console window (Task Scheduler on Windows, a systemd user service on Linux).
+Logs go to apex.log.
 
-    .venv\\Scripts\\pythonw.exe serve.pyw
+    .venv\\Scripts\\pythonw.exe serve.pyw     (Windows)
+    .venv/bin/python serve.pyw              (Linux, macOS)
 """
 import os
 import sys
