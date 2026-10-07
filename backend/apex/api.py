@@ -294,15 +294,16 @@ def driver(driver_id: Slug, season: Season = None):
 
 
 @router.get("/drivers/{driver_id}/silhouette.png", response_class=Response,
-            responses={200: {"content": {"image/png": {}}, "description": "Team-colour silhouette"}, 404: {}})
+            responses={200: {"content": {"image/png": {}}, "description": "Glowing team-colour silhouette"}, 404: {}})
 def driver_silhouette(driver_id: Slug, size: Annotated[int, Query(ge=1, le=1336)] = 432):
-    """The driver's official headshot cut-out, filled with their team colour. Square PNG, transparent background."""
+    """The driver's official headshot's cut-out as a glowing team-colour silhouette. PNG with a
+    transparent background, padded at the sides and top for the glow."""
     with SessionLocal() as db:
         d = db.get(Driver, driver_id)
         team = db.get(Team, d.team_id) if d and d.team_id else None
     # Served at the smallest official rendition that covers the requested size.
     size = min((r for r in portraits.RENDITIONS if r >= size), default=max(portraits.RENDITIONS))
-    png = portraits.silhouette(d.code, team.color or "FFFFFF", size) if d and team else None
+    png = portraits.silhouette(d.code, team.color or "FFFFFF", size, team.id) if d and team else None
     if png is None:
         raise HTTPException(404, "No portrait for this driver")
     return Response(png, media_type="image/png", headers={"Cache-Control": "public, max-age=86400"})

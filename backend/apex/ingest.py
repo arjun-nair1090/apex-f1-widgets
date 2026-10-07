@@ -224,7 +224,11 @@ def _previous_edition_laps(client, year, circuit_id) -> int | None:
 def _sync_team_colors(client, db):
     """Jolpica has no colours; OpenF1 does. Join on the three-letter driver code."""
     headers = {"Authorization": f"Bearer {settings.openf1_token}"} if settings.openf1_token else {}
-    r = client.get(f"{settings.openf1_base}/drivers", params={"session_key": "latest"}, headers=headers)
+    for attempt in range(3):  # 30 requests/min per IP, shared with anyone else on it: wait when told to
+        r = client.get(f"{settings.openf1_base}/drivers", params={"session_key": "latest"}, headers=headers)
+        if r.status_code != 429:
+            break
+        time.sleep(float(r.headers.get("Retry-After") or 2 ** attempt))
     r.raise_for_status()
     drivers = r.json()
     colour_by_code = {d["name_acronym"]: c for d in drivers if (c := safe_hex(d.get("team_colour")))}

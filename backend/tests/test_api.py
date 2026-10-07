@@ -222,14 +222,16 @@ def test_unconfirmed_session_times_are_not_scheduled():
     assert _dt({"date": "2026-11-01", "time": "14:00:00Z"}).hour == 14
 
 
-def test_driver_silhouette_in_team_colour(monkeypatch):
+def test_driver_silhouette_glows_in_team_colour(monkeypatch):
+    import colorsys
     import io
 
     from PIL import Image
 
     from apex import portraits
-    photo = Image.new("RGBA", (8, 8), (0, 0, 0, 0))
-    photo.paste((200, 150, 120, 255), (2, 2, 6, 8))  # an opaque "driver" on a transparent background
+    photo = Image.new("RGBA", (64, 64), (0, 0, 0, 0))     # a "driver" on a transparent background:
+    photo.paste((40, 30, 25, 255), (16, 16, 48, 64))      # dark race suit
+    photo.paste((220, 180, 150, 255), (24, 16, 40, 32))   # light face
     buf = io.BytesIO()
     photo.save(buf, "PNG")
     monkeypatch.setattr(portraits, "_download", lambda url: buf.getvalue())
@@ -240,9 +242,18 @@ def test_driver_silhouette_in_team_colour(monkeypatch):
 
     r = client.get("/api/drivers/antonelli/silhouette.png")
     assert r.status_code == 200 and r.headers["content-type"] == "image/png"
-    img = Image.open(io.BytesIO(r.content))
-    assert img.getpixel((3, 4)) == (0x00, 0xD7, 0xB6, 255)  # Mercedes teal where the driver is
-    assert img.getpixel((0, 0))[3] == 0                      # still transparent around them
+    img = Image.open(io.BytesIO(r.content)).convert("RGBA")
+    pad = (img.width - 64) // 2
+    assert pad > 0 and img.size == (64 + 2 * pad, 64 + pad)  # room for the glow at the sides and top
+    hue = lambda px: colorsys.rgb_to_hsv(*(c / 255 for c in px[:3]))[0]
+    teal = hue((0x00, 0xD7, 0xB6))                            # Mercedes
+    face, suit = img.getpixel((pad + 32, pad + 24)), img.getpixel((pad + 32, pad + 52))
+    assert face[3] == suit[3] == 255
+    assert face == suit                                       # a silhouette: one solid fill, no photo detail
+    assert abs(hue(face) - teal) < 0.03 and abs(hue(suit) - teal) < 0.03
+    glow = img.getpixel((pad + 13, pad + 40))                 # just outside the driver's outline
+    assert 40 < glow[3] < 255 and abs(hue(glow) - teal) < 0.03
+    assert img.getpixel((0, 0))[3] == 0                       # transparent beyond the glow
     assert client.get("/api/drivers/max_verstappen/silhouette.png").status_code == 404  # non-F1 host: refused
     for sneaky in ["https://media.formula1.com.evil.example/x.png", "https://media.formula1.com@evil.example/x.png",
                    "https://media.formula1.com:8443/x.png", "http://media.formula1.com/x.png"]:
@@ -250,6 +261,32 @@ def test_driver_silhouette_in_team_colour(monkeypatch):
     assert client.get("/api/drivers/antonelli").json()["race_number"] == 12
     assert client.get("/api/drivers/antonelli/silhouette.png", params={"size": 206}).status_code == 200
     assert client.get("/api/drivers/antonelli/silhouette.png", params={"size": 5000}).status_code == 422
+
+    # Ferrari and Red Bull get a deeper fill (their own colour, darkened) inside the same bright glow.
+    cache.set_json(portraits.DRIVERS_KEY, {
+        "VER": {"number": 3, "headshot": "https://media.formula1.com/x/maxver01.png.transform/1col/image.png"}}, 60)
+    img = Image.open(io.BytesIO(client.get("/api/drivers/max_verstappen/silhouette.png").content)).convert("RGBA")
+    fill, glow = img.getpixel((pad + 32, pad + 40)), img.getpixel((pad + 13, pad + 40))
+    blue = hue((0x47, 0x81, 0xD7))                            # Red Bull
+    assert abs(hue(fill) - blue) < 0.03 and abs(hue(glow) - blue) < 0.03
+    assert sum(fill[:3]) < sum(portraits._neon((0x47, 0x81, 0xD7))) - 80  # darker than the other teams' lifted fill
+
+
+def test_openf1_rate_limit_is_waited_out(monkeypatch):
+    # OpenF1 allows 30 requests a minute per IP, which other people on a shared IP can use up. One 429 must not leave
+    # every widget without its silhouette until the next sync.
+    from apex import ingest, portraits
+    replies = [NS(status_code=429, headers={"Retry-After": "60"}),
+               NS(status_code=200, headers={}, raise_for_status=lambda: None,
+                  json=lambda: [{"name_acronym": "VER", "driver_number": 3, "team_colour": "4781D7",
+                                 "headshot_url": "https://media.formula1.com/x/maxver01.png"}])]
+    waits = []
+    monkeypatch.setattr(ingest.time, "sleep", waits.append)
+    cache.backend.delete_prefix(portraits.DRIVERS_KEY)
+    with SessionLocal() as db:
+        ingest._sync_team_colors(NS(get=lambda *a, **k: replies.pop(0)), db)
+    assert waits == [60.0]
+    assert portraits.openf1_driver("VER")["number"] == 3
 
 
 def test_track_layout_from_a_real_lap(monkeypatch, tmp_path):

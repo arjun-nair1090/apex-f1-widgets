@@ -158,7 +158,7 @@ function renderDrivers() {
     const team = APEX.hexColor(d.team_color) ?? "#6E6E7B";
     return `<button class="dcard" role="radio" aria-checked="${d.id === state.driver}" data-driver="${esc(d.id)}" style="--team:${team}" aria-label="${esc(d.first_name)} ${esc(d.last_name)}, ${esc(d.team_name ?? "")}">
       <span class="no" aria-hidden="true">${esc(d.race_number ?? d.number ?? "")}</span>
-      <img src="/api/drivers/${encodeURIComponent(d.id)}/silhouette.png?size=206" alt="" loading="lazy" onerror="this.remove()">
+      <img src="${APEX.silhouette(d.id, 206)}" alt="" loading="lazy" onerror="this.remove()">
       <span class="fn">${esc(d.first_name)}</span><span class="nm">${esc(d.last_name)}</span><span class="tm">${esc(d.team_name ?? "")}</span></button>`;
   }).join("");
 }

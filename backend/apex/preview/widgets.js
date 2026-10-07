@@ -28,6 +28,8 @@ const APEX = (() => {
   const sessionLabel = t => ({ RACE: "RACE", SPRINT: "SPRINT", QUALIFYING: "QUALI", SPRINT_QUALIFYING: "SPRINT QUALI" }[t] || t);
   // Colours go into style attributes: only RRGGBB (the backend filters too; this is the second gate).
   const hexColor = c => /^[0-9A-Fa-f]{6}$/.test(c ?? "") ? `#${c}` : null;
+  /** Driver silhouette URL. Bump `v` when its style changes: browsers cache it for a day. */
+  const silhouette = (id, size) => `/api/drivers/${encodeURIComponent(id)}/silhouette.png?size=${size}&v=6`;
 
   // ---------- Race Mode (mirror of backend/apex/racemode.py) ----------
   function raceMode(sessions, now) {
@@ -74,13 +76,14 @@ const APEX = (() => {
     return (now - Date.parse(s.starts_at)) / (Date.parse(s.ends_at) - Date.parse(s.starts_at));
   }
 
-  /** Big outlined race number + the driver's silhouette in team colour. */
+  /** Big glowing race number + the driver's glowing team-colour silhouette, with a light sweep across it. */
   function driverArt(d, z) {
     const team = hexColor(d.team_color) ?? "var(--acc)";
     const num = d.race_number ?? d.number ?? "";
     const size = z === "l" ? 864 : z === "m" ? 432 : 206;
+    const src = silhouette(d.id, size);
     return `<div class="dc" style="--team:${team}" aria-hidden="true"><span class="bignum">${esc(num)}</span>
-      <img src="/api/drivers/${encodeURIComponent(d.id)}/silhouette.png?size=${size}" alt="" onerror="this.remove()"></div>`;
+      <div class="sil" style="--sil:url('${src}')"><img src="${src}" alt="" onerror="this.parentNode.remove()"><i class="shine"></i></div></div>`;
   }
   const pickDriver = () => `${head(tab("Driver"))}<div class="grow"></div><div class="hd">Choose a driver</div><div class="lbl" style="margin-top:6px">Pick one in settings</div>`;
 
@@ -382,5 +385,5 @@ const APEX = (() => {
     }
   }
 
-  return { WIDGETS, render, flip, paint, lock, raceMode, stateOf, esc, ago, hexColor, retry: () => {} };
+  return { WIDGETS, render, flip, paint, lock, raceMode, stateOf, esc, ago, hexColor, silhouette, retry: () => {} };
 })();
