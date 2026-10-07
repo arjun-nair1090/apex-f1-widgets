@@ -263,6 +263,9 @@ Errors use `{"detail": "..."}` with 401 (bad API key), 404, 422 (validation) or 
 /windows
     /APEX            WinUI 3 companion app + Widget Board provider (COM)
     /APEX/Widgets    Adaptive Card templates
+/linux
+    /apexlinux       GTK 3 + WebKit2GTK desktop widgets and APEX app (hosts the same pages as Windows)
+    install.sh       systemd user service for the backend, app-menu entry, autostart
 /shared
     /design-tokens   tokens.json: the single source for every platform
     /brand           APEX mark + wordmark SVGs
@@ -282,6 +285,7 @@ Errors use `{"detail": "..."}` with 401 (bad API key), 404, 422 (validation) or 
 | 4 | iOS widgets | 🟡 source complete (9 widgets, lock screen, Live Activity + Dynamic Island, App Intents) but **not compiled**: needs Xcode on macOS |
 | 5 | Android widgets | ✅ 9 Glance widgets + Material 3 app; `assembleDebug` builds and `lintDebug` has 0 errors; not run on a device |
 | 6 | Windows widgets | ✅ Widgets Board COM provider + 7 Adaptive Card templates; builds clean; all 27 widget×size payloads (plus live state) rendered with the Adaptive Cards renderer via `APEX.exe -DumpCards <dir> [driver]`; MSIX not yet deployed to a board |
+| 6b | Linux widgets | ✅ desktop widgets + APEX app on GTK 3/WebKit2GTK, hosting `desktop.html` and `app.html` through a WebView2-compatible bridge; layer-shell on Wayland, keep-below on X11; run on Hyprland |
 | 7 | Real-time timing | ✅ OpenF1 live processor (replayed on a real race), SSE (paid key required during sessions) |
 | 8 | Notifications | ✅ local session-start alerts, favourite driver result/podium on refresh, opt-in live progress (Android) |
 | 9 | Customization | ✅ driver, team, density, theme, accent; live preview (web, iOS app, Android app via real RemoteViews) |

@@ -126,7 +126,7 @@
     </div>
   </section>
 
-  <section aria-labelledby="h-more">
+  <section id="more" aria-labelledby="h-more">
     <h2 id="h-more">Widgets board and lock screen</h2>
     <div class="places" style="margin-top:16px">
       <div class="place"><b>Widgets board</b><p>Press <kbd>Win</kbd> + <kbd>W</kbd>, click <kbd>+</kbd>, and pick APEX. Use a widget's ⋯ menu → Customize to change it.</p></div>
@@ -239,6 +239,7 @@ async function loadDrivers() {
 }
 
 document.getElementById("nohost").hidden = !!host;
+document.getElementById("more").hidden = host?.apexHost === "linux";  // no Widgets board or lock screen there
 renderDesktop();
 loadDrivers();
 loadSnapshot();
