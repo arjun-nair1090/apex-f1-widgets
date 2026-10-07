@@ -1,15 +1,33 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Controls.Primitives;
+using Microsoft.UI.Xaml.Markup;
 using Microsoft.UI.Xaml.Media;
+using Microsoft.UI.Xaml.XamlTypeInfo;
 
 namespace Apex;
 
 /// Companion window (spec §17). Widgets are customized natively on the board (Customize menu); this sets defaults for new
 /// widgets and shows data health. Built in code (no XAML pages) and themed by the system, so it feels native.
-public sealed class App : Application
+public sealed class App : Application, IXamlMetadataProvider
 {
     Window? window;
+
+    // With no XAML pages, nothing generates the type-info provider WinUI's control styles need
+    // (otherwise: "Cannot find a resource with the given key: AcrylicBackgroundFillColorDefaultBrush").
+    readonly XamlControlsXamlMetaDataProvider controlsMetadata = new();
+    public IXamlType GetXamlType(Type type) => controlsMetadata.GetXamlType(type);
+    public IXamlType GetXamlType(string fullName) => controlsMetadata.GetXamlType(fullName);
+    public XmlnsDefinition[] GetXmlnsDefinitions() => controlsMetadata.GetXmlnsDefinitions();
+
+    public App()
+    {
+        // WinUI crashes surface only as 0xc000027b in the event log; keep the real message.
+        UnhandledException += (_, e) => File.AppendAllText(
+            Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "APEX", "crash.log"),
+            $"{DateTimeOffset.Now:u} {e.Exception}\n");
+        Directory.CreateDirectory(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "APEX"));
+    }
 
     protected override void OnLaunched(LaunchActivatedEventArgs args)
     {

@@ -57,17 +57,20 @@ Needs the Android SDK (compileSdk 37) and JDK 17+. Install the APK, open APEX to
 
 ## Windows
 
-```sh
-cd windows/APEX
-dotnet build -p:Platform=x64 -p:ApexBaseUrl=https://your-backend
+One script does everything on your PC: builds the app, registers its widgets with the Widgets board, and runs the
+data server now and at every logon (hidden, logs in `backend/apex.log`). Turn on **Developer Mode** first
+(Settings → System → Advanced), then:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File windows\install.ps1
 ```
 
-The provider only appears on the Widgets Board when installed as an MSIX: turn on Developer Mode, deploy the package
-(Visual Studio *Deploy*, or `dotnet build -p:GenerateAppxPackageOnBuild=true` then install the `.msix`), then press
-Win + W → Add widgets → APEX. Each widget's menu → **Customize** sets its driver and information density.
+Press **Win + W → + (Add widgets) → APEX**. Each widget's menu → **Customize** sets its driver and information
+density. The APEX app in the Start menu sets defaults for new widgets and shows data status. Re-run the script after
+pulling changes.
 
 Debug without the board: `APEX.exe -DumpCards <dir> [driver]` writes the exact template and data every widget would
-get, at every size.
+get, at every size. WinUI crashes are logged to `%LOCALAPPDATA%\APEX\crash.log`.
 
 ## iOS
 
