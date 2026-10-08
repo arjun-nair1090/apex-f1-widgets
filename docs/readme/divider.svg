@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 24" width="1200" height="24" role="img" aria-label="">
+  <!-- Section divider: three sector colours with a car streaking across. -->
+  <defs>
+    <linearGradient id="trail" x1="0" x2="1">
+      <stop offset="0" stop-color="#E10600" stop-opacity="0"/>
+      <stop offset=".85" stop-color="#E10600"/>
+      <stop offset="1" stop-color="#fff"/>
+    </linearGradient>
+    <filter id="glow" x="-50%" y="-200%" width="200%" height="500%"><feGaussianBlur stdDeviation="3"/></filter>
+  </defs>
+  <style>
+    .car { animation: lap 3.2s cubic-bezier(.5, 0, .3, 1) infinite; }
+    @keyframes lap { from { transform: translateX(-320px) } to { transform: translateX(1220px) } }
+  </style>
+  <rect x="0" y="11" width="400" height="2" fill="#A879FF" opacity=".7"/>
+  <rect x="400" y="11" width="400" height="2" fill="#2FD27F" opacity=".7"/>
+  <rect x="800" y="11" width="400" height="2" fill="#E8C547" opacity=".7"/>
+  <rect x="399" y="6" width="2" height="12" fill="#33333F"/>
+  <rect x="799" y="6" width="2" height="12" fill="#33333F"/>
+  <g class="car">
+    <rect y="9" width="300" height="6" rx="3" fill="url(#trail)" filter="url(#glow)"/>
+    <rect y="10" width="300" height="4" rx="2" fill="url(#trail)"/>
+  </g>
+</svg>

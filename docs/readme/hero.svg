@@ -1,0 +1,117 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 420" width="1200" height="420" role="img" aria-label="APEX: five red lights go out, lights out and away we go">
+  <!-- 9s loop: the five lights come on one by one, go out together, then "lights out" flashes. Static renderers show the
+       base state (wordmark drawn, lights dark, text visible), so nothing depends on the animation playing. -->
+  <defs>
+    <pattern id="stripes" width="14" height="14" patternUnits="userSpaceOnUse" patternTransform="rotate(-35)">
+      <rect width="14" height="14" fill="#0E0E14"/>
+      <rect width="5" height="14" fill="#13131B"/>
+    </pattern>
+    <radialGradient id="redglow" cx="50%" cy="20%" r="45%">
+      <stop offset="0" stop-color="#E10600" stop-opacity=".55"/>
+      <stop offset="1" stop-color="#E10600" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="streak" x1="0" x2="1">
+      <stop offset="0" stop-color="#fff" stop-opacity="0"/>
+      <stop offset="1" stop-color="#fff" stop-opacity=".5"/>
+    </linearGradient>
+    <linearGradient id="sweep" x1="0" x2="1">
+      <stop offset="0" stop-color="#E10600" stop-opacity="0"/>
+      <stop offset=".8" stop-color="#E10600"/>
+      <stop offset="1" stop-color="#FFB199"/>
+    </linearGradient>
+    <filter id="glow" x="-100%" y="-100%" width="300%" height="300%">
+      <feGaussianBlur stdDeviation="9"/>
+    </filter>
+  </defs>
+  <style>
+    .lamp { fill: #2A0B0B; animation: 9s infinite steps(1, end); }
+    .halo { fill: #FF2A1A; fill-opacity: 0; filter: url(#glow); animation: 9s infinite steps(1, end); }
+    .n0 { animation-name: on0; } .n1 { animation-name: on1; } .n2 { animation-name: on2; }
+    .n3 { animation-name: on3; } .n4 { animation-name: on4; }
+    .halo.n0 { animation-name: h0; } .halo.n1 { animation-name: h1; } .halo.n2 { animation-name: h2; }
+    .halo.n3 { animation-name: h3; } .halo.n4 { animation-name: h4; }
+    @keyframes on0 { 0% { fill: #2A0B0B } 8% { fill: #FF1E0F } 50% { fill: #2A0B0B } }
+    @keyframes on1 { 0% { fill: #2A0B0B } 15% { fill: #FF1E0F } 50% { fill: #2A0B0B } }
+    @keyframes on2 { 0% { fill: #2A0B0B } 22% { fill: #FF1E0F } 50% { fill: #2A0B0B } }
+    @keyframes on3 { 0% { fill: #2A0B0B } 29% { fill: #FF1E0F } 50% { fill: #2A0B0B } }
+    @keyframes on4 { 0% { fill: #2A0B0B } 36% { fill: #FF1E0F } 50% { fill: #2A0B0B } }
+    @keyframes h0 { 0% { fill-opacity: 0 } 8% { fill-opacity: .9 } 50% { fill-opacity: 0 } }
+    @keyframes h1 { 0% { fill-opacity: 0 } 15% { fill-opacity: .9 } 50% { fill-opacity: 0 } }
+    @keyframes h2 { 0% { fill-opacity: 0 } 22% { fill-opacity: .9 } 50% { fill-opacity: 0 } }
+    @keyframes h3 { 0% { fill-opacity: 0 } 29% { fill-opacity: .9 } 50% { fill-opacity: 0 } }
+    @keyframes h4 { 0% { fill-opacity: 0 } 36% { fill-opacity: .9 } 50% { fill-opacity: 0 } }
+    .bloom { fill-opacity: 0; animation: bloom 9s infinite; }
+    @keyframes bloom { 0%, 30% { fill-opacity: 0 } 40%, 49% { fill-opacity: 1 } 51%, 100% { fill-opacity: 0 } }
+    .draw { stroke-dasharray: 100; animation: draw 1.8s cubic-bezier(.6, 0, .2, 1) both; }
+    .draw:nth-child(2) { animation-delay: .25s } .draw:nth-child(3) { animation-delay: .5s } .draw:nth-child(4) { animation-delay: .75s }
+    @keyframes draw { from { stroke-dashoffset: 100 } to { stroke-dashoffset: 0 } }
+    .apexline { stroke-dasharray: 100; animation: draw .7s 1.6s ease-out both; }
+    .go { animation: go 9s infinite; }
+    @keyframes go { 0%, 50% { fill-opacity: 0; transform: translateX(-30px) } 53%, 92% { fill-opacity: 1; transform: none } 100% { fill-opacity: 0 } }
+    .sweep { animation: sweep 9s infinite; }
+    @keyframes sweep { 0%, 50% { transform: translateX(-700px) } 62%, 100% { transform: translateX(1300px) } }
+    .s { animation: fly linear infinite; }
+    @keyframes fly { from { transform: translateX(1300px) } to { transform: translateX(-500px) } }
+    .live { animation: blink 1.2s infinite; }
+    @keyframes blink { 50% { opacity: .25 } }
+    text { font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif; }
+  </style>
+
+  <rect width="1200" height="420" fill="url(#stripes)"/>
+  <rect class="bloom" width="1200" height="420" fill="url(#redglow)"/>
+
+  <!-- speed streaks -->
+  <g>
+    <rect class="s" style="animation-duration:1.9s" y="150" width="260" height="2" fill="url(#streak)"/>
+    <rect class="s" style="animation-duration:2.7s;animation-delay:-1s" y="290" width="380" height="2" fill="url(#streak)"/>
+    <rect class="s" style="animation-duration:1.4s;animation-delay:-.4s" y="335" width="180" height="1.5" fill="url(#streak)"/>
+    <rect class="s" style="animation-duration:3.2s;animation-delay:-2s" y="120" width="420" height="1" fill="url(#streak)"/>
+    <rect class="s" style="animation-duration:2.2s;animation-delay:-1.6s" y="385" width="300" height="1.5" fill="url(#streak)"/>
+  </g>
+
+  <!-- start gantry -->
+  <rect x="352" y="14" width="496" height="10" rx="2" fill="#22222C"/>
+  <g transform="translate(377 20)">
+    <g><rect width="70" height="112" rx="14" fill="#08080C" stroke="#33333F"/>
+      <circle class="halo n0" cx="35" cy="32" r="27"/><circle class="halo n0" cx="35" cy="80" r="27"/>
+      <circle class="lamp n0" cx="35" cy="32" r="18"/><circle class="lamp n0" cx="35" cy="80" r="18"/></g>
+    <g transform="translate(94 0)"><rect width="70" height="112" rx="14" fill="#08080C" stroke="#33333F"/>
+      <circle class="halo n1" cx="35" cy="32" r="27"/><circle class="halo n1" cx="35" cy="80" r="27"/>
+      <circle class="lamp n1" cx="35" cy="32" r="18"/><circle class="lamp n1" cx="35" cy="80" r="18"/></g>
+    <g transform="translate(188 0)"><rect width="70" height="112" rx="14" fill="#08080C" stroke="#33333F"/>
+      <circle class="halo n2" cx="35" cy="32" r="27"/><circle class="halo n2" cx="35" cy="80" r="27"/>
+      <circle class="lamp n2" cx="35" cy="32" r="18"/><circle class="lamp n2" cx="35" cy="80" r="18"/></g>
+    <g transform="translate(282 0)"><rect width="70" height="112" rx="14" fill="#08080C" stroke="#33333F"/>
+      <circle class="halo n3" cx="35" cy="32" r="27"/><circle class="halo n3" cx="35" cy="80" r="27"/>
+      <circle class="lamp n3" cx="35" cy="32" r="18"/><circle class="lamp n3" cx="35" cy="80" r="18"/></g>
+    <g transform="translate(376 0)"><rect width="70" height="112" rx="14" fill="#08080C" stroke="#33333F"/>
+      <circle class="halo n4" cx="35" cy="32" r="27"/><circle class="halo n4" cx="35" cy="80" r="27"/>
+      <circle class="lamp n4" cx="35" cy="32" r="18"/><circle class="lamp n4" cx="35" cy="80" r="18"/></g>
+  </g>
+
+  <!-- wordmark, drawn stroke by stroke (shared/brand/apex-wordmark.svg at 4x) -->
+  <g transform="translate(444 164) scale(4)">
+    <g fill="none" stroke="#F5F7FA" stroke-width="3" stroke-linecap="square" stroke-linejoin="miter">
+      <path class="draw" pathLength="100" d="M1 22 L9.5 2 L18 22"/>
+      <path class="draw" pathLength="100" d="M25 22 V2 H32 A5 5 0 0 1 32 12 H25"/>
+      <path class="draw" pathLength="100" d="M55 2 H43 V22 H55 M43 12 H52"/>
+      <path class="draw" pathLength="100" d="M61 2 L77 22 M77 2 L61 22"/>
+    </g>
+    <path class="apexline" pathLength="100" d="M3.5 16.5 L19 13" fill="none" stroke="#E10600" stroke-width="2.25" stroke-linecap="square"/>
+  </g>
+
+  <text x="600" y="306" text-anchor="middle" fill="#B4B4C0" font-size="17" font-weight="600" letter-spacing="7">THE F1 DATA LAYER THAT LIVES EVERYWHERE</text>
+
+  <g class="go">
+    <text x="600" y="362" text-anchor="middle" fill="#FFFFFF" font-size="30" font-weight="900" font-style="italic" letter-spacing="2">LIGHTS OUT AND AWAY WE GO</text>
+  </g>
+
+  <g transform="translate(40 34)">
+    <circle class="live" cx="6" cy="6" r="6" fill="#FF5A1F"/>
+    <text x="20" y="11" fill="#FF5A1F" font-size="14" font-weight="800" letter-spacing="2">LIVE</text>
+  </g>
+  <text x="1160" y="45" text-anchor="end" fill="#6E6E7B" font-size="13" font-weight="700" letter-spacing="3">iOS · ANDROID · WINDOWS</text>
+
+  <rect y="404" width="1200" height="16" fill="#E10600"/>
+  <rect class="sweep" y="404" width="700" height="16" fill="url(#sweep)"/>
+</svg>

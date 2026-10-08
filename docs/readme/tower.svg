@@ -1,0 +1,71 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 360" width="900" height="360" role="img" aria-label="APEX platforms as an F1 timing tower: Windows, Android, iOS, Backend, Shared">
+  <style>
+    text { font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif; }
+    .mono { font-family: Consolas, "SF Mono", Menlo, monospace; }
+    .row { animation: in .7s cubic-bezier(.2, .8, .2, 1) both; }
+    @keyframes in { from { opacity: 0; transform: translateX(-60px) } }
+    .live { animation: blink 1.2s infinite; }
+    @keyframes blink { 50% { opacity: .25 } }
+    .purple { animation: fastest 4s infinite; }
+    @keyframes fastest { 0%, 100% { fill: #A879FF } 50% { fill: #D9C4FF } }
+  </style>
+  <rect width="900" height="360" rx="14" fill="#0E0E14"/>
+  <rect width="900" height="52" rx="14" fill="#15151E"/>
+  <rect y="38" width="900" height="14" fill="#15151E"/>
+  <rect y="52" width="900" height="3" fill="#E10600"/>
+  <path d="M24 38 L32 18.5 L40 38" fill="none" stroke="#F5F7FA" stroke-width="3" stroke-linecap="square"/>
+  <path d="M26 33.5 L41 30" fill="none" stroke="#E10600" stroke-width="2.25" stroke-linecap="square"/>
+  <text x="56" y="35" fill="#fff" font-size="16" font-weight="800" letter-spacing="3">APEX · THE GRID</text>
+  <circle class="live" cx="790" cy="28" r="5" fill="#FF5A1F"/>
+  <text x="802" y="33" fill="#FF5A1F" font-size="13" font-weight="800" letter-spacing="2">LIVE</text>
+  <text x="240" y="33" fill="#6E6E7B" font-size="11" font-weight="700" letter-spacing="2">PLATFORM</text>
+  <text x="700" y="33" fill="#6E6E7B" font-size="11" font-weight="700" letter-spacing="2" text-anchor="end">STATUS</text>
+
+  <!-- one row per folder; team colour bar on the left, status on the right -->
+  <g class="row" style="animation-delay:.1s" transform="translate(0 70)">
+    <rect x="16" width="868" height="50" rx="8" fill="#15151E"/>
+    <text x="40" y="33" fill="#fff" font-size="20" font-weight="900" font-style="italic">P1</text>
+    <rect x="84" y="10" width="5" height="30" fill="#3671C6"/>
+    <text x="102" y="32" fill="#fff" font-size="19" font-weight="900" letter-spacing="1">WINDOWS</text>
+    <text x="240" y="31" fill="#B4B4C0" font-size="14">10 widgets · board · lock screen · desktop</text>
+    <text class="mono" x="700" y="31" fill="#2FD27F" font-size="14" font-weight="700" text-anchor="end">BUILDS</text>
+    <rect class="purple" x="720" y="17" width="146" height="16" rx="3" fill="#A879FF"/>
+    <text class="mono" x="793" y="30" fill="#0E0E14" font-size="12" font-weight="800" text-anchor="middle">FASTEST LAP</text>
+  </g>
+  <g class="row" style="animation-delay:.3s" transform="translate(0 126)">
+    <rect x="16" width="868" height="50" rx="8" fill="#15151E"/>
+    <text x="40" y="33" fill="#fff" font-size="20" font-weight="900" font-style="italic">P2</text>
+    <rect x="84" y="10" width="5" height="30" fill="#229971"/>
+    <text x="102" y="32" fill="#fff" font-size="19" font-weight="900" letter-spacing="1">ANDROID</text>
+    <text x="240" y="31" fill="#B4B4C0" font-size="14">9 Glance widgets · Material 3 app</text>
+    <text class="mono" x="700" y="31" fill="#2FD27F" font-size="14" font-weight="700" text-anchor="end">LINT CLEAN</text>
+    <text class="mono" x="866" y="31" fill="#B4B4C0" font-size="14" text-anchor="end">+0.412</text>
+  </g>
+  <g class="row" style="animation-delay:.5s" transform="translate(0 182)">
+    <rect x="16" width="868" height="50" rx="8" fill="#15151E"/>
+    <text x="40" y="33" fill="#fff" font-size="20" font-weight="900" font-style="italic">P3</text>
+    <rect x="84" y="10" width="5" height="30" fill="#FF8000"/>
+    <text x="102" y="32" fill="#fff" font-size="19" font-weight="900" letter-spacing="1">iOS</text>
+    <text x="240" y="31" fill="#B4B4C0" font-size="14">9 WidgetKit · Live Activity · Dynamic Island</text>
+    <text class="mono" x="700" y="31" fill="#E8C547" font-size="14" font-weight="700" text-anchor="end">NEEDS XCODE</text>
+    <text class="mono" x="866" y="31" fill="#B4B4C0" font-size="14" text-anchor="end">+0.877</text>
+  </g>
+  <g class="row" style="animation-delay:.7s" transform="translate(0 238)">
+    <rect x="16" width="868" height="50" rx="8" fill="#15151E"/>
+    <text x="40" y="33" fill="#fff" font-size="20" font-weight="900" font-style="italic">P4</text>
+    <rect x="84" y="10" width="5" height="30" fill="#E8002D"/>
+    <text x="102" y="32" fill="#fff" font-size="19" font-weight="900" letter-spacing="1">BACKEND</text>
+    <text x="240" y="31" fill="#B4B4C0" font-size="14">FastAPI · Jolpica · OpenF1 live timing · SSE</text>
+    <text class="mono" x="700" y="31" fill="#2FD27F" font-size="14" font-weight="700" text-anchor="end">TESTS PASS</text>
+    <text class="mono" x="866" y="31" fill="#B4B4C0" font-size="14" text-anchor="end">+1.204</text>
+  </g>
+  <g class="row" style="animation-delay:.9s" transform="translate(0 294)">
+    <rect x="16" width="868" height="50" rx="8" fill="#15151E"/>
+    <text x="40" y="33" fill="#fff" font-size="20" font-weight="900" font-style="italic">P5</text>
+    <rect x="84" y="10" width="5" height="30" fill="#27F4D2"/>
+    <text x="102" y="32" fill="#fff" font-size="19" font-weight="900" letter-spacing="1">SHARED</text>
+    <text x="240" y="31" fill="#B4B4C0" font-size="14">design tokens · brand marks · OpenAPI schema</text>
+    <text class="mono" x="700" y="31" fill="#9298A3" font-size="14" font-weight="700" text-anchor="end">PIT</text>
+    <text class="mono" x="866" y="31" fill="#B4B4C0" font-size="14" text-anchor="end">+1 LAP</text>
+  </g>
+</svg>
