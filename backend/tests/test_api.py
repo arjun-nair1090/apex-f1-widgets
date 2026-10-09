@@ -327,3 +327,10 @@ def test_track_layout_from_a_real_lap(monkeypatch, tmp_path):
     assert client.get("/api/races/17/track").status_code == 200 and len(calls) == n  # second time: from disk
     # A venue with no earlier race (a new circuit) gets no map, even with races elsewhere in the country.
     assert client.get("/api/races/16/track").status_code == 404
+
+
+def test_pages_and_scripts_are_revalidated():
+    # A cached widgets.js carries the old portrait style version: the apps must recheck it, not keep it for hours.
+    r = client.get("/widgets.js")
+    assert r.status_code == 200 and r.headers["cache-control"] == "no-cache"
+    assert client.get("/widgets.js", headers={"If-None-Match": r.headers["etag"]}).status_code == 304

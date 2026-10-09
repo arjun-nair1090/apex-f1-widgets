@@ -101,5 +101,15 @@ async def guard(request: Request, call_next):
     return response
 
 
+class Revalidated(StaticFiles):
+    """Pages, scripts and fonts are rechecked on every load (a cheap 304 when unchanged). Left to guess, WebView2 kept
+    an old widgets.js for hours, and with it the old portrait URLs, so a new portrait style never showed."""
+
+    async def get_response(self, path, scope):
+        response = await super().get_response(path, scope)
+        response.headers["Cache-Control"] = "no-cache"
+        return response
+
+
 app.include_router(router)
-app.mount("/", StaticFiles(directory=Path(__file__).parent / "preview", html=True), name="preview")
+app.mount("/", Revalidated(directory=Path(__file__).parent / "preview", html=True), name="preview")
