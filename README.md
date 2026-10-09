@@ -139,7 +139,7 @@ The board and lock screen show a picture of the same widget the desktop shows (t
 the board's tile size, refreshed when its data changes, at most once a minute). If the data server can't be reached
 they fall back to plain text cards.
 
-Open **APEX** from the Start menu to pick your driver (cards show each driver's silhouette and number), browse every
+Open **APEX** from the Start menu to pick your driver (cards show each driver's portrait, helmet and number), browse every
 widget as a live preview and add it to the desktop in one click. The **Circuit** widget, and the space in Next
 session and Countdown, show the upcoming track in 3D, built from a real lap of an earlier race there
 (`GET /api/races/{round}/track`; new circuits get a map after their first race).

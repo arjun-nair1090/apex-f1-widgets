@@ -92,14 +92,14 @@
 .wk .now { color: var(--acc); }
 .wk .now.d { background: var(--acc); color: #fff; }
 
-/* ---------- driver card: giant glowing number + glowing team-colour silhouette ---------- */
+/* ---------- driver card: giant glowing number + the driver's face and glowing helmet ---------- */
 .dc { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
 .dc::before { content: ""; position: absolute; inset: 0;
   background: linear-gradient(115deg, transparent 38%, color-mix(in srgb, var(--team) 30%, transparent) 100%); }
 .dc .bignum { position: absolute; right: 6px; top: -2px; font: 900 150px/0.85 var(--f1); letter-spacing: -.04em;
   color: transparent; -webkit-text-stroke: 2px color-mix(in srgb, var(--team) 85%, #fff);
   filter: drop-shadow(0 0 8px color-mix(in srgb, var(--team) 70%, transparent)); }
-/* The silhouette PNG carries its own glow; .sil adds a breathing halo behind it and a light sweep across it. */
+/* The portrait PNG carries the helmet's glow; .sil adds a breathing halo behind it and a light sweep across it. */
 .dc .sil { position: absolute; right: -4px; bottom: 0; height: 100%; isolation: isolate; }
 .dc .sil img { display: block; height: 100%; }
 .dc .sil::before { content: ""; position: absolute; inset: 12% 0 0; z-index: -1;
@@ -111,7 +111,7 @@
   background: linear-gradient(105deg, transparent 45%, rgba(255,255,255,.7) 50%, transparent 55%); mix-blend-mode: plus-lighter;
   transform: translateX(-16%); animation: sweep 6s cubic-bezier(.45,0,.2,1) infinite; }
 @keyframes breathe { 0%, 100% { opacity: .45; } 50% { opacity: 1; } }
-@keyframes sweep { 0% { transform: translateX(-16%); } 28%, 100% { transform: translateX(16%); } }  /* band crosses the silhouette edge to edge */
+@keyframes sweep { 0% { transform: translateX(-16%); } 28%, 100% { transform: translateX(16%); } }  /* band crosses the portrait edge to edge */
 .w.s .dc .bignum { font-size: 104px; right: 2px; } .w.s .dc .sil { height: 82%; right: -10px; }
 .w.l .dc .bignum { font-size: 220px; } .w.l .dc .sil { height: 68%; }
 .dc-text { position: relative; z-index: 1; text-shadow: 0 1px 2px rgba(0,0,0,.9), 0 0 10px rgba(0,0,0,.75); }  /* legible over bright kits */

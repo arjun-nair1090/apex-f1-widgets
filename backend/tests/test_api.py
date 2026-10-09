@@ -222,19 +222,32 @@ def test_unconfirmed_session_times_are_not_scheduled():
     assert _dt({"date": "2026-11-01", "time": "14:00:00Z"}).hour == 14
 
 
-def test_driver_silhouette_glows_in_team_colour(monkeypatch):
+def test_driver_portrait_is_the_face_with_a_glowing_helmet(monkeypatch):
     import colorsys
     import io
 
+    import httpx
     from PIL import Image
 
     from apex import portraits
+
+    def png(im):
+        buf = io.BytesIO()
+        im.save(buf, "PNG")
+        return buf.getvalue()
     photo = Image.new("RGBA", (64, 64), (0, 0, 0, 0))     # a "driver" on a transparent background:
     photo.paste((40, 30, 25, 255), (16, 16, 48, 64))      # dark race suit
     photo.paste((220, 180, 150, 255), (24, 16, 40, 32))   # light face
-    buf = io.BytesIO()
-    photo.save(buf, "PNG")
-    monkeypatch.setattr(portraits, "_download", lambda url: buf.getvalue())
+    helmet = Image.new("RGBA", (120, 80), (0, 0, 0, 0))
+    helmet.paste((250, 250, 250, 255), (20, 10, 100, 70))  # a white helmet
+
+    def download(url):
+        if "/Helmets" not in url:
+            return png(photo)
+        if url.endswith("/antonelli.png"):
+            return png(helmet)
+        raise httpx.HTTPError("404")                       # F1 has no helmet for this driver
+    monkeypatch.setattr(portraits, "_download", download)
     portraits._render.cache_clear()
     cache.set_json(portraits.DRIVERS_KEY, {
         "ANT": {"number": 12, "headshot": "https://media.formula1.com/x/andant01.png.transform/1col/image.png"},
@@ -243,17 +256,16 @@ def test_driver_silhouette_glows_in_team_colour(monkeypatch):
     r = client.get("/api/drivers/antonelli/silhouette.png")
     assert r.status_code == 200 and r.headers["content-type"] == "image/png"
     img = Image.open(io.BytesIO(r.content)).convert("RGBA")
-    pad = (img.width - 64) // 2
-    assert pad > 0 and img.size == (64 + 2 * pad, 64 + pad)  # room for the glow at the sides and top
-    hue = lambda px: colorsys.rgb_to_hsv(*(c / 255 for c in px[:3]))[0]
-    teal = hue((0x00, 0xD7, 0xB6))                            # Mercedes
-    face, suit = img.getpixel((pad + 32, pad + 24)), img.getpixel((pad + 32, pad + 52))
-    assert face[3] == suit[3] == 255
-    assert face == suit                                       # a silhouette: one solid fill, no photo detail
-    assert abs(hue(face) - teal) < 0.03 and abs(hue(suit) - teal) < 0.03
-    glow = img.getpixel((pad + 13, pad + 40))                 # just outside the driver's outline
-    assert 40 < glow[3] < 255 and abs(hue(glow) - teal) < 0.03
-    assert img.getpixel((0, 0))[3] == 0                       # transparent beyond the glow
+    assert img.size == (80, 64)                               # wider than the face: the helmet sits to its right
+    hsv = lambda px: colorsys.rgb_to_hsv(*(c / 255 for c in px[:3]))
+    teal = hsv((0x00, 0xD7, 0xB6))[0]                         # Mercedes
+    face, suit = img.getpixel((32, 24)), img.getpixel((26, 52))
+    assert face[:3] == (165, 135, 112) and suit[:3] == (30, 22, 18)  # the real photo, dimmed, not a solid fill
+    assert 255 > face[3] > 100                                 # fading out toward the helmet
+    pixels = list(img.getdata())
+    assert any(px[3] > 200 and px[0] > 200 and abs(px[0] - px[2]) < 10 for px in pixels[64 * 30:])  # white helmet, untinted
+    assert any(0 < px[3] < 200 and hsv(px)[1] > 0.4 and abs(hsv(px)[0] - teal) < 0.03 for px in pixels)  # team glow
+    assert img.getpixel((79, 0))[3] == 0                      # transparent beyond the art
     assert client.get("/api/drivers/max_verstappen/silhouette.png").status_code == 404  # non-F1 host: refused
     for sneaky in ["https://media.formula1.com.evil.example/x.png", "https://media.formula1.com@evil.example/x.png",
                    "https://media.formula1.com:8443/x.png", "http://media.formula1.com/x.png"]:
@@ -262,14 +274,13 @@ def test_driver_silhouette_glows_in_team_colour(monkeypatch):
     assert client.get("/api/drivers/antonelli/silhouette.png", params={"size": 206}).status_code == 200
     assert client.get("/api/drivers/antonelli/silhouette.png", params={"size": 5000}).status_code == 422
 
-    # Ferrari and Red Bull get a deeper fill (their own colour, darkened) inside the same bright glow.
+    # No helmet render (rookies): the face alone, unfaded, no glow.
     cache.set_json(portraits.DRIVERS_KEY, {
         "VER": {"number": 3, "headshot": "https://media.formula1.com/x/maxver01.png.transform/1col/image.png"}}, 60)
     img = Image.open(io.BytesIO(client.get("/api/drivers/max_verstappen/silhouette.png").content)).convert("RGBA")
-    fill, glow = img.getpixel((pad + 32, pad + 40)), img.getpixel((pad + 13, pad + 40))
-    blue = hue((0x47, 0x81, 0xD7))                            # Red Bull
-    assert abs(hue(fill) - blue) < 0.03 and abs(hue(glow) - blue) < 0.03
-    assert sum(fill[:3]) < sum(portraits._neon((0x47, 0x81, 0xD7))) - 80  # darker than the other teams' lifted fill
+    assert img.size == (64, 64) and img.getpixel((32, 24)) == (165, 135, 112, 255)
+    assert portraits.helmet_url("Hülkenberg").endswith("/hulkenberg.png")
+    assert portraits.helmet_url("de Vries").endswith("/devries.png")
 
 
 def test_openf1_rate_limit_is_waited_out(monkeypatch):

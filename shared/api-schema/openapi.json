@@ -689,7 +689,7 @@
   "/api/drivers/{driver_id}/silhouette.png": {
    "get": {
     "summary": "Driver Silhouette",
-    "description": "The driver's official headshot cut-out, filled with their team colour. Square PNG, transparent background.",
+    "description": "The driver's official headshot in full colour, with their helmet glowing in the team colour in front of it\n(the face alone when F1 has no helmet render). PNG with a transparent background. The path still says\nsilhouette, the old style, so installed apps keep working.",
     "operationId": "driver_silhouette_api_drivers__driver_id__silhouette_png_get",
     "parameters": [
      {
@@ -733,7 +733,7 @@
     ],
     "responses": {
      "200": {
-      "description": "Team-colour silhouette",
+      "description": "Driver portrait with their glowing helmet",
       "content": {
        "image/png": {}
       }

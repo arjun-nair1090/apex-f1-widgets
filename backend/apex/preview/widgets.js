@@ -28,8 +28,8 @@ const APEX = (() => {
   const sessionLabel = t => ({ RACE: "RACE", SPRINT: "SPRINT", QUALIFYING: "QUALI", SPRINT_QUALIFYING: "SPRINT QUALI" }[t] || t);
   // Colours go into style attributes: only RRGGBB (the backend filters too; this is the second gate).
   const hexColor = c => /^[0-9A-Fa-f]{6}$/.test(c ?? "") ? `#${c}` : null;
-  /** Driver silhouette URL. Bump `v` when its style changes: browsers cache it for a day. */
-  const silhouette = (id, size) => `/api/drivers/${encodeURIComponent(id)}/silhouette.png?size=${size}&v=6`;
+  /** Driver portrait URL (face + glowing helmet; the path says silhouette, the old style). Bump `v` when its style changes: browsers cache it for a day. */
+  const silhouette = (id, size) => `/api/drivers/${encodeURIComponent(id)}/silhouette.png?size=${size}&v=7`;
 
   // ---------- Race Mode (mirror of backend/apex/racemode.py) ----------
   function raceMode(sessions, now) {
@@ -76,7 +76,7 @@ const APEX = (() => {
     return (now - Date.parse(s.starts_at)) / (Date.parse(s.ends_at) - Date.parse(s.starts_at));
   }
 
-  /** Big glowing race number + the driver's glowing team-colour silhouette, with a light sweep across it. */
+  /** Big glowing race number + the driver's face and glowing helmet, with a light sweep across them. */
   function driverArt(d, z) {
     const team = hexColor(d.team_color) ?? "var(--acc)";
     const num = d.race_number ?? d.number ?? "";

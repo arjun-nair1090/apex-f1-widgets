@@ -18,9 +18,10 @@ iOS and Android still use the original APEX look below; porting them is the next
 - **Slanted tabs** (F1 TV lower-thirds) label every widget: `NEXT`, `● LIVE · RACE`, `LIGHTS OUT IN`, `WDC`.
 - **Countdowns in boxes** (F1.com style): `DAYS HRS MINS SECS`.
 - **Timing tower** rows: position chip (white for the podium), slanted team stripe, three-letter code, gap.
-- **Driver card:** the favourite driver's silhouette in team color (from the official F1 headshot, served by
-  `/api/drivers/{id}/silhouette.png`) in front of their race number, giant and outlined.
-- **Windows cards** can't load fonts or colors (the board owns them), so they get the silhouette and race number,
+- **Driver card:** the favourite driver's official F1 headshot in full colour, fading out behind their helmet, which
+  glows in the team color (served by `/api/drivers/{id}/silhouette.png`; drivers without a helmet render get the
+  face alone), in front of their race number, giant and outlined.
+- **Windows cards** can't load fonts or colors (the board owns them), so they get the portrait and race number,
   uppercase labels and semantic red for live; the type stays Segoe UI.
 
 The renderer is shared: `backend/apex/preview/widgets.css` + `widgets.js`, used by `index.html` (preview) and
