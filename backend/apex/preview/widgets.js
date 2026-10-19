@@ -56,6 +56,8 @@ const APEX = (() => {
   const stripe = c => `<i class="stripe" style="--c:${hexColor(c) ?? "var(--wt3)"}" aria-hidden="true"></i>`;
   const secG = s => !s ? "" : `<span class="sec" aria-label="sectors">${s.map(x => x === "purple" ? `<span class="pu">◆</span>` : x === "green" ? `<span class="gr">▲</span>` : x === "yellow" ? `<span class="ye">–</span>` : `<span class="na">·</span>`).join("")}</span>`;
   const stale = v => v.stale > 60e3 ? `<div class="stale">Last updated ${ago(v.stale)} ago</div>` : "";
+  /** Size "b": the Widgets board / lock screen small tile, 300 x 98 below the host header. Text left, the hero right. */
+  const side = (left, right) => `<div class="row side"><div class="col">${left}</div>${right}</div>`;
 
   /** F1.com-style countdown: DAYS HRS MINS SECS in boxes. `max` caps how many boxes fit. */
   function boxes(iso, now, size = "", max = 4, soon = false) {
@@ -111,6 +113,10 @@ const APEX = (() => {
     const soon = stateOf(ns, now) === "starting_soon";
     const label = ns.label, rl = rail(countdownRail(v, ns, now));
     const t = soon ? tab("Starting soon", true) : tab("Next");
+    if (z === "b") return side(`${head(t, country(v.race?.country_code))}<div class="grow"></div>
+      <div class="lbl trunc" style="color:var(--wt1)">${esc(shortCountry(v.race))}</div>
+      <div class="hd trunc" style="font-size:${label.length > 8 ? 16 : 20}px;margin-top:3px">${esc(label)}</div>
+      <div class="lbl dim" style="margin-top:4px">${dayTime(ns.starts_at)}</div>`, boxes(ns.starts_at, now, "small", 3, soon)) + rl + stale(v);
     if (z === "s") return `${head(t, country(v.race?.country_code))}<div class="grow"></div>
       <div class="lbl" style="color:var(--wt1)">${esc(shortCountry(v.race))}</div>
       <div class="hd" style="font-size:${label.length > 8 ? 17 : 21}px;margin-top:4px">${esc(label)}</div>
@@ -131,6 +137,9 @@ const APEX = (() => {
     if (stateOf(sess, now) === "finished") return R.next(v, z, now);
     const name = sessionLabel(sess.type), soon = stateOf(sess, now) === "starting_soon";
     const rl = rail(countdownRail(v, sess, now));
+    if (z === "b") return side(`${head(tab(`${name} in`, soon), country(v.race?.country_code))}<div class="grow"></div>
+      <div class="hd" style="font-size:16px">${esc(shortCountry(v.race))}</div>
+      <div class="lbl dim" style="margin-top:4px">${dayTime(sess.starts_at)}</div>`, boxes(sess.starts_at, now, "small", 3, soon)) + rl + stale(v);
     if (z === "s") return `${head(tab(`${name} in`, soon), country(v.race?.country_code))}<div class="grow"></div>
       ${boxes(sess.starts_at, now, "small", 3, soon)}<div class="lbl dim" style="margin-top:8px">${dayTime(sess.starts_at)}</div>${rl}${stale(v)}`;
     if (z === "m") return `${head(tab(name === "RACE" ? "Lights out in" : `${name} in`, true), raceRight(v))}<div class="grow"></div>
@@ -152,6 +161,9 @@ const APEX = (() => {
     const lap = t.lap ? `<span class="lbl" style="color:var(--wt1)">Lap ${t.lap}${t.laps_total && z !== "s" ? ` / ${t.laps_total}` : ""}</span>` : "";
     const progress = t.final ? null : t.lap && t.laps_total ? t.lap / t.laps_total : progressOf(v, t, now);
     const fav = O.snap?.driver?.code, d = O.density;
+    if (z === "b") return side(`${head(t.final ? tab(`Final · ${label}`) : liveTab(""))}<div class="grow"></div>
+      <div class="hd trunc" style="font-size:17px">${esc(label)}</div><div style="margin-top:4px">${lap}</div>`,
+      `<div class="tower">${rowsFor(t, 3, fav, false, false)}</div>`) + rail(progress, !t.final) + stale(v);
     if (z === "s") { const p1 = t.rows[0];
       return `${head(t1, lap)}<div class="grow"></div><div class="row" style="align-items:flex-end;gap:8px"><span class="num lg">P1</span>${stripe(p1?.team_color)}</div>
         <div class="hd" style="margin-top:4px">${esc(p1?.code ?? "")}</div>
@@ -165,6 +177,10 @@ const APEX = (() => {
 
   function emptyLive(v, z, now) {
     const ns = v.next_session;
+    if (z === "b" && v.live_unavailable) return `${head(tab("Live", true, true, true))}<div class="grow"></div>
+      <div class="hd" style="font-size:17px">Live data unavailable</div><div class="lbl" style="margin-top:5px">Using cached data</div>`;
+    if (z === "b" && ns) return side(`${head(tab("Off track"))}<div class="grow"></div><div class="lbl">Next</div>
+      <div class="hd trunc" style="font-size:17px;margin-top:4px">${esc(ns.label)}</div>`, boxes(ns.starts_at, now, "small", 3)) + stale(v);
     if (v.live_unavailable) return `${head(tab("Live", true, true, true))}<div class="grow"></div>
       <div class="hd" style="font-size:${z === "s" ? 16 : 20}px">Live data unavailable</div>
       ${z === "s" ? "" : `<div class="lbl" style="margin-top:6px">Using cached data · updated ${ago(Math.max(42e3, now - (O.fetchedAt || now))).toLowerCase()} ago</div>`}
@@ -182,7 +198,7 @@ const APEX = (() => {
     const pos = d.position ? `P${d.position}` : "—";
     const name = `<div class="dn-first">${esc(d.first_name)}</div><div class="dn-last trunc" style="max-width:${z === "s" ? 120 : 210}px">${esc(d.last_name)}</div>`;
     const top = head(tab(`${pos} · ${pts(d.points)} pts`, true));
-    if (z === "s") return `${driverArt(d, z)}<div class="dc-text col" style="height:100%">${top}<div class="grow"></div>${name}
+    if (z === "s" || z === "b") return `${driverArt(d, z)}<div class="dc-text col" style="height:100%">${top}<div class="grow"></div>${name}
       <div class="lbl trunc" style="margin-top:5px;max-width:110px">${esc(d.team_name ?? "")}</div></div>${stale(v)}`;
     const stats = O.density === "minimal" ? "" : `<div class="stats" style="margin-top:10px"><div><span class="lbl">Wins</span><b>${d.wins}</b></div><div><span class="lbl">Podiums</span><b>${d.podiums}</b></div><div><span class="lbl">Poles</span><b>${d.poles}</b></div></div>`;
     const team = `<div class="row" style="margin-top:6px;gap:6px"><i class="teamline" style="--team:${hexColor(d.team_color) ?? "var(--acc)"}"></i><span class="lbl">${esc(d.team_name ?? "")}</span></div>`;
@@ -205,6 +221,10 @@ const APEX = (() => {
     else { t = tab("Championship"); big = d.position ? `P${d.position}` : "—"; sub = `${pts(d.points)} PTS`; }
     const nameMax = z === "s" ? 120 : 200;
     const progress = live ? rail(v.live.lap && v.live.laps_total ? v.live.lap / v.live.laps_total : progressOf(v, v.live, now), true) : "";
+    if (z === "b") return `${driverArt(d, z)}<div class="dc-text col" style="height:100%">${head(t)}<div class="grow"></div>
+      <div class="row" style="align-items:flex-end;gap:10px"><span class="num lg">${esc(big)}</span>
+      <div class="col" style="padding-bottom:3px"><div class="dn-last" style="font-size:18px">${esc(d.code)}</div>
+      <div class="lbl trunc" style="margin-top:4px;max-width:110px;${live ? "color:var(--wt1)" : ""}">${esc(sub)}</div></div></div></div>${progress}${stale(v)}`;
     return `${driverArt(d, z)}<div class="dc-text col" style="height:100%">${head(t)}<div class="grow"></div>
       <div class="num ${z === "s" ? "lg" : "xl"}">${esc(big)}</div>
       <div class="dn-last trunc" style="max-width:${nameMax}px;font-size:${z === "s" ? 18 : 22}px;margin-top:4px">${esc(z === "s" ? d.code : d.last_name)}</div>
@@ -214,7 +234,7 @@ const APEX = (() => {
   };
 
   function standings(rows, z, kind, v) {
-    const d = O.density, n = z === "s" ? 4 : z === "m" ? (d === "minimal" ? 3 : 5) : (d === "minimal" ? 6 : 12);
+    const d = O.density, n = z === "b" ? 3 : z === "s" ? 4 : z === "m" ? (d === "minimal" ? 3 : 5) : (d === "minimal" ? 6 : 12);
     const favKey = kind === "wdc" ? v.driver?.code : v.driver?.team_id;
     const key = r => kind === "wdc" ? r.code : r.team_id;
     let shown = rows.slice(0, n), extra = "";
@@ -230,6 +250,8 @@ const APEX = (() => {
       return `<div class="tr${key(r) === favKey ? " fav" : ""}${cls}"><span class="p">${r.position}</span>${stripe(r.team_color ?? r.color)}${name}<span class="v lead">${gap}${pts(r.points)}</span></div>`;
     }
     const round = v.race ? `After R${Math.max(1, (v.race.round ?? 1) - 1)}` : "";
+    if (z === "b") return side(`${head(tab(kind === "wdc" ? "Drivers" : "Teams"))}<div class="grow"></div><span class="lbl dim">${round}</span>`,
+      `<div class="tower">${shown.map(r => line(r)).join("")}${extra}</div>`) + stale(v);
     return `${head(tab(kind === "wdc" ? (z === "s" ? "Drivers" : "Drivers' championship") : (z === "s" ? "Teams" : "Constructors")), z === "s" ? "" : `<span class="lbl dim">${round}</span>`)}
       <div class="grow"></div><div class="tower">${shown.map(r => line(r)).join("")}${extra}</div>${stale(v)}`;
   }
@@ -248,9 +270,14 @@ const APEX = (() => {
   R.weekend = (v, z, now) => {
     if (!v.race) return head(tab("No upcoming weekend"));
     const ns = v.next_session, nsLive = ns && stateOf(ns, now) === "live";
+    const glyphs = `<div class="row" style="gap:5px;font-size:13px" aria-label="weekend progress">${v.race.sessions.map(s => { const x = stateOf(s, now); return `<span style="color:var(${x === "live" ? "--acc" : x === "finished" ? "--wt3" : "--wt1"})">${x === "finished" ? "✓" : x === "live" ? "●" : "○"}</span>`; }).join("")}</div>`;
+    if (z === "b") return side(`${head(tab(`Round ${v.race.round}`), country(v.race.country_code))}<div class="grow"></div>
+      <div class="hd trunc" style="font-size:17px">${esc(shortCountry(v.race))}</div><div style="margin-top:5px">${glyphs}</div>`,
+      ns ? `<div class="col next"><span class="lbl" style="color:var(${nsLive ? "--acc" : "--wt2"})">${nsLive ? "● Live now" : "Next"}</span>
+        <span class="hd" style="font-size:17px;margin-top:4px">${esc(ns.label)}</span>${nsLive ? "" : `<span class="lbl dim" style="margin-top:4px">${dayTime(ns.starts_at)}</span>`}</div>` : "") + stale(v);
     if (z === "s") return `${head(tab(`Round ${v.race.round}`), country(v.race.country_code))}
       <div class="hd" style="font-size:19px;margin-top:10px">${esc(shortCountry(v.race))}</div>
-      <div class="row" style="margin-top:8px;gap:5px;font-size:13px" aria-label="weekend progress">${v.race.sessions.map(s => { const x = stateOf(s, now); return `<span style="color:var(${x === "live" ? "--acc" : x === "finished" ? "--wt3" : "--wt1"})">${x === "finished" ? "✓" : x === "live" ? "●" : "○"}</span>`; }).join("")}</div>
+      <div style="margin-top:8px">${glyphs}</div>
       <div class="grow"></div>${ns ? `<div class="lbl" style="color:var(${nsLive ? "--acc" : "--wt1"})">${nsLive ? "● " : ""}${esc(ns.label)}</div><div class="lbl dim" style="margin-top:4px">${nsLive ? "Live now" : dayTime(ns.starts_at)}</div>` : ""}${stale(v)}`;
     const top = head(tab(`Round ${v.race.round}`), raceRight(v));
     if (z === "m") return `${top}<div class="grow"></div>${weekendList(v, now)}${stale(v)}`;
@@ -268,6 +295,10 @@ const APEX = (() => {
     const rs = r.sessions.find(s => s.type === "RACE");
     const facts = [r.laps_total ? `${r.laps_total} laps` : "", d?.elevation_m != null ? `${Math.round(d.elevation_m)} m elevation` : ""].filter(Boolean).join(" · ");
     const none = d === null ? `<div class="lbl dim" style="margin:auto 0">New circuit: the map arrives after its first race</div>` : "";
+    if (z === "b") return side(`${head(tab(`Round ${r.round}`), country(r.country_code))}<div class="grow"></div>
+      <div class="hd" style="font-size:17px">${esc(shortCountry(r))}</div>
+      <div class="lbl dim" style="margin-top:4px;line-height:1.25">${esc(r.circuit_name)}</div>`,
+      d === null ? "" : trackCanvas(v, "fill")) + stale(v);
     if (z === "s") return `${head(tab(`Round ${r.round}`), country(r.country_code))}${none || trackCanvas(v, "flow")}
       <div class="lbl trunc" style="color:var(--wt1)">${esc(shortCountry(r))}</div>${stale(v)}`;
     if (z === "m") return `<div class="row" style="flex:1;min-height:0;gap:10px;align-items:stretch">
@@ -305,7 +336,9 @@ const APEX = (() => {
     for (const cv of root.querySelectorAll("canvas.track3d")) {
       const d = trackData(cv.dataset.season, cv.dataset.round);
       const w = cv.clientWidth, h = cv.clientHeight;
+      if (d === null) cv.dataset.painted = "none";  // no map for this circuit: nothing to wait for
       if (!d || w < 24 || h < 24) continue;
+      cv.dataset.painted = "1";  // desktop.html's capture waits for this
       const dpr = devicePixelRatio || 1;
       if (cv.width !== Math.round(w * dpr) || cv.height !== Math.round(h * dpr)) { cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr); }
       const g = cv.getContext("2d");
@@ -368,7 +401,7 @@ const APEX = (() => {
     const cls = `w ${z} p-${opts.platform} th-${opts.theme}${opts.teamColors ? "" : " no-team"}`;
     const name = WIDGETS.find(w => w[0] === id)[1];
     const body = v.loading ? skeleton(z) : R[id](v, z, now);
-    return `<div class="${cls}" style="${accent}" role="group" aria-label="${esc(name)} widget, ${({ s: "small", m: "medium", l: "large" })[z]}" aria-busy="${!!v.loading}">${body}</div>`;
+    return `<div class="${cls}" style="${accent}" role="group" aria-label="${esc(name)} widget, ${({ s: "small", b: "small", m: "medium", l: "large" })[z]}" aria-busy="${!!v.loading}">${body}</div>`;
   }
 
   /** Animate timing rows to their new places after a re-render (spec §25). */

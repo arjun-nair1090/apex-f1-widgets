@@ -7,7 +7,7 @@
   "url": "${image}",
   "fillMode": "Cover",
   "horizontalAlignment": "Center",
-  "verticalAlignment": "Top"
+  "verticalAlignment": "Bottom"
  },
  "body": [
   {

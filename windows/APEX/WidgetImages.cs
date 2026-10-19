@@ -13,7 +13,7 @@ public static class WidgetImages
     // Board tile sizes (Adaptive Cards designer, "Widgets Board" host) and the web layout that fits each one.
     static readonly Dictionary<string, (int W, int H, string Layout)> Tiles = new()
     {
-        ["small"] = (300, 146, "s"), ["medium"] = (300, 304, "m"), ["large"] = (300, 462, "l"),
+        ["small"] = (300, 146, "b"),  // the lock screen's only size; "b" is a wide layout made for it, not the square desktop one ["medium"] = (300, 304, "m"), ["large"] = (300, 462, "l"),
     };
     const int HeaderInset = 48;  // the board draws the widget's icon, name and menu over the top 48 px
     const double Scale = 2;      // stays sharp on high-DPI screens

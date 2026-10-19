@@ -42,7 +42,7 @@
 const q = new URLSearchParams(location.search);
 const pick = (v, ok, dflt) => ok.includes(v) ? v : dflt;
 const id = pick(q.get("w"), APEX.WIDGETS.map(w => w[0]), "race");
-const z = pick(q.get("s"), ["s", "m", "l"], "m");
+const z = pick(q.get("s"), ["s", "b", "m", "l"], "m");
 const driver = /^[a-z0-9_]{1,40}$/.test(q.get("driver") ?? "") ? q.get("driver") : null;
 const opts = { platform: "windows", theme: pick(q.get("theme"), ["dark", "amoled", "light"], "dark"),
   accent: pick(q.get("accent"), ["system", "team"], "system"), density: pick(q.get("density"), ["minimal", "standard", "detailed"], "standard"),
@@ -107,6 +107,9 @@ if (capture !== null) {
   load().then(async () => {
     if (!snap) return post("failed");
     await document.fonts.ready;
+    // Track maps load on their own; wait (up to 8 s) until each canvas is drawn, or the photo shows an empty space.
+    for (let t = 0; t < 80 && [...root.querySelectorAll("canvas.track3d")].some(c => !c.dataset.painted); t++)
+      await new Promise(r => setTimeout(r, 100));
     await Promise.all([...root.querySelectorAll("img")].map(i => i.complete ? null : new Promise(r => {
       i.addEventListener("load", r); i.addEventListener("error", r); })));
     requestAnimationFrame(() => requestAnimationFrame(() => post("ready")));

@@ -25,6 +25,18 @@
 .w::before { content: ""; position: absolute; top: 0; left: 16px; width: 56px; height: 3px; background: var(--acc);
   clip-path: polygon(0 0, 100% 0, calc(100% - 3px) 100%, 0 100%); }
 .w.s { width: 170px; height: 170px; } .w.m { width: 364px; height: 170px; } .w.l { width: 364px; height: 382px; }
+/* b: the Widgets board / lock screen small tile (300 x 98 below the host header): text left, the hero right. */
+.w.b { width: 300px; height: 98px; padding: 11px 14px 10px; }
+.w.b .side { flex: 1; min-height: 0; align-items: stretch; gap: 12px; }
+.w.b .side > .col { flex: 1; }
+.w.b .side > .boxes { flex: none; width: 150px; align-self: flex-end; }
+.w.b .boxes.small .box b { font-size: 24px; }
+.w.b .side > .tower { flex: none; width: 150px; align-self: center; }
+.w.b .side > .track3d { flex: 0 0 150px; height: auto; margin: -8px -6px -6px 0; }
+.w.b .tr.fav::after { display: none; }  /* the left-edge marker would land mid-tile; the red code still marks it */
+.w.b .side > .next { flex: none; align-items: flex-end; justify-content: flex-end; text-align: right; }
+.w.b .dc .bignum { font-size: 100px; right: 4px; } .w.b .dc .sil { height: 100%; right: 0; }
+.w.b .stale { bottom: 2px; }
 .th-amoled { --wbg: #000; --wel: #111116; --wbd: #23232B; }
 .th-light { --wbg: #FFFFFF; --wel: #F0F0F3; --wbd: #E1E1E7; --wt1: #15151E; --wt2: #4C4C58; --wt3: #8E8E99; }
 .th-light.w { background: repeating-linear-gradient(135deg, rgba(0,0,0,.025) 0 2px, transparent 2px 7px), var(--wbg); }
