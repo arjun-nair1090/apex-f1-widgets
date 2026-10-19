@@ -39,13 +39,13 @@ what the product does with information: shortest line to the answer.
 | Wordmark | `shared/brand/apex-wordmark.svg` | Companion app header, store listing |
 | App icon | `shared/brand/apex-app-icon.svg` | 1024² full bleed; platforms apply their own mask |
 
-**The mark.** A chevron *A* is the corner, and the crossbar is the racing line, drawn as a rising
-diagonal in Signal that clips the apex and exits past the right leg. It uses straight strokes with square caps
-and miter joins, and no curves except in the P of the wordmark. In monochrome the racing line becomes the same ink as
-the chevron, and the gesture still reads.
+**The mark.** A heavy *A* leaning forward into the corner, like F1 broadcast type. The crossbar is the racing line: a
+rising band in F1 red (`#E10600`) that cuts through the A and exits past the right leg, with two red speed streaks
+trailing behind. The lean (about 9.6°) is baked into the points, so it needs no transform (Android vectors can't skew).
+In monochrome everything takes the same ink, with a thin gap around the racing line so it still reads.
 
 **Don't:** put the mark in a circle, add a gradient, or set the wordmark in a font. The letters are
-drawn paths so they always match the mark's stroke.
+drawn paths on the mark's lean, so they always match it.
 
 ---
 
