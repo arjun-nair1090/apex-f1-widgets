@@ -1,71 +1,162 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 360" width="900" height="360" role="img" aria-label="APEX platforms as an F1 timing tower: Windows, Android, iOS, Backend, Shared">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 460" width="900" height="460" role="img" aria-label="Live timing tower: Hamilton passes Russell with DRS, Norris pits, Leclerc sets the fastest lap">
+  <!-- 12 s loop. Without animation it shows the first state: the order at the start of lap 34. -->
   <style>
     text { font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif; }
-    .mono { font-family: Consolas, "SF Mono", Menlo, monospace; }
-    .row { animation: in .7s cubic-bezier(.2, .8, .2, 1) both; }
-    @keyframes in { from { opacity: 0; transform: translateX(-60px) } }
-    .live { animation: blink 1.2s infinite; }
-    @keyframes blink { 50% { opacity: .25 } }
-    .purple { animation: fastest 4s infinite; }
-    @keyframes fastest { 0%, 100% { fill: #A879FF } 50% { fill: #D9C4FF } }
+    .code { font-size: 16px; font-weight: 900; fill: #fff; letter-spacing: .5px; }
+    .gap { font-size: 15px; font-weight: 700; fill: #B4B4C0; } .gap.lead { fill: #fff; font-size: 13px; letter-spacing: 1.5px; }
+    .pos { font-size: 15px; font-weight: 900; }
+    .pit { font-size: 12px; font-weight: 900; fill: #15151E; letter-spacing: 1.5px; }
+    .gain, .lose, .fl { opacity: 0; }
+    .gain { animation: gain 12s infinite; } @keyframes gain { 0%, 20.0% { opacity: 0 } 21.7% { opacity: .55 } 31.7%, 100% { opacity: 0 } }
+    .lose { animation: lose 12s infinite; } @keyframes lose { 0%, 50.0% { opacity: 0 } 51.7% { opacity: .5 } 61.7%, 100% { opacity: 0 } }
+    .fl { animation: fl 12s infinite; } @keyframes fl { 0%, 65.8% { opacity: 0 } 66.7% { opacity: .7 } 80.0%, 100% { opacity: 0 } }
+    .drs { animation: drs 12s infinite; } @keyframes drs { 0%, 8.3% { opacity: .15 } 9.2%, 25.0% { opacity: 1 } 25.8%, 100% { opacity: .15 } }
+    .gapbar { animation: gapbar 12s infinite; transform-origin: 0 0; }
+    @keyframes gapbar { 0% { transform: scaleX(.67) } 20.0% { transform: scaleX(.05) } 25.0%, 100% { transform: scaleX(.05) } }
+    .banner { animation: banner 12s infinite; }
+    @keyframes banner { 0%, 65.8% { transform: translateX(480px) } 70.0%, 91.7% { transform: none } 95.0%, 100% { transform: translateX(480px) } }
+    .lap1 { animation: lap1 12s steps(1, end) infinite; } @keyframes lap1 { 0% { opacity: 1 } 51.7%, 99.9% { opacity: 0 } }
+    .lap2 { opacity: 0; animation: lap2 12s steps(1, end) infinite; } @keyframes lap2 { 0% { opacity: 0 } 51.7%, 99.9% { opacity: 1 } }
+    .live { animation: blink 1.2s infinite; } @keyframes blink { 50% { opacity: .2 } }
+    @keyframes mrus { 0%, 19.2% { transform: translateY(130px) } 21.7%, 49.2% { transform: translateY(164px) } 51.7%, 95.0% { transform: translateY(164px) } 100% { transform: translateY(130px) } }
+    .mrus { animation: mrus 12s cubic-bezier(.3,.9,.3,1) infinite; }
+    @keyframes grus0 { 0% { opacity: 1 } 21.7% { opacity: 0 } 95.0%, 100% { opacity: 1 } } .grus0 { animation: grus0 12s steps(1, end) infinite; }
+    @keyframes grus1 { 0% { opacity: 0 } 21.7% { opacity: 1 } 95.0%, 100% { opacity: 0 } } .grus1 { opacity: 0; animation: grus1 12s steps(1, end) infinite; }
+    @keyframes mham { 0%, 19.2% { transform: translateY(164px) } 21.7%, 49.2% { transform: translateY(130px) } 51.7%, 95.0% { transform: translateY(130px) } 100% { transform: translateY(164px) } }
+    .mham { animation: mham 12s cubic-bezier(.3,.9,.3,1) infinite; }
+    @keyframes gham0 { 0% { opacity: 1 } 21.7% { opacity: 0 } 95.0%, 100% { opacity: 1 } } .gham0 { animation: gham0 12s steps(1, end) infinite; }
+    @keyframes gham1 { 0% { opacity: 0 } 21.7% { opacity: 1 } 95.0%, 100% { opacity: 0 } } .gham1 { opacity: 0; animation: gham1 12s steps(1, end) infinite; }
+    @keyframes gver0 { 0% { opacity: 1 } 51.7% { opacity: 0 } 95.0%, 100% { opacity: 1 } } .gver0 { animation: gver0 12s steps(1, end) infinite; }
+    @keyframes gver2 { 0% { opacity: 0 } 51.7% { opacity: 1 } 95.0%, 100% { opacity: 0 } } .gver2 { opacity: 0; animation: gver2 12s steps(1, end) infinite; }
+    @keyframes mnor { 0%, 19.2% { transform: translateY(232px) } 21.7%, 49.2% { transform: translateY(232px) } 51.7%, 95.0% { transform: translateY(334px) } 100% { transform: translateY(232px) } }
+    .mnor { animation: mnor 12s cubic-bezier(.3,.9,.3,1) infinite; }
+    @keyframes gnor0 { 0% { opacity: 1 } 51.7% { opacity: 0 } 95.0%, 100% { opacity: 1 } } .gnor0 { animation: gnor0 12s steps(1, end) infinite; }
+    @keyframes gnor2 { 0% { opacity: 0 } 51.7% { opacity: 1 } 95.0%, 100% { opacity: 0 } } .gnor2 { opacity: 0; animation: gnor2 12s steps(1, end) infinite; }
+    @keyframes mlec { 0%, 19.2% { transform: translateY(266px) } 21.7%, 49.2% { transform: translateY(266px) } 51.7%, 95.0% { transform: translateY(232px) } 100% { transform: translateY(266px) } }
+    .mlec { animation: mlec 12s cubic-bezier(.3,.9,.3,1) infinite; }
+    @keyframes glec0 { 0% { opacity: 1 } 51.7% { opacity: 0 } 95.0%, 100% { opacity: 1 } } .glec0 { animation: glec0 12s steps(1, end) infinite; }
+    @keyframes glec2 { 0% { opacity: 0 } 51.7% { opacity: 1 } 95.0%, 100% { opacity: 0 } } .glec2 { opacity: 0; animation: glec2 12s steps(1, end) infinite; }
+    @keyframes mpia { 0%, 19.2% { transform: translateY(300px) } 21.7%, 49.2% { transform: translateY(300px) } 51.7%, 95.0% { transform: translateY(266px) } 100% { transform: translateY(300px) } }
+    .mpia { animation: mpia 12s cubic-bezier(.3,.9,.3,1) infinite; }
+    @keyframes gpia0 { 0% { opacity: 1 } 51.7% { opacity: 0 } 95.0%, 100% { opacity: 1 } } .gpia0 { animation: gpia0 12s steps(1, end) infinite; }
+    @keyframes gpia2 { 0% { opacity: 0 } 51.7% { opacity: 1 } 95.0%, 100% { opacity: 0 } } .gpia2 { opacity: 0; animation: gpia2 12s steps(1, end) infinite; }
+    @keyframes mhad { 0%, 19.2% { transform: translateY(334px) } 21.7%, 49.2% { transform: translateY(334px) } 51.7%, 95.0% { transform: translateY(300px) } 100% { transform: translateY(334px) } }
+    .mhad { animation: mhad 12s cubic-bezier(.3,.9,.3,1) infinite; }
+    @keyframes ghad0 { 0% { opacity: 1 } 51.7% { opacity: 0 } 95.0%, 100% { opacity: 1 } } .ghad0 { animation: ghad0 12s steps(1, end) infinite; }
+    @keyframes ghad2 { 0% { opacity: 0 } 51.7% { opacity: 1 } 95.0%, 100% { opacity: 0 } } .ghad2 { opacity: 0; animation: ghad2 12s steps(1, end) infinite; }
+    @media (prefers-reduced-motion: reduce) { * { animation: none !important; } }
   </style>
-  <rect width="900" height="360" rx="14" fill="#0E0E14"/>
-  <rect width="900" height="52" rx="14" fill="#15151E"/>
-  <rect y="38" width="900" height="14" fill="#15151E"/>
-  <rect y="52" width="900" height="3" fill="#E10600"/>
-  <path d="M24 38 L32 18.5 L40 38" fill="none" stroke="#F5F7FA" stroke-width="3" stroke-linecap="square"/>
-  <path d="M26 33.5 L41 30" fill="none" stroke="#E10600" stroke-width="2.25" stroke-linecap="square"/>
-  <text x="56" y="35" fill="#fff" font-size="16" font-weight="800" letter-spacing="3">APEX · THE GRID</text>
-  <circle class="live" cx="790" cy="28" r="5" fill="#FF5A1F"/>
-  <text x="802" y="33" fill="#FF5A1F" font-size="13" font-weight="800" letter-spacing="2">LIVE</text>
-  <text x="240" y="33" fill="#6E6E7B" font-size="11" font-weight="700" letter-spacing="2">PLATFORM</text>
-  <text x="700" y="33" fill="#6E6E7B" font-size="11" font-weight="700" letter-spacing="2" text-anchor="end">STATUS</text>
+  <rect width="900" height="460" rx="14" fill="#0E0E14"/>
+  <rect width="900" height="60" rx="14" fill="#15151E"/><rect y="46" width="900" height="14" fill="#15151E"/>
+  <rect y="60" width="900" height="3" fill="#E10600"/>
+  <g transform="translate(24 16) scale(1.15)">
+    <path d="M1.4 9.2 L6.4 9.2 L5.65 10.7 L0.65 10.7 Z M1.15 12.4 L4.05 12.4 L3.3 13.9 L0.4 13.9 Z" fill="#E10600"/>
+    <path d="M1.5 21 L11.3 3 L15.8 3 L19.5 21 L14.9 21 L12.5 9.25 L6.1 21 Z" fill="#fff"/>
+    <path d="M4.15 15.4 L23.6 11.6 L22.45 14.2 L3 18 Z" fill="#E10600"/>
+  </g>
+  <text x="62" y="38" fill="#fff" font-size="16" font-weight="900" letter-spacing="3">UNITED STATES GP</text>
+  <text x="296" y="38" fill="#6E6E7B" font-size="13" font-weight="800" letter-spacing="2">RACE</text>
+  <circle class="live" cx="680" cy="32" r="5" fill="#E10600"/>
+  <text x="694" y="37" fill="#E10600" font-size="13" font-weight="900" letter-spacing="2">LIVE</text>
+  <text class="lap1" x="876" y="37" text-anchor="end" fill="#fff" font-size="13" font-weight="900" letter-spacing="1.5">LAP 34 / 56</text>
+  <text class="lap2" x="876" y="37" text-anchor="end" fill="#fff" font-size="13" font-weight="900" letter-spacing="1.5">LAP 35 / 56</text>
 
-  <!-- one row per folder; team colour bar on the left, status on the right -->
-  <g class="row" style="animation-delay:.1s" transform="translate(0 70)">
-    <rect x="16" width="868" height="50" rx="8" fill="#15151E"/>
-    <text x="40" y="33" fill="#fff" font-size="20" font-weight="900" font-style="italic">P1</text>
-    <rect x="84" y="10" width="5" height="30" fill="#3671C6"/>
-    <text x="102" y="32" fill="#fff" font-size="19" font-weight="900" letter-spacing="1">WINDOWS</text>
-    <text x="240" y="31" fill="#B4B4C0" font-size="14">10 widgets · board · lock screen · desktop</text>
-    <text class="mono" x="700" y="31" fill="#2FD27F" font-size="14" font-weight="700" text-anchor="end">BUILDS</text>
-    <rect class="purple" x="720" y="17" width="146" height="16" rx="3" fill="#A879FF"/>
-    <text class="mono" x="793" y="30" fill="#0E0E14" font-size="12" font-weight="800" text-anchor="middle">FASTEST LAP</text>
+  <g transform="translate(40 0)">
+  <rect y="96" width="34" height="30" fill="#fff"/><text x="17" y="117" text-anchor="middle" class="pos" fill="#15151E">1</text>
+  <rect y="130" width="34" height="30" fill="#fff"/><text x="17" y="151" text-anchor="middle" class="pos" fill="#15151E">2</text>
+  <rect y="164" width="34" height="30" fill="#fff"/><text x="17" y="185" text-anchor="middle" class="pos" fill="#15151E">3</text>
+  <rect y="198" width="34" height="30" fill="#22222C"/><text x="17" y="219" text-anchor="middle" class="pos" fill="#fff">4</text>
+  <rect y="232" width="34" height="30" fill="#22222C"/><text x="17" y="253" text-anchor="middle" class="pos" fill="#fff">5</text>
+  <rect y="266" width="34" height="30" fill="#22222C"/><text x="17" y="287" text-anchor="middle" class="pos" fill="#fff">6</text>
+  <rect y="300" width="34" height="30" fill="#22222C"/><text x="17" y="321" text-anchor="middle" class="pos" fill="#fff">7</text>
+  <rect y="334" width="34" height="30" fill="#22222C"/><text x="17" y="355" text-anchor="middle" class="pos" fill="#fff">8</text>
+  <rect y="368" width="34" height="30" fill="#22222C"/><text x="17" y="389" text-anchor="middle" class="pos" fill="#fff">9</text>
+  <rect y="402" width="34" height="30" fill="#22222C"/><text x="17" y="423" text-anchor="middle" class="pos" fill="#fff">10</text>
+  <g class="" style="transform: translateY(96px)">
+    <rect x="40" width="300" height="30" fill="#15151E"/>
+    <rect x="52" y="7" width="5" height="17" fill="#00D7B6" transform="skewX(-14)"/>
+    <text x="70" y="22" class="code">ANT</text>
+    <text x="330" y="22" text-anchor="end" class="gap lead">LEADER</text>
   </g>
-  <g class="row" style="animation-delay:.3s" transform="translate(0 126)">
-    <rect x="16" width="868" height="50" rx="8" fill="#15151E"/>
-    <text x="40" y="33" fill="#fff" font-size="20" font-weight="900" font-style="italic">P2</text>
-    <rect x="84" y="10" width="5" height="30" fill="#229971"/>
-    <text x="102" y="32" fill="#fff" font-size="19" font-weight="900" letter-spacing="1">ANDROID</text>
-    <text x="240" y="31" fill="#B4B4C0" font-size="14">9 Glance widgets · Material 3 app</text>
-    <text class="mono" x="700" y="31" fill="#2FD27F" font-size="14" font-weight="700" text-anchor="end">LINT CLEAN</text>
-    <text class="mono" x="866" y="31" fill="#B4B4C0" font-size="14" text-anchor="end">+0.412</text>
+  <g class="mrus" style="transform: translateY(130px)">
+    <rect x="40" width="300" height="30" fill="#15151E"/>
+    <rect x="52" y="7" width="5" height="17" fill="#00D7B6" transform="skewX(-14)"/>
+    <text x="70" y="22" class="code">RUS</text>
+    <text x="330" y="22" text-anchor="end" class="gap grus0">+1.204</text><text x="330" y="22" text-anchor="end" class="gap grus1">+1.931</text>
   </g>
-  <g class="row" style="animation-delay:.5s" transform="translate(0 182)">
-    <rect x="16" width="868" height="50" rx="8" fill="#15151E"/>
-    <text x="40" y="33" fill="#fff" font-size="20" font-weight="900" font-style="italic">P3</text>
-    <rect x="84" y="10" width="5" height="30" fill="#FF8000"/>
-    <text x="102" y="32" fill="#fff" font-size="19" font-weight="900" letter-spacing="1">iOS</text>
-    <text x="240" y="31" fill="#B4B4C0" font-size="14">9 WidgetKit · Live Activity · Dynamic Island</text>
-    <text class="mono" x="700" y="31" fill="#E8C547" font-size="14" font-weight="700" text-anchor="end">NEEDS XCODE</text>
-    <text class="mono" x="866" y="31" fill="#B4B4C0" font-size="14" text-anchor="end">+0.877</text>
+  <g class="mham" style="transform: translateY(164px)">
+    <rect x="40" width="300" height="30" fill="#15151E"/><rect class="gain" x="40" width="300" height="30" fill="#2CD46B"/>
+    <rect x="52" y="7" width="5" height="17" fill="#ED1131" transform="skewX(-14)"/>
+    <text x="70" y="22" class="code">HAM</text>
+    <text x="330" y="22" text-anchor="end" class="gap gham0">+1.877</text><text x="330" y="22" text-anchor="end" class="gap gham1">+1.150</text>
   </g>
-  <g class="row" style="animation-delay:.7s" transform="translate(0 238)">
-    <rect x="16" width="868" height="50" rx="8" fill="#15151E"/>
-    <text x="40" y="33" fill="#fff" font-size="20" font-weight="900" font-style="italic">P4</text>
-    <rect x="84" y="10" width="5" height="30" fill="#E8002D"/>
-    <text x="102" y="32" fill="#fff" font-size="19" font-weight="900" letter-spacing="1">BACKEND</text>
-    <text x="240" y="31" fill="#B4B4C0" font-size="14">FastAPI · Jolpica · OpenF1 live timing · SSE</text>
-    <text class="mono" x="700" y="31" fill="#2FD27F" font-size="14" font-weight="700" text-anchor="end">TESTS PASS</text>
-    <text class="mono" x="866" y="31" fill="#B4B4C0" font-size="14" text-anchor="end">+1.204</text>
+  <g class="" style="transform: translateY(198px)">
+    <rect x="40" width="300" height="30" fill="#15151E"/>
+    <rect x="52" y="7" width="5" height="17" fill="#4781D7" transform="skewX(-14)"/>
+    <text x="70" y="22" class="code">VER</text>
+    <text x="330" y="22" text-anchor="end" class="gap gver0">+3.410</text><text x="330" y="22" text-anchor="end" class="gap gver2">+3.388</text>
   </g>
-  <g class="row" style="animation-delay:.9s" transform="translate(0 294)">
-    <rect x="16" width="868" height="50" rx="8" fill="#15151E"/>
-    <text x="40" y="33" fill="#fff" font-size="20" font-weight="900" font-style="italic">P5</text>
-    <rect x="84" y="10" width="5" height="30" fill="#27F4D2"/>
-    <text x="102" y="32" fill="#fff" font-size="19" font-weight="900" letter-spacing="1">SHARED</text>
-    <text x="240" y="31" fill="#B4B4C0" font-size="14">design tokens · brand marks · OpenAPI schema</text>
-    <text class="mono" x="700" y="31" fill="#9298A3" font-size="14" font-weight="700" text-anchor="end">PIT</text>
-    <text class="mono" x="866" y="31" fill="#B4B4C0" font-size="14" text-anchor="end">+1 LAP</text>
+  <g class="mnor" style="transform: translateY(232px)">
+    <rect x="40" width="300" height="30" fill="#15151E"/><rect class="lose" x="40" width="300" height="30" fill="#6E6E7B"/>
+    <rect x="52" y="7" width="5" height="17" fill="#F47600" transform="skewX(-14)"/>
+    <text x="70" y="22" class="code">NOR</text>
+    <text x="330" y="22" text-anchor="end" class="gap gnor0">+5.022</text><g class="gnor2"><rect x="290" y="7" width="40" height="20" fill="#fff"/><text x="310" y="22" text-anchor="middle" class="pit">PIT</text></g>
   </g>
+  <g class="mlec" style="transform: translateY(266px)">
+    <rect x="40" width="300" height="30" fill="#15151E"/><rect class="fl" x="40" width="300" height="30" fill="#B26CFF"/>
+    <rect x="52" y="7" width="5" height="17" fill="#ED1131" transform="skewX(-14)"/>
+    <text x="70" y="22" class="code">LEC</text>
+    <text x="330" y="22" text-anchor="end" class="gap glec0">+6.388</text><text x="330" y="22" text-anchor="end" class="gap glec2">+5.410</text>
+  </g>
+  <g class="mpia" style="transform: translateY(300px)">
+    <rect x="40" width="300" height="30" fill="#15151E"/>
+    <rect x="52" y="7" width="5" height="17" fill="#F47600" transform="skewX(-14)"/>
+    <text x="70" y="22" class="code">PIA</text>
+    <text x="330" y="22" text-anchor="end" class="gap gpia0">+8.150</text><text x="330" y="22" text-anchor="end" class="gap gpia2">+7.120</text>
+  </g>
+  <g class="mhad" style="transform: translateY(334px)">
+    <rect x="40" width="300" height="30" fill="#15151E"/>
+    <rect x="52" y="7" width="5" height="17" fill="#4781D7" transform="skewX(-14)"/>
+    <text x="70" y="22" class="code">HAD</text>
+    <text x="330" y="22" text-anchor="end" class="gap ghad0">+9.904</text><text x="330" y="22" text-anchor="end" class="gap ghad2">+8.870</text>
+  </g>
+  <g class="" style="transform: translateY(368px)">
+    <rect x="40" width="300" height="30" fill="#15151E"/>
+    <rect x="52" y="7" width="5" height="17" fill="#6C98FF" transform="skewX(-14)"/>
+    <text x="70" y="22" class="code">LAW</text>
+    <text x="330" y="22" text-anchor="end" class="gap">+12.31</text>
+  </g>
+  <g class="" style="transform: translateY(402px)">
+    <rect x="40" width="300" height="30" fill="#15151E"/>
+    <rect x="52" y="7" width="5" height="17" fill="#00A1E8" transform="skewX(-14)"/>
+    <text x="70" y="22" class="code">GAS</text>
+    <text x="330" y="22" text-anchor="end" class="gap">+13.08</text>
+  </g>
+  </g>
+
+  <!-- battle panel -->
+  <g transform="translate(440 96)">
+    <text fill="#6E6E7B" font-size="12" font-weight="800" letter-spacing="2.5" y="12">BATTLE FOR P2</text>
+    <text y="62" fill="#fff" font-size="40" font-weight="900" font-style="italic">HAM</text>
+    <text x="118" y="62" fill="#6E6E7B" font-size="22" font-weight="900" font-style="italic">VS</text>
+    <text x="164" y="62" fill="#fff" font-size="40" font-weight="900" font-style="italic">RUS</text>
+    <rect y="84" width="400" height="10" fill="#22222C"/>
+    <rect class="gapbar" y="84" width="400" height="10" fill="#E10600" style="transform: scaleX(.67)"/>
+    <text y="118" fill="#B4B4C0" font-size="12" font-weight="800" letter-spacing="2">GAP TO CAR AHEAD</text>
+    <g class="drs" transform="translate(330 104)"><rect width="70" height="22" fill="#2CD46B"/><text x="35" y="16" text-anchor="middle" fill="#0E0E14" font-size="13" font-weight="900" letter-spacing="2">DRS</text></g>
+  </g>
+
+  <!-- fastest lap banner -->
+  <defs><clipPath id="panel"><rect x="440" y="280" width="460" height="100"/></clipPath></defs>
+  <g clip-path="url(#panel)"><g transform="translate(440 300)">
+    <g class="banner" style="transform: translateX(480px)">
+      <rect width="420" height="64" fill="#B26CFF"/>
+      <rect width="420" height="64" fill="#15151E" x="8"/>
+      <text x="28" y="26" fill="#B26CFF" font-size="12" font-weight="900" letter-spacing="2.5">FASTEST LAP</text>
+      <text x="28" y="52" fill="#fff" font-size="22" font-weight="900" font-style="italic">LEC</text>
+      <text x="96" y="52" fill="#fff" font-size="22" font-weight="700">1:36.112</text>
+      <text x="400" y="52" text-anchor="end" fill="#6E6E7B" font-size="12" font-weight="800" letter-spacing="2">LAP 35</text>
+    </g>
+  </g></g>
+  <text x="876" y="440" text-anchor="end" fill="#33333F" font-size="11" font-weight="800" letter-spacing="2">THE LIVE TIMING WIDGET, LARGE</text>
 </svg>

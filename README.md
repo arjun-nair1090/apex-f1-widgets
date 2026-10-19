@@ -1,194 +1,112 @@
-<div align="center">
-
-<img src="docs/readme/hero.svg" alt="APEX — lights out and away we go" width="100%">
+<img src="docs/readme/hero.svg" alt="APEX: lights out and away we go" width="100%">
 
 <br>
 
-<a href="#-the-widgets"><img src="https://img.shields.io/badge/widgets-10-E10600?style=for-the-badge&labelColor=15151E" alt="10 widgets"></a>
-<a href="#-pit-lane-setup"><img src="https://img.shields.io/badge/platforms-iOS%20%C2%B7%20Android%20%C2%B7%20Windows-F5F7FA?style=for-the-badge&labelColor=15151E" alt="platforms"></a>
-<a href="#-telemetry-backend"><img src="https://img.shields.io/badge/live%20timing-OpenF1-FF5A1F?style=for-the-badge&labelColor=15151E" alt="OpenF1 live timing"></a>
+I wanted F1 on my phone and desktop the way the TV graphics show it, without opening an app. So: APEX.
+Ten widgets for iOS, Android and Windows, and the small FastAPI server that feeds them live timing.
 
-<img src="https://img.shields.io/badge/FastAPI-009688?style=flat-square&logo=fastapi&logoColor=white" alt="FastAPI">
-<img src="https://img.shields.io/badge/Python-3.12+-3776AB?style=flat-square&logo=python&logoColor=white" alt="Python 3.12+">
-<img src="https://img.shields.io/badge/SwiftUI-WidgetKit-F05138?style=flat-square&logo=swift&logoColor=white" alt="SwiftUI WidgetKit">
-<img src="https://img.shields.io/badge/Kotlin-Glance-7F52FF?style=flat-square&logo=kotlin&logoColor=white" alt="Kotlin Glance">
-<img src="https://img.shields.io/badge/.NET%2010-WinUI-512BD4?style=flat-square&logo=dotnet&logoColor=white" alt=".NET 10 WinUI">
-<img src="https://img.shields.io/badge/tests-passing-2FD27F?style=flat-square" alt="tests passing">
-
-### *The F1 data layer that lives everywhere.*
-
-Glanceable F1 widgets for your home screen, lock screen, Widgets board and desktop,<br>
-plus the backend that feeds them. **The widgets are the product.** The apps only configure and preview them.
-
-[**Widgets**](#-the-widgets) · [**How it works**](#-how-it-works) · [**Setup**](#-pit-lane-setup) · [**Backend**](#-telemetry-backend) · [**Docs**](#-paddock-docs)
-
-</div>
+Before a session the widget counts down. When the lights go out it switches to live timing on its own, then to
+results, then to the next session. No refresh, no tapping.
 
 <img src="docs/readme/divider.svg" width="100%" alt="">
 
-## 🏁 The widgets
-
-Real renders, straight from `windows/APEX/Assets/Screenshots`. Each one has a small, medium and large size, and
-comes in dark, AMOLED and light themes.
+## The widgets
 
 <table>
 <tr>
-<td align="center" width="20%"><img src="windows/APEX/Assets/Screenshots/Race.png" width="150" alt="APEX Race Mode"><br><sub><b>APEX · Race Mode</b><br>what matters <i>now</i></sub></td>
-<td align="center" width="20%"><img src="windows/APEX/Assets/Screenshots/Next.png" width="150" alt="Next session"><br><sub><b>Next session</b><br>what's next, and when</sub></td>
-<td align="center" width="20%"><img src="windows/APEX/Assets/Screenshots/Countdown.png" width="150" alt="Countdown"><br><sub><b>Countdown</b><br>until lights out</sub></td>
-<td align="center" width="20%"><img src="windows/APEX/Assets/Screenshots/Timing.png" width="150" alt="Live timing"><br><sub><b>Live timing</b><br>who's leading, by how much</sub></td>
-<td align="center" width="20%"><img src="windows/APEX/Assets/Screenshots/Driver.png" width="150" alt="Driver"><br><sub><b>Driver</b><br>their season at a glance</sub></td>
+<td align="center" width="20%"><img src="windows/APEX/Assets/Screenshots/Race.png" width="150" alt="Race Mode"><br><sub><b>Race Mode</b><br>whatever is happening now</sub></td>
+<td align="center" width="20%"><img src="windows/APEX/Assets/Screenshots/Next.png" width="150" alt="Next session"><br><sub><b>Next session</b></sub></td>
+<td align="center" width="20%"><img src="windows/APEX/Assets/Screenshots/Countdown.png" width="150" alt="Countdown"><br><sub><b>Countdown</b><br>to lights out</sub></td>
+<td align="center" width="20%"><img src="windows/APEX/Assets/Screenshots/Timing.png" width="150" alt="Live timing"><br><sub><b>Live timing</b></sub></td>
+<td align="center" width="20%"><img src="windows/APEX/Assets/Screenshots/Driver.png" width="150" alt="Driver"><br><sub><b>Driver</b><br>season so far</sub></td>
 </tr>
 <tr>
-<td align="center"><img src="windows/APEX/Assets/Screenshots/Favourite.png" width="150" alt="Favourite driver"><br><sub><b>Favourite driver</b><br>whatever matters right now</sub></td>
-<td align="center"><img src="windows/APEX/Assets/Screenshots/Wdc.png" width="150" alt="Drivers' championship"><br><sub><b>Drivers' championship</b><br>the title fight</sub></td>
-<td align="center"><img src="windows/APEX/Assets/Screenshots/Wcc.png" width="150" alt="Constructors' championship"><br><sub><b>Constructors'</b><br>team standings</sub></td>
+<td align="center"><img src="windows/APEX/Assets/Screenshots/Favourite.png" width="150" alt="Favourite driver"><br><sub><b>Favourite driver</b><br>live position, result or grid slot</sub></td>
+<td align="center"><img src="windows/APEX/Assets/Screenshots/Wdc.png" width="150" alt="Drivers' championship"><br><sub><b>Drivers' title</b></sub></td>
+<td align="center"><img src="windows/APEX/Assets/Screenshots/Wcc.png" width="150" alt="Constructors' championship"><br><sub><b>Constructors' title</b></sub></td>
 <td align="center"><img src="windows/APEX/Assets/Screenshots/Weekend.png" width="150" alt="Race weekend"><br><sub><b>Race weekend</b><br>every session</sub></td>
-<td align="center"><img src="windows/APEX/Assets/Screenshots/Circuit.png" width="150" alt="Circuit"><br><sub><b>Circuit</b><br>the next track in 3D</sub></td>
+<td align="center"><img src="windows/APEX/Assets/Screenshots/Circuit.png" width="150" alt="Circuit"><br><sub><b>Circuit</b><br>next track, in 3D</sub></td>
 </tr>
 </table>
 
-> [!TIP]
-> **Race Mode** flips itself: countdown → 🔴 LIVE timing → results → next session, right on the start time, with no
-> network call needed. The 3D tracks are built from a real lap of an earlier race at that circuit.
+These are real renders. Every widget comes in small, medium and large, in dark, AMOLED and light.
+
+### Live timing
+
+Gaps, pit stops, fastest laps and overtakes from [OpenF1](https://openf1.org) while a session is on. Your driver is
+highlighted, and if they're further down than the widget has room for, they take the last row.
+
+<div align="center"><img src="docs/readme/tower.svg" width="820" alt="Live timing tower: Hamilton passes Russell with DRS, Norris pits, Leclerc sets the fastest lap"></div>
+
+### The tracks are real
+
+The circuit maps aren't drawings. Each one is a real lap from an earlier race at that track (OpenF1 x / y / z),
+with elevation, so you can see the climb up to turn 1 at COTA.
+
+<img src="docs/readme/track.svg" width="100%" alt="Circuit of the Americas in 3D with three cars racing around it">
 
 <img src="docs/readme/divider.svg" width="100%" alt="">
 
-## 🏎️ The grid
+## Install
 
-<div align="center"><img src="docs/readme/tower.svg" width="820" alt="Timing tower: Windows builds, Android lint clean, iOS needs Xcode, backend tests pass, shared"></div>
+### Windows (desktop, Widgets board, lock screen)
 
-| Folder | What | State |
-|---|---|---|
-| `windows/` | Windows App SDK Widgets Board provider (COM) + Adaptive Cards, WinUI companion window | 🟢 builds |
-| `android/` | Kotlin, Jetpack Glance (9 responsive widgets), WorkManager, Material 3 app | 🟢 builds, lint clean |
-| `ios/` | SwiftUI + WidgetKit (9 widgets, lock screen), App Intents, Live Activity + Dynamic Island | 🟡 source; needs Xcode |
-| `backend/` | FastAPI + SQLAlchemy + Redis/memory cache, Jolpica ingest, OpenF1 live timing, SSE, web preview | 🟢 runs, tests pass |
-| `shared/` | design tokens, brand marks, OpenAPI schema | — |
-
-<img src="docs/readme/divider.svg" width="100%" alt="">
-
-## 📡 How it works
-
-```mermaid
-flowchart LR
-    J["🗓️ Jolpica<br/>schedule · standings · results"]:::src --> I
-    O["⏱️ OpenF1<br/>positions · gaps · laps · pits"]:::src --> L
-
-    subgraph B["⚙️ backend · one deploy"]
-        I[ingest + normalize] --> DB[(SQL)]
-        DB --> C{{cache}}
-        L[live processor] --> C
-        C --> API["FastAPI<br/>REST + SSE"]
-    end
-
-    API -- "GET /api/widgets/snapshot<br/>one call per refresh" --> IOS["🍎 iOS<br/>WidgetKit · Live Activity"]:::client
-    API --> AND["🤖 Android<br/>Glance · WorkManager"]:::client
-    API --> WIN["🪟 Windows<br/>Widgets board · lock screen · desktop"]:::client
-
-    classDef src fill:#15151E,stroke:#FF5A1F,color:#fff
-    classDef client fill:#15151E,stroke:#E10600,color:#fff,stroke-width:2px
-    style B fill:#0E0E14,stroke:#33333F,color:#B4B4C0
-```
-
-<details>
-<summary><b>🧠 Why it's built this way</b> (click to open)</summary>
-<br>
-
-| Decision | Why |
-|---|---|
-| **One snapshot endpoint** | A widget refresh is one request, not six. Battery and network come first. |
-| **Race Mode computed on the client** | Widgets flip *Countdown → LIVE* at the start time without a network request. |
-| **SSE for apps, timelines for widgets** | OS widget processes can't hold sockets; the apps and Live Activities stream, widgets get budgeted reloads. |
-| **Never-empty widgets** | Every client keeps the last snapshot and shows `LAST UPDATED 2m AGO` when the network fails. |
-| **Local session notifications** | Start times are known days ahead, so no push infrastructure is needed. |
-
-Full story in [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
-
-</details>
-
-<img src="docs/readme/divider.svg" width="100%" alt="">
-
-## 🔧 Pit lane setup
-
-Pick your platform. Every box opens.
-
-<details open>
-<summary><h3>🪟 Windows · desktop, Widgets board, lock screen</h3></summary>
-
-One script does everything on your PC: builds the app, registers its widgets with the Widgets board, and runs the
-data server now and at every logon (hidden, logs in `backend/apex.log`). Turn on **Developer Mode** first
-(Settings → System → Advanced), then:
+Turn on **Developer Mode** (Settings → System → Advanced), then:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File windows\install.ps1
 ```
 
-> [!NOTE]
-> No .NET SDK on your `PATH`? Point the script at one: `-Dotnet <path to dotnet.exe>`. The app targets .NET 10.
+That builds the app, registers the widgets and starts the data server, now and at every logon (it runs hidden and
+logs to `backend/apex.log`). No .NET SDK on your `PATH`? Pass `-Dotnet <path to dotnet.exe>`; the app targets .NET 10.
+Re-run it after pulling. It installs as a package update, so widgets you've pinned stay where they are.
 
-You get APEX in three places:
+Where they show up:
 
-| Where | How |
-|---|---|
-| 🖥️ **Desktop** | Frameless F1-style widgets on the right edge of the screen (Race Mode and your favourite driver to start). Drag to move, right-click to resize or remove. Add more from the **APEX** app (Start menu → On your desktop). They start at every logon. |
-| 📌 **Widgets board** | <kbd>Win</kbd> + <kbd>W</kbd> → **+** (Add widgets) → APEX. Each widget's menu → **Customize** sets its driver and density. |
-| 🔒 **Lock screen** | Settings → Personalization → Lock screen → Widgets → add an APEX widget (small ones fit there). |
+- **Desktop:** frameless widgets down the right edge. Drag to move, right-click to resize or remove. Add more from the
+  APEX app in the Start menu.
+- **Widgets board:** <kbd>Win</kbd> + <kbd>W</kbd> → **+** → APEX. **Customize** in a widget's menu sets the driver and density.
+- **Lock screen:** Settings → Personalization → Lock screen → Widgets. Windows only allows the small size there, so
+  each widget has a wide layout built for that tile.
 
-The board and lock screen show a picture of the same widget the desktop shows (taken by an offscreen WebView2 at
-the board's tile size, refreshed when its data changes, at most once a minute). If the data server can't be reached
-they fall back to plain text cards.
-
-Open **APEX** from the Start menu to pick your driver (cards show each driver's portrait, helmet and number), browse every
-widget as a live preview and add it to the desktop in one click. The **Circuit** widget, and the space in Next
-session and Countdown, show the upcoming track in 3D, built from a real lap of an earlier race there
-(`GET /api/races/{round}/track`; new circuits get a map after their first race).
-
-> [!IMPORTANT]
-> Re-run the script after pulling changes. It installs each build as a package update, so pinned widgets stay.
+The board and lock screen can't run web pages, so they show a picture of the desktop widget. An offscreen WebView2
+retakes it when the data changes, at most once a minute. If the server is down they fall back to plain text cards.
 
 <details>
-<summary><b>🛠️ Debugging without the board</b></summary>
+<summary>Debugging without the board</summary>
 <br>
 
 - `APEX.exe -DumpImages <dir> [driver]` writes the picture every widget would show, at every size.
 - `APEX.exe -DumpCards <dir> [driver]` writes the text-card fallback (template and data).
-- After changing how the widgets look, refresh the **Add widgets** previews: `APEX.exe -DumpImages <dir> max_verstappen`,
-  then `backend\.venv\Scripts\python windows\screenshots.py <dir>`, and re-run the install script.
-- WinUI crashes are logged to `%LOCALAPPDATA%\APEX\crash.log`.
+- To refresh the **Add widgets** previews after a design change: `APEX.exe -DumpImages <dir> max_verstappen`, then
+  `backend\.venv\Scripts\python windows\screenshots.py <dir>`, then re-run the install script.
+- WinUI crashes go to `%LOCALAPPDATA%\APEX\crash.log`.
 
 </details>
-</details>
 
-<details>
-<summary><h3>🤖 Android · Jetpack Glance</h3></summary>
+### Android (Jetpack Glance)
 
 ```sh
 cd android
-./gradlew assembleDebug -PapexBaseUrl=https://your-backend   # default http://10.0.2.2:8077 (emulator → host)
+./gradlew assembleDebug -PapexBaseUrl=https://your-backend   # defaults to http://10.0.2.2:8077 (emulator → host)
 ```
 
-Needs the Android SDK (compileSdk 37) and JDK 17+. Install the APK, open APEX to pick a driver and style, then use
-**Add to home screen** or the launcher's widget picker.
+Needs the Android SDK (compileSdk 37) and JDK 17+. Open the app to pick a driver and a style, then use **Add to home
+screen** or the launcher's widget picker.
 
-</details>
-
-<details>
-<summary><h3>🍎 iOS · WidgetKit + Dynamic Island</h3></summary>
+### iOS (WidgetKit, Live Activity, Dynamic Island)
 
 ```sh
 cd ios
 brew install xcodegen && xcodegen      # → APEX.xcodeproj
 ```
 
-Set your team in `project.yml`, register the App Group `group.club.apex`, and set `APEX_BASE_URL`. The app and the
-widget extension share the snapshot cache and preferences through the App Group.
-
-</details>
+Set your team in `project.yml`, register the App Group `group.club.apex` and set `APEX_BASE_URL`. I haven't built
+this one yet, so expect to fix a thing or two.
 
 <img src="docs/readme/divider.svg" width="100%" alt="">
 
-## 📈 Telemetry (backend)
+## Backend
 
 ```sh
 cd backend
@@ -197,36 +115,49 @@ python -m venv .venv && .venv/Scripts/pip install -r requirements.txt   # .venv/
 .venv/Scripts/python -m pytest -q
 ```
 
-Open **http://localhost:8077** for the widget preview: every widget at every size, live data, the platform and theme
-switches, and simulated situations:
+**http://localhost:8077** shows every widget at every size with live data, and can fake the situations that are
+hard to wait for: lights out, a live race, live qualifying, results, offline, live data unavailable, loading.
 
-`🚦 lights out` `🔴 live race` `🟣 live quali` `🏆 results` `📴 offline` `⚠️ live data unavailable` `⏳ loading`
+It pulls the schedule, standings and results from [Jolpica](https://github.com/jolpica/jolpica-f1) and live timing from
+OpenF1, and hands each widget everything it needs in one request (`GET /api/widgets/snapshot`). Widgets work out
+for themselves when a session starts, so they flip to live on time even if the last refresh was an hour ago. If the
+network drops, they keep showing the last data with a "last updated" note instead of going blank.
+
+```mermaid
+flowchart LR
+    J["Jolpica<br/>schedule · standings · results"]:::src --> I
+    O["OpenF1<br/>positions · gaps · laps · pits"]:::src --> L
+    subgraph B["backend"]
+        I[ingest] --> DB[(SQL)]
+        DB --> C{{cache}}
+        L[live timing] --> C
+        C --> API["FastAPI<br/>REST + SSE"]
+    end
+    API --> IOS["iOS"]:::client
+    API --> AND["Android"]:::client
+    API --> WIN["Windows"]:::client
+    classDef src fill:#15151E,stroke:#6E6E7B,color:#fff
+    classDef client fill:#15151E,stroke:#E10600,color:#fff,stroke-width:2px
+    style B fill:#0E0E14,stroke:#33333F,color:#B4B4C0
+```
 
 <details>
-<summary><b>🎛️ Environment variables</b></summary>
+<summary>Environment variables</summary>
 <br>
 
-Configure with env vars (see `backend/.env.example`). Leave them unset and it runs on SQLite with an in-memory cache.
+All optional (see `backend/.env.example`). With none set it runs on SQLite with an in-memory cache.
 
-| Var | Purpose |
+| Variable | What it does |
 |---|---|
 | `DATABASE_URL` | `postgresql+psycopg://…` in production |
 | `REDIS_URL` | shared cache when running several workers |
-| `OPENF1_TOKEN` | paid OpenF1 key, **required for real-time timing during sessions** (historical data is free) |
-| `API_KEY` | when set, every `/api` call needs `X-API-Key` |
-| `EXTRA_SEASONS` | e.g. `2025`: past seasons for the Driver widget's season option |
-| `BACKGROUND_JOBS` | `0` on every replica but one, so only one process polls Jolpica and OpenF1 |
+| `OPENF1_TOKEN` | paid OpenF1 key. You need it for real-time timing during sessions; historical data is free |
+| `API_KEY` | when set, every `/api` call needs an `X-API-Key` header |
+| `EXTRA_SEASONS` | e.g. `2025`, for past seasons in the Driver widget |
+| `BACKGROUND_JOBS` | set to `0` on all but one replica, so only one process polls Jolpica and OpenF1 |
 
-</details>
-
-<details>
-<summary><b>🚀 Production notes</b></summary>
-<br>
-
-Behind a reverse proxy, start uvicorn with `--forwarded-allow-ips=<proxy ip>` so rate limiting sees real client IPs
-rather than the proxy's.
-
-Regenerate the API contract after schema changes:
+Behind a reverse proxy, start uvicorn with `--forwarded-allow-ips=<proxy ip>` so rate limiting sees real client IPs.
+After schema changes, regenerate the API contract:
 
 ```sh
 python -c "import json; from apex.main import app; json.dump(app.openapi(), open('../shared/api-schema/openapi.json','w'), indent=1)"
@@ -234,20 +165,16 @@ python -c "import json; from apex.main import app; json.dump(app.openapi(), open
 
 </details>
 
-<img src="docs/readme/divider.svg" width="100%" alt="">
-
-## 📚 Paddock docs
+## What's where
 
 | | |
 |---|---|
-| 🏗️ [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) | product + backend architecture, schema, API, roadmap |
-| 🎨 [`docs/DESIGN_SYSTEM.md`](docs/DESIGN_SYSTEM.md) | brand, tokens, every widget spec |
-| 📜 [`APEX_F1_Widget_Master_Prompt.md`](APEX_F1_Widget_Master_Prompt.md) | the spec it was all built from |
-| 🎯 [`shared/`](shared) | design tokens, brand marks, OpenAPI schema |
+| `windows/` | Widgets board provider (COM, Adaptive Cards), desktop widgets and the WinUI app. Builds. |
+| `android/` | Kotlin, Jetpack Glance, WorkManager. Builds, lint clean. |
+| `ios/` | SwiftUI, WidgetKit, App Intents, Live Activity. Source only so far; needs Xcode. |
+| `backend/` | FastAPI, SQLAlchemy, Redis or in-memory cache, and the web preview. Tests pass. |
+| `shared/` | Design tokens, logo, OpenAPI schema. |
+| `docs/` | [Architecture](docs/ARCHITECTURE.md) and the [design system](docs/DESIGN_SYSTEM.md). |
 
-<div align="center">
 <br>
-<img src="shared/brand/apex-app-icon.svg" width="56" alt="APEX">
-<br>
-<sub><b>CHEQUERED FLAG</b> 🏁 · built for people who check the gap to P2 at dinner</sub>
-</div>
+<p align="center"><img src="shared/brand/apex-app-icon.svg" width="48" alt="APEX"></p>
